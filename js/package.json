@@ -1,0 +1,14 @@
+{
+  "name": "@kaltag1925/test",
+  "main": "3df864dc6f913f5b@254.js",
+  "version": "254.0.0",
+  "homepage": "https://observablehq.com/@kaltag1925/test",
+  "author": {
+    "name": "Davis Bray",
+    "url": "https://observablehq.com/@kaltag1925"
+  },
+  "type": "module",
+  "peerDependencies": {
+    "@observablehq/runtime": "4"
+  }
+}
