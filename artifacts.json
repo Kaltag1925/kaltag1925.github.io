@@ -1,0 +1,1299 @@
+{
+   "UluburunShipwreck": {
+      "artifact": [
+         {
+            "location": [
+               "N14 LL3",
+               "M16 UR1"
+            ],
+            "description": "20% complete, four fragments.",
+            "_type": "Lamp",
+            "_name": "L 5687 (L)"
+         },
+         {
+            "location": [
+               "H17 UL1/3",
+               "H17 LR2",
+               "H19 LL1",
+               "G20 LL"
+            ],
+            "description": "20% complete, six fragments.",
+            "_type": "Lamp",
+            "_name": "L 4310 (L)"
+         },
+         {
+            "location": [
+               "H17 UL1"
+            ],
+            "description": "Intact.",
+            "_type": "Lamp",
+            "_name": "KW 2030 (L)"
+         },
+         {
+            "location": [
+               "H17 LR4"
+            ],
+            "description": "Intact.",
+            "_type": "Lamp",
+            "_name": "KW 1597 (L)"
+         },
+         {
+            "location": [
+               "J13 LL4"
+            ],
+            "description": "95% complete, single fragment.",
+            "_type": "Lamp",
+            "_name": "KW 0139 (L)"
+         },
+         {
+            "location": [
+               "G21"
+            ],
+            "description": "60% complete, single fragment.",
+            "_type": "Lamp",
+            "_name": "KW 2124 (L)"
+         },
+         {
+            "location": [
+               "N20 UR4"
+            ],
+            "description": "Intact. Very sloppy “smoothing striations”, made into thick, wet slip by a tool with a ca. 0.3cm edge width.",
+            "_type": "Lamp",
+            "_name": "KW 3605 (L)"
+         },
+         {
+            "location": [
+               "O19 LR3"
+            ],
+            "description": "Intact.",
+            "_type": "Lamp",
+            "_name": "KW 3797 (L)"
+         },
+         {
+            "location": [
+               "O19 UL4"
+            ],
+            "description": "95% complete, few (exact number undetermined) fragments.",
+            "_type": "Lamp",
+            "_name": "KW 3799 (L)"
+         },
+         {
+            "location": [
+               "O17 UL4"
+            ],
+            "description": "95% complete, undetermined number of fragments.",
+            "_type": "Lamp",
+            "_name": "KW 4268 (L)"
+         },
+         {
+            "location": [
+               "N16 LL1"
+            ],
+            "description": "Intact. Sloppy “smoothing striations”, scribbled with a bluntly pointed tool (cf. blunt pencil).",
+            "_type": "Lamp",
+            "_name": "KW 4859 (L)"
+         },
+         {
+            "location": [
+               "N15 UR4"
+            ],
+            "description": "95% complete, four fragments.",
+            "_type": "Lamp",
+            "_name": "KW 0212 (L)"
+         },
+         {
+            "location": [
+               "N14 1/2Left",
+               "N15 UL"
+            ],
+            "description": "95% complete, three fragments.",
+            "_type": "Lamp",
+            "_name": "KW 1557 (L)"
+         },
+         {
+            "location": [
+               "O15 UL1",
+               "N15 LR2",
+               "N16 UL4"
+            ],
+            "description": "85% complete, five fragments.",
+            "_type": "Lamp",
+            "_name": "KW 2720 (L)"
+         },
+         {
+            "location": [
+               "N16 UR3"
+            ],
+            "description": "99% complete, many fragments..",
+            "_type": "Lamp",
+            "_name": "KW 3181 (L)"
+         },
+         {
+            "location": [
+               "O16 UL2"
+            ],
+            "description": "90% complete, many fragments.",
+            "_type": "Lamp",
+            "_name": "KW 3190 (L)"
+         },
+         {
+            "location": [
+               "O20 UL4",
+               "N21 UR2",
+               "O20 LL1"
+            ],
+            "description": "95% complete, fifteen fragments.",
+            "_type": "Lamp",
+            "_name": "KW 3428 (L)"
+         },
+         {
+            "location": [
+               "N16 LR3"
+            ],
+            "description": "98% complete, single fragment.",
+            "_type": "Lamp",
+            "_name": "KW 4111 (L)"
+         },
+         {
+            "location": [
+               "O18 LL",
+               "N20 UR"
+            ],
+            "description": "80% complete, two fragments.",
+            "_type": "Lamp",
+            "_name": "KW 4467 (L)"
+         },
+         {
+            "location": [
+               "N17 UL4",
+               "N17 UR3",
+               "N18 UR4"
+            ],
+            "description": "60% complete, four fragments.",
+            "_type": "Lamp",
+            "_name": "KW 4513 (L)"
+         },
+         {
+            "location": [
+               "O19 UR1",
+               "O19 LR3"
+            ],
+            "description": "98% complete, single fragment.",
+            "_type": "Lamp",
+            "_name": "KW 5915 (L)"
+         },
+         {
+            "location": [
+               "O15 LR1",
+               "O16 UR2",
+               "O16 LL2"
+            ],
+            "description": "85% complete, four fragments.",
+            "_type": "Lamp",
+            "_name": "KW 5920 (L)"
+         },
+         {
+            "location": [
+               "I15 UL"
+            ],
+            "description": "Base-ring Handle.",
+            "_type": "Base-ring Bowl",
+            "_name": "L 2116 (BR)"
+         },
+         {
+            "location": [
+               "H18 UL",
+               "H18",
+               "G20 LR4",
+               "F22 LR4",
+               "F20 Bottom3/4Right"
+            ],
+            "description": "Base-ring bowl (carinated rim). 20% complete, nine fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "L 3443 (BR)"
+         },
+         {
+            "location": [
+               "H18 UL",
+               "F23 LeftEdge"
+            ],
+            "description": "Base-ring bowl (carinated rim). 20% complete, seven fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "L 4906 (BR)"
+         },
+         {
+            "location": [
+               "H17 UL",
+               "G20 UR4",
+               "G20 LR4"
+            ],
+            "description": "Base-ring bowl (carinated rim). 75% complete, eleven fragments. Stacked with KW 2024, 2047, 2057.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2056 (BR)"
+         },
+         {
+            "location": [
+               "H17 UL"
+            ],
+            "description": "Base-ring bowl (carinated rim). Almost intact (small chip in rim). Stacked with KW 2024, 2056, 2057.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2047 (BR)"
+         },
+         {
+            "location": [
+               "H17 UL"
+            ],
+            "description": "Base-ring bowl (smooth rim). 90% complete, eight fragments. Stacked with KW 2024, 2047, 2056.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2057 (BR)"
+         },
+         {
+            "location": [
+               "H17 UL",
+               "H25 UL4",
+               "F21 LL4",
+               "G19 LL3"
+            ],
+            "description": "Base-ring bowl (carinated rim). 90% complete, four fragments. Stacked with KW 2047, 2056, 2057.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2024 (BR)"
+         },
+         {
+            "location": [
+               "G16 LR",
+               "G23 UR2"
+            ],
+            "description": "Base-ring bowl (carinated rim). Almost intact, handle tip broken off.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2869 (BR)"
+         },
+         {
+            "location": [
+               "L11 U",
+               "L12 LL",
+               "N12 LL1",
+               "K13 LL4"
+            ],
+            "description": "Small base-ring bowl. 80% complete, five fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 0123 (BR)"
+         },
+         {
+            "location": [
+               "G16 LR1",
+               "H17 LL3",
+               "H19 LL1/3",
+               "G16 LL3",
+               "G16 Bottom"
+            ],
+            "description": "Base-ring bowl (smooth rim). 20% complete, four fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "L 6059 (BR)"
+         },
+         {
+            "location": [
+               "M11 UL",
+               "M16 UL",
+               "L12 LR1",
+               "L11 LR2"
+            ],
+            "description": "Base-ring handle, two fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "L 0351 (BR)"
+         },
+         {
+            "location": [
+               "G16 LR1",
+               "F17 LR2",
+               "H20 LL",
+               "I18 LR1/3",
+               "H18 UL2",
+               "H17 LL3"
+            ],
+            "description": "Base-ring bowl (smooth rim). 90% complete, five fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 1949 (BR)"
+         },
+         {
+            "location": [
+               "F20 UL2",
+               "G20 LR4",
+               "F21 LL4"
+            ],
+            "description": "Base-ring bowl (carinated rim). 70% complete, seven fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 1916 (BR)"
+         },
+         {
+            "location": [
+               "J15 UR4",
+               "N15 LR4"
+            ],
+            "description": "Base-ring bowl (carinated rim). 99% complete, five fragments. Stacked with KW 2705.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2704 (BR)"
+         },
+         {
+            "location": [
+               "N15 LR4"
+            ],
+            "description": "2705 Base-ring bowl (carinated rim). Intact. Stacked with KW 2704.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 2705 (BR)"
+         },
+         {
+            "location": [
+               "K16 UL1/2",
+               "G20 LL"
+            ],
+            "description": "Small base-ring bowl. 95% complete, two fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 1906 (BR)"
+         },
+         {
+            "location": [
+               "L12 LR3",
+               "M13 LL4",
+               "F21 LL4"
+            ],
+            "description": "Base-ring bowl (carinated rim). Complete, handle broken off.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 1950 (BR)"
+         },
+         {
+            "location": [
+               "G20 LR4"
+            ],
+            "description": "Base-ring bowl (carinated rim). Almost intact, two small gaps in rim.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 3248 (BR)"
+         },
+         {
+            "location": [
+               "L11 U",
+               "M11 L",
+               "M11 LL",
+               "L12 UR",
+               "L12"
+            ],
+            "description": "Base-ring bowl (smooth rim). 40% complete, five or six fragments.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 0277 (BR)"
+         },
+         {
+            "location": [
+               "N15 UL"
+            ],
+            "description": "Base-ring bowl (smooth rim). 98% complete.",
+            "_type": "Base-ring Bowl",
+            "_name": "KW 0730 (BR)"
+         },
+         {
+            "location": [
+               "M11 LeftEdge",
+               "K15 UL3",
+               "J15",
+               "L12 UL4"
+            ],
+            "_type": "Base-ring Bowl",
+            "_name": "KW 1443 (BR)"
+         },
+         {
+            "location": [
+               "M15 UR"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 1058 (WhSh)"
+         },
+         {
+            "location": [
+               "H18 UL3"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 1502 (WhSh)"
+         },
+         {
+            "location": [
+               "H17 LR3"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 1593 (WhSh)"
+         },
+         {
+            "location": [
+               "M15 MoreLeft"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 1809 (WhSh)"
+         },
+         {
+            "location": [
+               "G16 LL3"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 2137 (WhSh)"
+         },
+         {
+            "location": [
+               "N17 UL3"
+            ],
+            "description": "White Shaved Juglet. 75% complete. Single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3151 (WhSh)"
+         },
+         {
+            "location": [
+               "O18 UL2"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3182 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UR4"
+            ],
+            "description": "White Shaved Juglet. Complete, six fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3218 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UR3"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3222 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UR2"
+            ],
+            "description": "Imitation White Shaved Juglet. 90% complete, single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3223 (WhSh)"
+         },
+         {
+            "location": [
+               "K30 LL4"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3301 (WhSh)"
+         },
+         {
+            "location": [
+               "G33 LR2"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3659 (WhSh)"
+         },
+         {
+            "location": [
+               "O20 UL3"
+            ],
+            "description": "White Shaved juglet. 99% complete, many (exact number undetermined) fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3677 (WhSh)"
+         },
+         {
+            "location": [
+               "O20 UL2"
+            ],
+            "description": "White Shaved juglet. 90% complete, undetermined number of fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3693 (WhSh)"
+         },
+         {
+            "location": [
+               "N16 LR2"
+            ],
+            "description": "White Shaved juglet. 80% complete, single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3949 (WhSh)"
+         },
+         {
+            "location": [
+               "L15 LR2"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 4164 (WhSh)"
+         },
+         {
+            "location": [
+               "F16 Bottom"
+            ],
+            "description": "White Shaved juglet base. Three fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 4699 (WhSh)"
+         },
+         {
+            "location": [
+               "G16 LL3",
+               "H17 UL"
+            ],
+            "description": "White Shaved juglet upper body. 15% complete, five fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 3954 (WhSh)"
+         },
+         {
+            "location": [
+               "G17 UL2"
+            ],
+            "description": "White Shaved juglet base.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 5246 (WhSh)"
+         },
+         {
+            "location": [
+               "G16 Bottom",
+               "F19 UR2"
+            ],
+            "description": "White Shaved juglet partial rim and shoulder, handle. 20% intact, three fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 3635 (WhSh)"
+         },
+         {
+            "location": [
+               "G19 LR4",
+               "G20 UR"
+            ],
+            "description": "White Shaved juglet base and lower body. 20% complete, six fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 4375 (WhSh)"
+         },
+         {
+            "location": [
+               "G20 UL3"
+            ],
+            "description": "White Shaved juglet base. Four fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 3748 (WhSh)"
+         },
+         {
+            "location": [
+               "H20 LL1/2"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 1813 (WhSh)"
+         },
+         {
+            "location": [
+               "L19 Ri"
+            ],
+            "description": "White Shaved Juglet. Intact.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 1933 (WhSh)"
+         },
+         {
+            "location": [
+               "K15 UpperBottom"
+            ],
+            "description": "White Shaved Juglet. 95% complete. Single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 2769 (WhSh)"
+         },
+         {
+            "location": [
+               "N18 UR2",
+               "M16 LR1",
+               "M16 UL4",
+               "M15 LL4",
+               "M15 LL2",
+               "M16 UR2",
+               "M16 UR3",
+               "N17 UL2",
+               "O19 UR1"
+            ],
+            "description": "White Shaved juglet. 70% complete, many (exact number undetermined) fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5908 (WhSh)"
+         },
+         {
+            "location": [
+               "N15 LR3",
+               "M16 UL2",
+               "M16 UR3",
+               "O21 LL2"
+            ],
+            "description": "White Shaved juglet. 45% complete. Several large fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5909 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UL4"
+            ],
+            "description": "White Shaved Juglet. Intact",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5214 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UR4"
+            ],
+            "description": "White Shaved Juglet. Intact",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 4495 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UR4"
+            ],
+            "description": "White Shaved Juglet. Intact",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5253 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UR2",
+               "M16 UR4",
+               "N16 MoreLeft",
+               "N16 UL3/4",
+               "N16 UL1"
+            ],
+            "description": "White Shaved Juglet. 80% complete, undetermined number of fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 3224 (WhSh)"
+         },
+         {
+            "location": [
+               "L16 UR1"
+            ],
+            "description": "White Shaved Juglet. 98% complete, single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5750 (WhSh)"
+         },
+         {
+            "location": [
+               "N16 Left",
+               "O21 UL2",
+               "O20 LL4",
+               "O20 UL4",
+               "O20 UL2"
+            ],
+            "description": "White Shaved juglet. 70% complete, many (exact number undetermined) fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5896 (WhSh)"
+         },
+         {
+            "location": [
+               "N16 LL3"
+            ],
+            "description": "White Shaved Juglet. Intact",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5386 (WhSh)"
+         },
+         {
+            "location": [
+               "O16 LL3",
+               "O17 UL2",
+               "N18 UR4"
+            ],
+            "description": "White Shaved Juglet. 75% complete. Undetermined number of fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 4252 (WhSh)"
+         },
+         {
+            "location": [
+               "P17 UL3"
+            ],
+            "description": "White Shaved Juglet. 98% complete. Single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 4245 (WhSh)"
+         },
+         {
+            "location": [
+               "O16 LL2",
+               "O16 LL3",
+               "O17 LL1",
+               "O17 UR1"
+            ],
+            "description": "White Shaved Juglet. 65% complete. Five fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5894 (WhSh)"
+         },
+         {
+            "location": [
+               "H16 LL3/4"
+            ],
+            "description": "White Shaved juglet base. Mended from many small pieces.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 5037 (WhSh)"
+         },
+         {
+            "location": [
+               "J22 UR1"
+            ],
+            "description": "White Shaved juglet rim and shoulder fragment. Many (fourteen?) fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 7954 (WhSh)"
+         },
+         {
+            "location": [
+               "K31 UR1/3"
+            ],
+            "description": "White Shaved juglet rim and shoulder fragment. 20% complete, single fragment.",
+            "_type": "White Shaved Juglet",
+            "_name": "L 7597 (WhSh)"
+         },
+         {
+            "location": [
+               "M16 UL4",
+               "M16 UR2",
+               "N16 LL2",
+               "N16 UL3",
+               "N16 UL4",
+               "N16 LR1",
+               "O16 LL1",
+               "M20 UR4"
+            ],
+            "description": "White Shaved Juglet. 65% complete. Five fragments.",
+            "_type": "White Shaved Juglet",
+            "_name": "KW 5895 (WhSh)"
+         },
+         {
+            "location": [
+               "J10 UL",
+               "M10 LL",
+               "M10 LR",
+               "L11",
+               "M11 L",
+               "M11 LL",
+               "M11 LL4/LR3",
+               "M12 UR",
+               "M13 LL",
+               "N13 MoreLeft",
+               "L16 LR2",
+               "L26 LR4",
+               "J16 UR1"
+            ],
+            "description": "White Slip (II?) “milkbowl”. 40% complete, many fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5897 (WS)"
+         },
+         {
+            "location": [
+               "L11",
+               "K15 UR3",
+               "M15 UL",
+               "M15 LL4",
+               "M16 UR2",
+               "M16 UR3",
+               "M16 LR1",
+               "N17 LR2",
+               "P17 LL3",
+               "N12 UR",
+               "N13"
+            ],
+            "description": "White Slip IIA “milkbowl”. 25% complete, many fragments. Parallel lines, hatched lozenge chain.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5898 (WS)"
+         },
+         {
+            "location": [
+               "J12 UR4"
+            ],
+            "description": "White Slip “milkbowl” handle fragment. Probably belongs to KW 11, 5735, or 5897.",
+            "_type": "White Slip Milkbowl",
+            "_name": "L 0148 (WS)"
+         },
+         {
+            "location": [
+               "N12 UL2",
+               "K22 UR1",
+               "L28 LR1",
+               "M25"
+            ],
+            "description": "White Slip “milkbowl”.  15% complete, many fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "L 3900 (WS)"
+         },
+         {
+            "location": [
+               "N12 UR2",
+               "N13 L",
+               "O14 LeftEdge",
+               "O14 UL3",
+               "O14 UL4",
+               "N15 UL2",
+               "O15 LL3",
+               "P15 LL1"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  80% complete, more than thirty fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5887 (WS)"
+         },
+         {
+            "location": [
+               "N13 LL",
+               "N13 LR",
+               "N14 Upper",
+               "N14 LR",
+               "O14 UL4",
+               "O14 LL",
+               "M16 UR2",
+               "M16 UR4"
+            ],
+            "description": "White Slip “milkbowl” (small). 75% complete, many fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 1474 (WS)"
+         },
+         {
+            "location": [
+               "N14 UR",
+               "M15",
+               "L16",
+               "L20 UL2",
+               "N19 UL3",
+               "N17 LL3",
+               "N16 UR3",
+               "M16 UR4",
+               "N15 UL"
+            ],
+            "description": "White Slip II Normal “milkbowl” (small).  99% complete, many fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5877 (WS)"
+         },
+         {
+            "location": [
+               "M12 LL",
+               "M14 LL3/4"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  90% complete, several fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5884 (WS)"
+         },
+         {
+            "location": [
+               "O14 UL3",
+               "M15 LR",
+               "N16 UL1",
+               "N17 LR3",
+               "O17 LL2",
+               "O16 LL4",
+               "O14 1/4Left"
+            ],
+            "description": "White Slip IIA “milkbowl”.  95% complete, seventeen fragments. Ladders and palm trees.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5886 (WS)"
+         },
+         {
+            "location": [
+               "N15 LL1"
+            ],
+            "description": "White Slip “milkbowl” handle; no other pieces of this bowl have been recovered.",
+            "_type": "White Slip Milkbowl",
+            "_name": "L 6235 (WS)"
+         },
+         {
+            "location": [
+               "M16 UR1",
+               "M16 UR2",
+               "N16 LL3",
+               "M16 LR4",
+               "M16 LR",
+               "M16 UL4",
+               "M16 LL2",
+               "L16 LR2",
+               "M17 L",
+               "N17 UR3",
+               "N17 UR4",
+               "N23 UR1",
+               "L16 UR3"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  80% complete, many fragments. Six ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5881 (WS)"
+         },
+         {
+            "location": [
+               "N15 LL1",
+               "M15 LL4",
+               "M16 UR1"
+            ],
+            "description": "White Slip II Normal “milkbowl”. 40% complete, many fragments. Six ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 4334 (WS)"
+         },
+         {
+            "location": [
+               "N15 UR3",
+               "M15 LL",
+               "M15 LR3",
+               "M15 LL4",
+               "M16 UL2",
+               "M16 UR4",
+               "M16 LL2",
+               "O21 LL3",
+               "P15 UR1"
+            ],
+            "description": "White Slip II “milkbowl”.  90% complete, ca. twenty fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5879 (WS)"
+         },
+         {
+            "location": [
+               "M16 UR2",
+               "M15 LL4",
+               "M16 LR1",
+               "N18 UL4",
+               "P18 UL1"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  90% complete, many fragments. Six ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5888 (WS)"
+         },
+         {
+            "location": [
+               "M15 LR1",
+               "M16 UL",
+               "M16 UR4",
+               "M16 LR2",
+               "N17 UR3",
+               "N17 UR1",
+               "M16 UR2"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  99% complete, many fragments. Eight ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5878 (WS)"
+         },
+         {
+            "location": [
+               "O15 LL3",
+               "P15 LL3"
+            ],
+            "description": "White Slip II “milkbowl”. Complete.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 3199 (WS)"
+         },
+         {
+            "location": [
+               "L16 UR4"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  99% complete, one large piece, one small fragment. Five ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5670 (WS)"
+         },
+         {
+            "location": [
+               "M16 UL"
+            ],
+            "description": "White Slip II Normal “milkbowl” (small).  Complete. Five ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5734 (WS)"
+         },
+         {
+            "location": [
+               "M16 UL"
+            ],
+            "description": "White Slip II Normal “milkbowl” (small).  Missing handle (= L 134?). Five ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5735 (WS)"
+         },
+         {
+            "location": [
+               "M16 UR1",
+               "O18 UL1",
+               "M16 UL"
+            ],
+            "description": "White Slip “milkbowl”. 99% complete, several fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 3994 (WS)"
+         },
+         {
+            "location": [
+               "N16 LeftEdge",
+               "M16 UR1",
+               "M16 LR2",
+               "N17 UR1"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  90% complete, many fragments. Five ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5885 (WS)"
+         },
+         {
+            "location": [
+               "M16 LL2",
+               "M17 UR1",
+               "M17 UR2",
+               "N17 UL",
+               "N17 UL3",
+               "N18 UL2",
+               "N18 UR1",
+               "O17 LL2",
+               "N17 UR3/4",
+               "N17 UR1",
+               "N16 LL3"
+            ],
+            "description": "White Slip II Normal “milkbowl”.  90% complete, many fragments. Six ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5880 (WS)"
+         },
+         {
+            "location": [
+               "N16 UL4",
+               "N17 UR4"
+            ],
+            "description": "White Slip II Normal “milkbowl”. 97% complete, eight fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 4267 (WS)"
+         },
+         {
+            "location": [
+               "N16 LL3",
+               "N17 UL4"
+            ],
+            "description": "White Slip II Normal “milkbowl” (small).  30% complete, two fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5883 (WS)"
+         },
+         {
+            "location": [
+               "O17 LL4",
+               "O20 LL2",
+               "L31 UL1",
+               "I36 LL3",
+               "J30 LR4",
+               "L25 UR",
+               "L25 UR2"
+            ],
+            "description": "White Slip IIA “milkbowl”. 40% complete, many fragments. Narrow ladders and scribbly zigzags.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 5882 (WS)"
+         },
+         {
+            "location": [
+               "N18 UR1"
+            ],
+            "description": "White Slip II Normal “milkbowl” (small).  99% complete, single piece. Six ladders.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 4577 (WS)"
+         },
+         {
+            "location": [
+               "J12 UR4",
+               "F20 3/4Bottom"
+            ],
+            "description": "White Slip II “milkbowl”. 40% complete, at least three fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 0124 (WS)"
+         },
+         {
+            "location": [
+               "H17 UL2",
+               "G19 LR4",
+               "F21 LR4",
+               "F20 BottomEdgeHalfRight",
+               "G17 UL4"
+            ],
+            "description": "White Slip “milkbowl” (small). 90% complete, many fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 2008 (WS)"
+         },
+         {
+            "location": [
+               "G21 UL1",
+               "G21 UR1/3"
+            ],
+            "description": "White Slip II Normal “milkbowl” (small). Complete, six fragments.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 2743 (WS)"
+         },
+         {
+            "location": [
+               "C29 LL4"
+            ],
+            "description": "White Slip “milkbowl”. 95% complete, three fragments. Drilled holes for handle replacement.",
+            "_type": "White Slip Milkbowl",
+            "_name": "KW 3480 (WS)"
+         },
+         {
+            "location": [
+               "G16 Bottom"
+            ],
+            "description": "White Slip “milkbowl” (small?) handle fragment.",
+            "_type": "White Slip Milkbowl",
+            "_name": "L 4173 (WS)"
+         },
+         {
+            "location": [
+               "O15 LL4"
+            ],
+            "description": "Wall bracket (fine). Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 0229 (WB)"
+         },
+         {
+            "location": [
+               "M14 LeftEdge"
+            ],
+            "description": "Wall bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 0304 (WB)"
+         },
+         {
+            "location": [
+               "N14 Bottom"
+            ],
+            "description": "Wall Bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 0650 (WB)"
+         },
+         {
+            "location": [
+               "M15 LR"
+            ],
+            "description": "Wall Bracket (fine). Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 0759 (WB)"
+         },
+         {
+            "location": [
+               "M16 UL"
+            ],
+            "description": "Wall Bracket (fine). Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 1001 (WB)"
+         },
+         {
+            "location": [
+               "H18 UL"
+            ],
+            "description": "Wall Bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 1539 (WB)"
+         },
+         {
+            "location": [
+               "G20 LL1/2"
+            ],
+            "description": "Wall Bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 1976 (WB)"
+         },
+         {
+            "location": [
+               "H17 UL2/3"
+            ],
+            "description": "Wall Bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 2049 (WB)"
+         },
+         {
+            "location": [
+               "J38 LR"
+            ],
+            "description": "Wall Bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 3033 (WB)"
+         },
+         {
+            "location": [
+               "B30 UL4"
+            ],
+            "description": "Wall Bracket. Complete.",
+            "_type": "Wall Bracket",
+            "_name": "KW 3484 (WB)"
+         },
+         {
+            "location": [
+               "K14 BottomEdge",
+               "K16 LR",
+               "L15 LL",
+               "L16 1/2Left",
+               "L15 BottomEdge",
+               "L16 U",
+               "L16",
+               "F23"
+            ],
+            "description": "",
+            "_type": "Base Ring Juglet",
+            "_name": "KW 5874 (MC)"
+         },
+         {
+            "location": [
+               "K15 LR"
+            ],
+            "description": "",
+            "_type": "Spindle Bottle",
+            "_name": "KW 0844 (MC)"
+         },
+         {
+            "location": [
+               "K13 UL1"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "KW 0037 (MC)"
+         },
+         {
+            "location": [
+               "K12 LR3"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "KW 0087 (MC)"
+         },
+         {
+            "location": [
+               "L10",
+               "M10",
+               "M10 LL",
+               "M11 LR",
+               "M12 LL3",
+               "N16 LL2",
+               "M17"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "KW 0915 (MC)"
+         },
+         {
+            "location": [
+               "L11",
+               "M11",
+               "M11 LL",
+               "L12 UR",
+               "M12 UR"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "KW 1521 (MC)"
+         },
+         {
+            "location": [
+               "K11 BottomEdge"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "L 0361 (MC)"
+         },
+         {
+            "location": [
+               "O14 UL2/4",
+               "O14 UR1/4"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "KW 2558 (MC)"
+         },
+         {
+            "location": [
+               "L15 LR"
+            ],
+            "description": "",
+            "_type": "Lug-Handled Bowl",
+            "_name": "KW 0812 (MC)"
+         }
+      ]
+   }
+}
