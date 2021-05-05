@@ -55,7 +55,6 @@ md`# Test`
       .attr("x", d => x(d.x) + 7)
       .attr("y", d => y(d.y))
       .text(d => d.id);
-  debugger;
   return svg.node()
 }
 );
