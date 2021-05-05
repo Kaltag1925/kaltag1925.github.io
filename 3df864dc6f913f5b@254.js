@@ -1,7 +1,7 @@
 // https://observablehq.com/@kaltag1925/test@254
 export default function define(runtime, observer) {
   const main = runtime.module();
-  const fileAttachments = new Map([["artifacts.json",new URL("./files/48c97e21b470beb968e651c948a71e563352aa08a64eae3eb9dc4b3e1e76f9c88900fdefc490b07cf52d13695c96487db6cb3bdaec616fd2ea7c11d172cae9e7",import.meta.url)]]);
+  const fileAttachments = new Map([["artifacts.json",new URL("",import.meta.url)]]);
   main.builtin("FileAttachment", runtime.fileAttachments(name => fileAttachments.get(name)));
   main.variable(observer()).define(["md"], function(md){return(
 md`# Test`
