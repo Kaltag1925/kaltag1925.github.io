@@ -1,6 +1,6 @@
-# Test
+# This is probably like my 15th fork or something of whatever this was original 🤷‍♂️
 
-https://observablehq.com/@kaltag1925/test@254
+https://observablehq.com/@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t@791
 
 View this notebook in your browser by running a web server in this folder. For
 example:
@@ -14,14 +14,14 @@ import this module directly into your application. To npm install:
 
 ~~~sh
 npm install @observablehq/runtime@4
-npm install https://api.observablehq.com/d/3df864dc6f913f5b.tgz?v=3
+npm install https://api.observablehq.com/d/e98cf432753a4295@791.tgz?v=3
 ~~~
 
 Then, import your notebook and the runtime as:
 
 ~~~js
 import {Runtime, Inspector} from "@observablehq/runtime";
-import define from "@kaltag1925/test";
+import define from "@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t";
 ~~~
 
 To log the value of the cell named “foo”:
