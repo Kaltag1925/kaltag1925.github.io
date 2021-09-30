@@ -171,8 +171,18 @@ for (i = 0; i < coll.length; i++) {
 }
 </script>
 	
-// Load D3 v6
-<script src="https://d3js.org/d3.v6.js"></script>
+	
+	
+<script type="module">
+
+import define from "./index.js";
+import {Runtime, Library, Inspector} from "./runtime.js";
+
+const runtime = new Runtime();
+const main = runtime.module(define, Inspector.into(document.body));
+
+</script>
+
 </body>
 </html>
 
