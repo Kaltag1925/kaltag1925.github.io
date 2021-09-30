@@ -200,12 +200,8 @@ import {Runtime, Library, Inspector} from "./runtime.js";
 const runtime = new Runtime();
 	// Inspector.into(document.body)
 const main = runtime.module(define, name => {
-	const selector = renders[name];
-	if (selector) {
-		return {fulfulled: (value) =>
-			render(document.querySelector(selector), value)}
-	} else {
-		return true;
+	if (name == 'chart') {
+		return new Inspector(document.getElementById("map"))	
 	}
 });
 
