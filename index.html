@@ -1,14 +1,176 @@
 <!DOCTYPE html>
+<html lang="en">
+<head>
+<title>CSS Website Layout</title>
 <meta charset="utf-8">
-<title>This is probably like my 15th fork or something of whatever this was original 🤷‍♂️</title>
-<link rel="stylesheet" type="text/css" href="./inspector.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+/* Style the top navigation bar */
+.topnav {
+  overflow: hidden;
+  background-color: #333;
+}
+
+/* Style the topnav links */
+.topnav a {
+  float: left;
+  display: block;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+/* Change color on hover */
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Create three equal columns that floats next to each other */
+.navigation {
+  float: left;
+  width: 20%;
+  padding: 15px;
+}
+
+.map {
+  float: left;
+  width: 50%
+}
+
+.info {
+  float: left;
+  width: 30%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+
+
+/* Responsive layout - makes the three columns stack on top of each other instead of next to each other */
+@media screen and (max-width:600px) {
+  .navigation {
+  	width: 100%
+  }
+  .map {
+    width: 100%;
+  }
+  .info {
+  	width: 100%;
+  }
+}
+
+/* Style the button that is used to open and close the collapsible content */
+.collapsible {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 0px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+/* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
+.active, .collapsible:hover {
+  background-color: #ccc;
+}
+
+/* Style the collapsible content. Note: hidden by default */
+.content {
+  padding: 0 18px;
+  display: none;
+  overflow: hidden;
+  background-color: #f1f1f1;
+}
+</style>
+</head>
 <body>
-<script type="module">
 
-import define from "./index.js";
-import {Runtime, Library, Inspector} from "./runtime.js";
 
-const runtime = new Runtime();
-const main = runtime.module(define, Inspector.into(document.body));
+<div class="topnav">
+  <a href="#">Reset</a>
+  <a href="#">Screenshot</a>
+  <a href="#">Copylink</a>
+</div>
 
+<div class="row">
+  <div class="navigation">
+    <p>Were you wanna go huh?</p>
+    <button type="button" class="collapsible">Pithoi 1</button>
+    <div class="content">
+      <button type="button" class="collapsible">KW 8830</button>
+      <div class="content">       
+        <button type="button" class="collapsible">Fragment(14H)</button>
+        <div class="content">
+
+        </div>
+        
+        <button type="button" class="collapsible">Fragment(15M)</button>
+        <div class="content">
+
+        </div>
+        
+        <button type="button" class="collapsible">Fragment(1B)</button>
+        <div class="content">
+
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="map">
+     <img src="http://www.superiortrips.com/ShipwreckImages/AlgomaSiteMap.jpg">
+  </div>
+  
+  <div class="info">
+	<h2 id="infoname">KW 3480</h2>
+	<p id="infotext">This is a peice of the wreck :)</p>
+  </div>
+</div>
+
+/* Collapsable Button Script */
+
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;a
+
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function() {
+    this.classList.toggle("active");
+    var content = this.nextElementSibling;
+    if (content.style.display === "block") {
+      content.style.display = "none";
+    } else {
+      content.style.display = "block";
+    }
+    
+	var text = this.textContent || this.innerText; //This is because these are browser dependent might wanna verify
+    var infoname = document.getElementById("infoname");
+    infoname.innerHTML = text;
+    var infoname = document.getElementById("infotext");
+    infotext.innerHTML = "This is element " + text + "!";
+    
+  });
+}
 </script>
+</body>
+</html>
+
+
