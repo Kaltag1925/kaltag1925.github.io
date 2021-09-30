@@ -1,4 +1,4 @@
-// https://observablehq.com/@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t@791
+// https://observablehq.com/@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t@935
 export default function define(runtime, observer) {
   const main = runtime.module();
   const fileAttachments = new Map([["artifacts.json",new URL("./artifacts.json",import.meta.url)]]);
@@ -6,40 +6,25 @@ export default function define(runtime, observer) {
   main.variable(observer()).define(["md"], function(md){return(
 md`# This is probably like my 15th fork or something of whatever this was original 🤷‍♂️`
 )});
-  main.variable(observer("viewof replay1")).define("viewof replay1", ["html"], function(html){return(
-html`<button>Replay`
-)});
-  main.variable(observer("replay1")).define("replay1", ["Generators", "viewof replay1"], (G, _) => G.input(_));
-  main.variable(observer()).define(["replay1","test"], function*(replay1,test)
+  main.variable(observer("chart")).define("chart", ["d3","width","height","objs","x","y","data","xAxis","yAxis","grid"], function(d3,width,height,objs,x,y,data,xAxis,yAxis,grid)
 {
-  replay1;
-  for (let i = 0, n = test.flat().length; i < n; ++i) {
-    yield i;
-  }
-}
-);
-  main.variable(observer("chart")).define("chart", ["replay1","d3","width","height","grid","xAxis","yAxis","objs","x","y","data"], function(replay1,d3,width,height,grid,xAxis,yAxis,objs,x,y,data)
-{
-  replay1;
   
   const svg = d3.create("svg")
   .attr("viewBox", [0, 0, width, height]);
 
-  svg.append("g")
-    .call(grid);
+  const gGrid = svg.append("g")
 
   const gx = svg.append("g")
-    .call(xAxis);
 
   const gy = svg.append("g")
-    .call(yAxis);
+  
   const chart2 = svg.append("g")
   const chart = chart2.append("g")
 
   // Clipping path for the map, above the main chart so that the clipping doesn't move with the pan and zoom
   
   chart2.append('defs')
-      	.append('clipPath')
+      	.append('clipPath') // wont plot look at the zoomable scatter plots plotting
       	.attr('id', 'clip')
       	.append('rect')
       		.attr('x', 30)
@@ -58,21 +43,36 @@ html`<button>Replay`
 
   // Plot the points on the map
   const points = chart.append("g")
-    .attr("stroke", "steelblue")
-    .attr("stroke-width", 1.5)
-    .attr("fill", "steelblue")
-  .selectAll("circle")
+    .selectAll("points")
     .data(objs)
     .join("circle")
       .attr("cx", d => x(d.location.x))
-      .attr("cy", d => y(d.location.y))
+     .attr("cy", d => y(d.location.y))
+      .attr("stroke", "green")
       .attr("data", d => (d))
       .attr("r", 10)
       .attr("locations", d => d.location)
   .style("cursor", "pointer")
+  .style("cursor", "pointer")
       .on("click", mapIconClicked)
 
+  const pointsLabels = chart.append("g")
+    .selectAll("pointLabelText")
+    .data(objs)
+    .join("text")
+      .attr("x", d => x(d.location.x))
+      .attr("y", d => y(d.location.y))
+      .attr("transform", d => `rotate(-45,${x(d.location.x)},${y(d.location.y)})`)
+      .text(d => getText(d))
 
+  function getText(d) {
+    var text = d.objects[0]._name //HOW DO WE KNOW WHICH ONE IS THE TOP ONE???
+    if (d.objects.length > 1) {
+      text += " +" + (d.objects.length - 1)
+    }
+    return text
+  }
+            
   const lines = chart.append("g");
   const overlap = chart.append("g");
 
@@ -136,13 +136,14 @@ const zoom = d3.zoom().scaleExtent([0.5, 32])
 
 function zoomed({transform}) {
   console.log(transform)
-    const zx = 0//transform.rescaleX(x).interpolate(d3.interpolateRound);
-    const zy = 0//transform.rescaleY(y).interpolate(d3.interpolateRound);
+    const zx = transform.rescaleX(x).interpolate(d3.interpolateRound);
+    const zy = transform.rescaleY(y).interpolate(d3.interpolateRound);
     gx.call(xAxis, zx);
-    gy.call(yAxis, zy);
+   gy.call(yAxis, zy);
     chart.attr("transform", transform).attr("stroke-width", 5 / transform.k);
     chart.style("stroke-width", 3 / Math.sqrt(transform.k));
     points.attr("r", 3 / Math.sqrt(transform.k));
+  gGrid.call(grid, zx, zy)
   };
           
   svg.call(zoom)
@@ -157,53 +158,54 @@ function zoomed({transform}) {
   });
 }
 );
-  main.variable(observer("y")).define("y", ["d3","height","margin"], function(d3,height,margin){return(
-d3.scalePoint()
-    .domain("ABCDEFGHIJKLMNOPQ")
-    //.tickValues(["ABCDEFGHIJKLMN"])
-    .range([height - margin.bottom, margin.top])
-)});
-  main.variable(observer("x")).define("x", ["d3","data","margin","width"], function(d3,data,margin,width){return(
+  main.variable(observer("y")).define("y", ["d3","objs","height"], function(d3,objs,height){return(
 d3.scaleLinear()
-    .domain(d3.extent(data.map(a => a.location).flat(), d => d.x)).nice()
-    .range([margin.left, width - margin.right])
+    .domain(d3.extent(objs.map(a => a.location), d => d.y)).nice() //hOW TO MAKE EQUAL SIZED TICKS?
+    .range([height, 0])
 )});
-  main.variable(observer("xAxis")).define("xAxis", ["height","margin","d3","x","width","data"], function(height,margin,d3,x,width,data){return(
-g => g
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(x).ticks(width / 80))
-    .call(g => g.select(".domain").remove())
-    .call(g => g.append("text")
-        .attr("x", width)
-        .attr("y", margin.bottom - 4)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "end")
-        .text(data.x))
+  main.variable(observer("x")).define("x", ["d3","objs","width"], function(d3,objs,width){return(
+d3.scaleLinear()
+    .domain(d3.extent(objs.map(a => a.location), d => d.x)).nice() // how to LIMIT SCROLL
+    .range([0, width])
 )});
-  main.variable(observer("yAxis")).define("yAxis", ["margin","d3","y","data"], function(margin,d3,y,data){return(
-g => g
-    .attr("transform", `translate(${margin.left},0)`)
-    .call(d3.axisLeft(y))
-    .call(g => g.select(".domain").remove())
-    .call(g => g.append("text")
-        .attr("x", -margin.left)
-        .attr("y", 10)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "start")
-        .text(data.y))
+  main.variable(observer("xAxis")).define("xAxis", ["height","d3"], function(height,d3){return(
+(g, x) => g
+    .attr("transform", `translate(0,${height})`)
+    .call(d3.axisTop(x).ticks(12))
+    .call(g => g.select(".domain").attr("display", "none"))
 )});
-  main.variable(observer("grid")).define("grid", ["x","margin","height"], function(x,margin,height){return(
-g => g
+  main.variable(observer("yAxis")).define("yAxis", ["d3","k"], function(d3,k){return(
+(g, y) => g
+    .call(d3.axisRight(y).ticks(12 * k))
+    .call(g => g.select(".domain").attr("display", "none"))
+)});
+  main.variable(observer("grid")).define("grid", ["height","k","width"], function(height,k,width){return(
+(g, x, y) => g
     .attr("stroke", "currentColor")
     .attr("stroke-opacity", 0.1)
-    .call(g => g.append("g")
-      .selectAll("line")
-      .data(x.ticks())
-      .join("line")
+    .call(g => g
+      .selectAll(".x")
+      .data(x.ticks(12))
+      .join(
+        enter => enter.append("line").attr("class", "x").attr("y2", height),
+        update => update,
+        exit => exit.remove()
+      )
         .attr("x1", d => 0.5 + x(d))
-        .attr("x2", d => 0.5 + x(d))
-        .attr("y1", margin.top)
-        .attr("y2", height - margin.bottom))
+        .attr("x2", d => 0.5 + x(d)))
+    .call(g => g
+      .selectAll(".y")
+      .data(y.ticks(12 * k))
+      .join(
+        enter => enter.append("line").attr("class", "y").attr("x2", width),
+        update => update,
+        exit => exit.remove()
+      )
+        .attr("y1", d => 0.5 + y(d))
+        .attr("y2", d => 0.5 + y(d)))
+)});
+  main.variable(observer("k")).define("k", ["height","width"], function(height,width){return(
+height / width
 )});
   main.variable(observer("margin")).define("margin", function(){return(
 {top: 25, right: 20, bottom: 35, left: 40}
@@ -222,9 +224,10 @@ artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map(l => 
 )});
   main.variable(observer("objs")).define("objs", ["data","groupBy"], function(data,groupBy)
 {
-  var o = data.map(a => a = {head: a.location[0].x + " " + a.location[0].y, others: a.location})
+  var o = data.map(a => a = {head: a.location[0].x + " " + a.location[0].y, others: a})
   var ret = []
-  groupBy(o, o => o.head).forEach((v, k) => ret.push({location: {x: k.slice(0,2), y: k.slice(3)}, objects: v})) ////// AAAAAAAAAA
+  var mid = groupBy(o, o => o.head)
+    mid.forEach((v, k) => ret.push({location: {x: k.slice(0,2), y: k.slice(3)}, objects: v.map(x => x.others)})) ////// AAAAAAAAAA
   return ret
 }
 );
@@ -243,19 +246,31 @@ function groupBy(list, keyGetter) {
     return map;
 }
 )});
-  main.variable(observer("locToInts")).define("locToInts", function(){return(
+  main.variable(observer("locToInts")).define("locToInts", ["alphaToInt"], function(alphaToInt){return(
 function locToInts(s) {
   var loc = s.split(" ");
-  const y = loc[0][0]
+  console.log(loc[0][0])
+  const y = alphaToInt(loc[0][0])
+  console.log(y)
   const x = loc[0].slice(1)
   return {x: x, y:y};
 }
 )});
-  main.variable(observer("alphaToInt")).define("alphaToInt", function(){return(
-[{a: "A", n: 52}, {a:"B", n:88}, {a:"C",n:124}, {a:"D", n:160}, {a:"E", n:196}, {a:"F", n:232}, {a:"G", n:268}, {a:"H", n:304}, {a:"I", n:340}, {a:"J", n:376}, {a:"K", n:412}, {a:"L", n:448}, {a:"M", n:484}, {a:"N", n:520},{a:"O", n:556}, {a:"P", n:592},{a:"Q", n:628}].map(e => e = {a: e.a , n:e.n-52})
+  main.variable(observer("alphaIntDicOLD")).define("alphaIntDicOLD", function(){return(
+[{a: "A", n: 0}, {a:"B", n:1}, {a:"C",n:2}, {a:"D", n:3}, {a:"E", n:4}, {a:"F", n:5}, {a:"G", n:6}, {a:"H", n:7}, {a:"I", n:8}, {a:"J", n:9}, {a:"K", n:10}, {a:"L", n:11}, {a:"M", n:12}, {a:"N", n:13},{a:"O", n:14}, {a:"P", n:15},{a:"Q", n:16}]
 )});
-  main.variable(observer("test")).define("test", ["data"], function(data){return(
-data.map(a => a.location.map((frag, index, array) => frag = {x: frag.x, y: frag.y, xNext: array[(index + 1) % array.length].x, yNext: array[(index + 1) % array.length].y}))
+  main.variable(observer("alphaIntDic")).define("alphaIntDic", ["d3"], function(d3){return(
+d3.range(17).map(i => String.fromCharCode(65 + i))
+)});
+  main.variable(observer("alphaToInt")).define("alphaToInt", ["alphaIntDic"], function(alphaIntDic){return(
+function alphaToInt(a) {
+  return alphaIntDic.indexOf(a);
+}
+)});
+  main.variable(observer("intToAlpha")).define("intToAlpha", ["alphaIntDic"], function(alphaIntDic){return(
+function intToAlpha(n) {
+  return alphaIntDic[n]
+}
 )});
   return main;
 }
