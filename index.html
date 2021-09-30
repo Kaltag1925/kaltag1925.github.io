@@ -178,7 +178,7 @@ import define from "./index.js";
 import {Runtime, Library, Inspector} from "./runtime.js";
 const runtime = new Runtime();
 	// Inspector.into(document.body)
-const main = runtime.module(define, document.getElementById("map"));
+const main = runtime.module(define, Inspector.into(document.getElementById("map")));
 // const main = runtime.module(define, name => {
 // 	console.log(name);
 // 	if (name == 'replay1') {
