@@ -181,7 +181,7 @@ const runtime = new Runtime();
 	// Inspector.into(document.body)
 const main = runtime.module(define, name => {
 	if (name == 'chart') {
-		return new Inspector(document.getElementById("map"))	
+		return new Inspector(document.querySelector("#map"))	
 	}
 });
 
