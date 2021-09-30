@@ -180,7 +180,7 @@ const runtime = new Runtime();
 	// Inspector.into(document.body)
 const main = runtime.module(define, name => {
 	if (name == 'chart') {
-		return new Inspector.into(document.querySelector("#map"));	
+		return new Inspector.into(document.getElementById("map"));	
 	}
 });
 
