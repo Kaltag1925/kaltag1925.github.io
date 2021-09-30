@@ -181,7 +181,12 @@ const runtime = new Runtime();
 const main = runtime.module(define, name => {
 	console.log(name);
 	if (name == 'chart') {
-		return new Inspector.into(document.body);	
+		console.log(define);
+		return new Inspector.into(document.body);
+		console.log("Query");
+		console.log(document.querySelection("#map"));
+		console.log("ID");
+		console.log(document.getElementById("map"));
 	}
 });
 
