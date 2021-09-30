@@ -177,26 +177,6 @@ for (i = 0; i < coll.length; i++) {
 
 import define from "./index.js";
 import {Runtime, Library, Inspector} from "./runtime.js";
-	const renders = {
-		"chart": "map"
-	};
-	
-
-	function render(_node, value) {
-		if (!(value instanceOf Element)) {
-			const map = document.getElementById("map")
-			map.innerhtml = value;
-			value = map;
-		}
-		if (_node.firstChild !== value) {
-		  if (_node.firstChild) {
-		    while (_node.lastChild !== _node.firstChild) _node.removeChild(_node.lastChild);
-		    _node.replaceChild(value, _node.firstChild);
-		  } else {
-		    _node.appendChild(value);
-		  }
-		}
-	}
 const runtime = new Runtime();
 	// Inspector.into(document.body)
 const main = runtime.module(define, name => {
