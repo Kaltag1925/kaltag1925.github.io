@@ -179,11 +179,11 @@ import define from "./index.js";
 import {Runtime, Library, Inspector} from "./runtime.js";
 const runtime = new Runtime();
 	// Inspector.into(document.body)
-const main = runtime.module(define, name => {
-	if (name == 'chart') {
-		return new Inspector(document.querySelector("#map"))	
-	}
-});
+const main = runtime.module(Inspector.into(document.body));//define, name => {
+// 	if (name == 'chart') {
+// 		return new Inspector(document.querySelector("#map"))	
+// 	}
+// });
 
 </script>
 
