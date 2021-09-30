@@ -180,13 +180,13 @@ const runtime = new Runtime();
 	// Inspector.into(document.body)
 const main = runtime.module(define, name => {
 	console.log(name);
-	if (name == 'chart') {
+	if (name == 'replay1') {
 		console.log(define);
-		return new Inspector.into(document.body);
 		console.log("Query");
 		console.log(document.querySelection("#map"));
 		console.log("ID");
 		console.log(document.getElementById("map"));
+		return new Inspector.into(document.body);
 	}
 });
 
