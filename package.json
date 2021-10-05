@@ -1,14 +1,27 @@
 {
-  "name": "@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t",
+  "name": "ulub_prototype",
   "main": "e98cf432753a4295@791.js",
-  "version": "791.0.0",
+  "version": "1.0.0",
   "homepage": "https://observablehq.com/@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t",
-  "author": {
-    "name": "Davis Bray",
-    "url": "https://observablehq.com/@kaltag1925"
-  },
+  "author": "Davis Bray (https://observablehq.com/@kaltag1925)",
   "type": "module",
   "peerDependencies": {
     "@observablehq/runtime": "4"
+  },
+  "description": "https://observablehq.com/@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t@791",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaltag1925/kaltag1925.github.io.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kaltag1925/kaltag1925.github.io/issues"
+  },
+  "dependencies": {
+    "@observablehq/runtime": "^4.17.5",
+    "express": "^4.17.1"
   }
 }
