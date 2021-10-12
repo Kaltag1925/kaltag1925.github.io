@@ -1,4 +1,4 @@
-
+node_modules
 # Created by https://www.toptal.com/developers/gitignore/api/windows,git
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,git
 
@@ -44,3 +44,4 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,git
+node_modules
