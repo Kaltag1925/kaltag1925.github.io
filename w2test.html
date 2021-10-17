@@ -6,6 +6,10 @@
     <script type="text/javascript" src="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 	<script src="https://d3js.org/d3.v6.min.js"></script>
+	<script type='text/javascript' > 
+		var objs;
+		var data;
+	</script>
 </head>
 <body>
 
@@ -38,16 +42,13 @@ $(function () {
 	$().w2sidebar({
 		name: 'navigation',
 		img: null,
-		nodes: [
-			{ id: 'L 5037 (WhSh)', text: 'L 5037 (WhSh)'}
-		],
-		onClick: function (event) {
-			console.log(event.target);
-		}
+		nodes: [],
 	});
 	
-	w2ui['layout'].load('main', 'map.html')
-	w2ui['layout'].html('left', w2ui['navigation'])
+	
+	
+	w2ui['layout'].load('main', 'map.html');
+	w2ui['layout'].html('left', w2ui['navigation']);
 });
 
 </script>

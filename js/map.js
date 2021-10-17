@@ -1,13 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-        <script src="https://d3js.org/d3.v6.min.js"></script>
-    </head>
-<body>
-<div id="map"> </div>
-	
-<script type="module">
 const height = 1000;
 
 const width = 1000;
@@ -16,7 +6,7 @@ var k = height / width
 
 var artiJson = await d3.json("artifacts.json")
 console.log(artiJson);
-data = artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map(l => locToInts(l)), description: a.description, _type: a._type, _name: a._name});
+var data = artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map(l => locToInts(l)), description: a.description, _type: a._type, _name: a._name});
 
 /**
  * @description
@@ -46,13 +36,15 @@ function groupBy(list, keyGetter) {
 }
 
   var o = data.map(a => a = {head: a.location[0].x + " " + a.location[0].y, others: a})
-  objs = []
+  var objs = []
   var mid = groupBy(o, o => o.head)
     mid.forEach((v, k) => objs.push({location: {x: k.slice(0,2), y: k.slice(3)}, objects: v.map(x => x.others)})) ////// AAAAAAAAAA
 
 function locToInts(s) {
   var loc = s.split(" ");
+  console.log(loc[0][0])
   const y = alphaToInt(loc[0][0])
+  console.log(y)
   const x = loc[0].slice(1)
   return {x: x, y:y};
 }
@@ -263,43 +255,5 @@ function zoomed({transform}) {
     }
   });
   
-  console.log(data)
-	data.forEach((object) => {
-		var objectName = object._name;
-		var locations = object.location;
-		w2ui['navigation'].add({ id: objectName, text: objectName });
-		locations.forEach((fragment, index) => {
-			var fragmentName = "(" + fragment.x + ", " + fragment.y + ")";
-			w2ui['navigation'].add(objectName, ({ id: objectName + "/" + fragmentName + "-" + index, text: fragmentName, onClick: function(event) {console.log("penis")}}));
-			
-			// this takes a bit maybe we should pregen it
-			
-			
-		});
-	});
-
-/*
-import define from "./index.js";
-import {Runtime, Library, Inspector} from "./runtime.js";
-const runtime = new Runtime();
-	// Inspector.into(document.body)
-const main = runtime.module(define, Inspector.into(document.getElementById("map")));
-// const main = runtime.module(define, name => {
-// 	console.log(name);
-// 	if (name == 'replay1') {
-// 		console.log(define);
-// 		console.log("Query");
-// 		console.log(document.querySelection("#map"));
-// 		console.log("ID");
-// 		console.log(document.getElementById("map"));
-// 		return new Inspector.into(document.body);
-// 	}
-// });
-*/
-
-</script>
-
-</body>
-</html>
-
+  //w2ui
 
