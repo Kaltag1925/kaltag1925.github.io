@@ -16,7 +16,13 @@ var k = height / width
 
 var artiJson = await d3.json("artifacts.json")
 console.log(artiJson);
-data = artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map(l => locToInts(l)), description: a.description, _type: a._type, _name: a._name});
+data = artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map((l, index) => assembleFragment(l, a._name, index)), description: a.description, _type: a._type, _name: a._name});
+
+
+
+
+
+
 
 /**
  * @description
@@ -50,11 +56,14 @@ function groupBy(list, keyGetter) {
   var mid = groupBy(o, o => o.head)
     mid.forEach((v, k) => objs.push({location: {x: k.slice(0,2), y: k.slice(3)}, objects: v.map(x => x.others)})) ////// AAAAAAAAAA
 
-function locToInts(s) {
+function assembleFragment(s, objName, index) {
   var loc = s.split(" ");
   const y = alphaToInt(loc[0][0])
   const x = loc[0].slice(1)
-  return {x: x, y:y};
+  
+  const id = objName + "-" + "(" + x + ", " + y + ")" + "-" + index;
+  
+  return {id: id, x: x, y:y};
 }
 
 var alphaIntDic = d3.range(17).map(i => String.fromCharCode(65 + i)) //dont need this but i was tired mkay?
@@ -158,10 +167,11 @@ var margin = ({top: 25, right: 20, bottom: 35, left: 40})
       .attr("data", d => (d))
       .attr("r", 10)
       .attr("locations", d => d.location)
-  .style("cursor", "pointer")
+	  .attr("id", d =>  "point" + d.location.x + "-" + d.location.y + "")
   .style("cursor", "pointer")
       .on("click", mapIconClicked)
 
+	//add text labels
   const pointsLabels = chart.append("g")
     .selectAll("pointLabelText")
     .data(objs)
@@ -262,7 +272,6 @@ function zoomed({transform}) {
           .call(zoom.transform, d3.zoomIdentity);
     }
   });
-  
   console.log(data)
 	data.forEach((object) => {
 		var objectName = object._name;
@@ -270,14 +279,17 @@ function zoomed({transform}) {
 		w2ui['navigation'].add({ id: objectName, text: objectName });
 		locations.forEach((fragment, index) => {
 			var fragmentName = "(" + fragment.x + ", " + fragment.y + ")";
-			w2ui['navigation'].add(objectName, ({ id: objectName + "/" + fragmentName + "-" + index, text: fragmentName, onClick: function(event) {console.log("penis")}}));
+			w2ui['navigation'].add(objectName, ({ id: objectName + "-" + fragmentName + "-" + index + "-button", text: fragmentName, onClick: function(event) {
+			
+			d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
+			}}));
 			
 			// this takes a bit maybe we should pregen it
 			
 			
 		});
 	});
-
+	
 /*
 import define from "./index.js";
 import {Runtime, Library, Inspector} from "./runtime.js";
