@@ -1,19 +1,27 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-        <script src="https://d3js.org/d3.v6.min.js"></script>
-    </head>
-<body>
-	
-<script type="module">
 const height = 1000;
 
 const width = 1000;
 
 var k = height / width
 
-var artiJson = await d3.json("artifacts.json")
+// returns a promise
+async function wrapperFunc() {
+    try {
+        let r1 = await sd3.json("artifacts.json")
+        return r1;     // this will be the resolved value of the returned promise
+    } catch(e) {
+        console.log(e);
+        throw e;      // let caller know the promise was rejected with this reason
+    }
+}
+
+var artiJson;
+wrapperFunc().then(result => {
+    artiJson = result;
+}).catch(err => {
+    throw err
+});
+
 console.log(artiJson);
 data = artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map((l, index) => assembleFragment(l, a._name, index)), description: a.description, _type: a._type, _name: a._name});
 
@@ -298,49 +306,3 @@ function zoomed({transform}) {
                                   textNode: document.getElementById("text" + e.location.x + "-" + e.location.y),
                                   location:e.location, 
                                   objects: []}))
-  
-  /*
-  console.log(data)
-	data.forEach((object) => {
-		var objectName = object._name;
-		var locations = object.location;
-		w2ui['navigation'].add({ id: objectName, text: objectName });
-		locations.forEach((fragment, index) => {
-			var fragmentName = "(" + fragment.x + ", " + fragment.y + ")";
-			w2ui['navigation'].add(objectName, ({ id: objectName + "-" + fragmentName + "-" + index + "-button", text: fragmentName, onClick: function(event) {
-			
-			d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
-			}}));
-			
-			// this takes a bit maybe we should pregen it
-			
-			
-		});
-	});
-	*/
-	
-/*
-import define from "./index.js";
-import {Runtime, Library, Inspector} from "./runtime.js";
-const runtime = new Runtime();
-	// Inspector.into(document.body)
-const main = runtime.module(define, Inspector.into(document.getElementById("map")));
-// const main = runtime.module(define, name => {
-// 	console.log(name);
-// 	if (name == 'replay1') {
-// 		console.log(define);
-// 		console.log("Query");
-// 		console.log(document.querySelection("#map"));
-// 		console.log("ID");
-// 		console.log(document.getElementById("map"));
-// 		return new Inspector.into(document.body);
-// 	}
-// });
-*/
-
-</script>
-
-</body>
-</html>
-
-
