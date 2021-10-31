@@ -62,6 +62,57 @@ $(function () {
     });
     var bp = []
 
+  $().w2toolbar({
+    name: 'main-toolbar',
+    items: [
+      { type: 'button', id: 'reset', text: 'Reset' },
+      { type: 'button', id: 'save-export', text: 'Save/Export', onClick() { w2confirm({
+        msg: saveToCode(),
+        title: 'Confirmation',
+        width: 450,        // width of the dialog
+        height: 220,       // height of the dialog
+        btn_yes: {
+            text  : 'Copy', // text for yes button (or yes_text)
+            class : '',    // class for yes button (or yes_class)
+            style : '',    // style for yes button (or yes_style)
+            click : console.log(JSON.stringify(state))   // callBack for yes button (or yes_callBack)
+        },
+        btn_no: {
+            text  : 'Close',  // text for no button (or no_text)
+            class : '',    // class for no button (or no_class)
+            style : '',    // style for no button (or no_style)
+            click : null   // callBack for no button (or no_callBack)
+        },
+        callBack: null,    // common callBack
+        onOpen: null,      // event when popup is opened
+        onClose: null      // event when popup is closed
+      })}},
+
+      { type: 'button', id: 'load', text: 'Load', onClick() { w2prompt({
+          label: 'Enter',
+          value: '2',
+          attrs: 'style="width: 200px"',
+          title: w2utils.lang('Notification'),
+          ok_text: w2utils.lang('Ok'),
+          ok_class: 'ok-class',
+          cancel_text: w2utils.lang('Cancel'),
+          cancel_class: 'cancel-class',
+          width: 400,
+          height: 200
+      })
+      .change((event) => {
+          console.log('change', event);
+      })
+      .ok((event) => {
+          loadFromCode(event);
+      });}}
+    ]
+  })
+
+  function saveExport() {
+      
+    }
+
   $().w2layout({
     name: 'left-pane',
     panels: [
@@ -147,10 +198,12 @@ $(function () {
 	})
 
   
+  w2ui['layout'].html('top', w2ui['main-toolbar']);
 	w2ui['layout'].html('left', w2ui['left-pane']);
   w2ui['left-pane'].html('top', w2ui['navigation-toolbar']);
   w2ui['left-pane'].html('main', w2ui['navigation']);
 	w2ui['left-pane'].html('bottom', w2ui['filter']);
+  
 });
 
 </script>
@@ -447,6 +500,9 @@ $(function () {
                                       textNode: document.getElementById("text" + e.location.x + "-" + e.location.y),
                                       location:e.location, 
                                       objects: []}))
+
+      // Divider
+      loadState(null)
       
       /*
       console.log(data)
@@ -488,18 +544,17 @@ $(function () {
     */
     
 </script>
-<script type='module'>
+<script type='text/javascript'>
   var state;
-  //loadFromURL()
 
   function loadState(loaded) {
     if (loaded == null) {
-      var objectStates = data.map(o => ({id: o.name, 
+      var objectStates = data.map(o => ({id: o._name, 
                                     hidden: false,
                                     fragments: o.location.map((f, index) => ({id: getFragmentName(f.x, f.y, index), hidden: false}))
                                   }));
 
-      state = {filters: {rocks: true, lines: true}, objects: objectStates};
+      state = {filters: {rocks: true, lines: true}, objectStates: objectStates};
       loadState(state);
     } else {
       loaded.objectStates.forEach(o => {if (!o.hidden) hideObject(o.id, false)});
@@ -507,13 +562,10 @@ $(function () {
   }
 
   function hideObject(id, hide) {
-    state.find(o => o.id == id).hidden = hide;
+    state.objectStates.find(o => o.id == id).hidden = hide;
 
     let object = data.find(o => o._name = id);
     let locationsToUpdate = objectsByDots.filter(e => object.location.some(l => compareLocation(e.location, l)));
-
-    console.log("going to update")
-    updateURL()
 
     if (hide) {
       locationsToUpdate.forEach(e => e.objects = e.objects.filter(o => o._name != object._name))
@@ -542,28 +594,20 @@ $(function () {
       });
     }
   }
+  
 
   function hideFragment(id) {
 
   }
 
-  function updateURL() {
-    let IExplorerAgent = userAgentString.indexOf("MSIE") > -1 || 
-                     userAgentString.indexOf("rv:") > -1;
-    if (IExplorerAgent) {
-      // Oh no
-      console.log("cant do this on a IE browser")
-    } else {
-      console.log("updating")
-      const url = new URL(`https://kaltag1925.github.io/`);
-      url.search = new URLSearchParams(state);
-      const response = await fetch(url);
-    }
+  function saveToCode() {
+    console.log("saving")
+    return JSON.stringify(state)
+    
   }
 
-  function loadFromURL() {
-    var search = location.search.substring(1);
-    state = JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g,'":"') + '"}', function(key, value) { return key===""?value:decodeURIComponent(value) })
+  function loadFromCode(code) {
+    state = JSON.parse(code)
     loadState(state)
   }
 
