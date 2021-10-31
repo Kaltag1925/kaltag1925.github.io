@@ -14,6 +14,10 @@
         function compareLocation(loc1, loc2) {
             return String(loc1.x) == String(loc2.x) && String(loc1.y) == String(loc2.y)
         }
+
+        function getFragmentName(x, y, index) {
+          return "(" + x + ", " + y + ")-" + index
+        }
 	</script>
 </head>
 <body>
@@ -49,19 +53,60 @@ $(function () {
     $('#layout').w2layout({
         name: 'layout',
         panels: [
-            { type: 'top', size: 50, style: pstyle, content: 'top', resizable: true },
-            { type: 'left', size: 100, style: pstyle, content: 'left', resizable: true },
-            { type: 'main', size: 200, style: pstyle, html: `<div id='map'></div>`, resizable: true },
-			{ type: 'right', content: 'right', resizable: true }
+            { type: 'top', style: pstyle, content: 'top', resizable: true },
+            { type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
+            { type: 'main', style: pstyle, html: `<div id='map'></div>`, resizable: false },
+			      { type: 'right', content: 'right', resizable: true }
+            //https://stackoverflow.com/questions/16510991/how-can-i-make-a-layout-widget-expand-to-full-height-in-w2ui
         ]
     });
     var bp = []
+
+  $().w2layout({
+    name: 'left-pane',
+    panels: [
+      { type: 'top', size: 50, style: pstyle},
+      { type: 'main', size: 500, style: pstyle, resizable: true },
+      { type: 'bottom', size: 200, style: pstyle }
+    ]
+  });
+
+  $().w2toolbar({
+    name: 'navigation-toolbar',
+    items: [
+      { type: 'menu-radio', id: 'navigation-sortby',
+          text(item) {
+            let text = item.selected;
+            let el = this.get('navigation-sortby:' + item.selected);
+            return 'Sort by: ' + el.text;
+          },
+          selected: 'sortby-name',
+          items: [
+            { id: 'sortby-name', text: 'Name' },
+            { id: 'sortby-type', text: 'Type' },
+            { id: 'sortby-id', text: 'ID'}
+          ]
+      },
+      { type: 'menu-check', id: 'navigation-filter', text: 'Filter',
+        selected: ['lot', 'kw'],
+        onRefresh(event){
+          console.log(event)
+          event.item.count = event.item.selected.reduce((a,b) => a + event.item.items.find(i => i.id == b).count, 0);
+        },
+        items: [
+          { id: 'kw', text: 'KW', count: 100 },
+          { id: 'lot', text: 'Lots', count: 400}
+        ]
+      }
+    ]
+  })
+
 	$().w2sidebar({
 		name: 'navigation',
 		img: null,
 		handle: {
 			size: 18,
-			style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
+			//style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
 			content: `<div onclick="w2ui.navigation.toggle(this, event)"
                 ${w2utils.tooltip('Toggle visability', { className: 'w2ui-light', left: -6, position: 'top|bottom' })}></div>`
 		},
@@ -69,52 +114,22 @@ $(function () {
 		toggle(el) {
             // shoulda probably have done this D3 style?
 			let node = $(el).closest('.w2ui-node');
-			console.log(node);
-			let id = node[0].id.substring(5) //dangerous should use regex
-            let object = data.find(o => o._name = id)
-            let locationsToUpdate = objectsByDots.filter(e => object.location.some(l => compareLocation(e.location, l)))
-			console.log(locationsToUpdate)
-			
-			let nodeID = $(el).closest('.w2ui-node').attr('id')
+			//let nodeID = $(el).closest('.w2ui-node').attr('id')
+      let id = node[0].id.substring(5) //dangerous should use regex
   
-            if (bp.indexOf(id) != -1) { // Is visible
-                locationsToUpdate.forEach(e => e.objects = e.objects.filter(o => o._name != object._name))
-                // cant toggle away ￣へ￣
-                bp.splice(bp.indexOf(nodeID), 1)
-                $(el).removeClass('toggle')
-				locationsToUpdate.forEach(svgloc => {
-                    if (svgloc.objects.length == 0) {
-                        svgloc.svgNode.setAttribute("visiblity", "hidden")
-                        svgloc.textNode.setAttribute("visibility", "hidden")
-                    } else {
-                        if (svgloc.objects.length == 1) {
-                            svgloc.textNode.innerHTML = svgloc.objects[0]._name
-                        } else {
-                            svgloc.textNode.innerHTML = svgloc.objects[0]._name + " +" + (svgloc.objects.length - 1)
-                        }
-                    }
-                });
-            } else {    // Is hidden
-                bp.push(nodeID)
-                locationsToUpdate.forEach(e => { e.objects.push(object)})
-                
-                $(el).addClass('toggle')
-                // Change Visibility + Text
-				locationsToUpdate.forEach(svgloc => {
-                    svgloc.svgNode.setAttribute("visibility", "visible")
-                    svgloc.textNode.setAttribute("visibility", "visible")
-                    if (svgloc.objects.length == 1) {
-                        svgloc.textNode.innerHTML = svgloc.objects[0]._name
-                    } else {
-                        svgloc.textNode.innerHTML = svgloc.objects[0]._name + " +" + (svgloc.objects.length - 1)
-                    }
-                });
+      if (bp.indexOf(id) != -1) { // Is visible
+          bp.splice(bp.indexOf(id), 1)
+          $(el).removeClass('toggle')
+          hideObject(id, true)
 
-                //Add connection lines
-                
-            }
-            event.preventDefault()
-            event.stopPropagation()
+      } else {    // Is hidden
+          bp.push(id)
+          $(el).addClass('toggle')
+          hideObject(id, false)
+          
+      }
+      event.preventDefault()
+      event.stopPropagation()
 		}
 	});
     
@@ -122,33 +137,20 @@ $(function () {
 		name: 'filter',
 		img: null,
 		nodes: [
-			{ id: 'level-1-1', text: 'Level 1.1', expanded: true,
-                nodes: [
-                    { id: 'level-1-1-1', text: 'Level 1.1.1', count: 5 },
-                    { id: 'level-1-1-2', text: 'Level 1.1.2', count: 6 },
-                    { id: 'level-1-1-3', text: 'Level 1.1.3', count: 12 }
-                ]
-            },
-            { id: 'level-1-2', text: 'Level 1.2', expanded: true,
-                nodes: [
-                    { id: 'level-1-2-1', text: 'Level 1.2.1' },
-                    { id: 'level-1-2-2', text: 'Level 1.2.2' },
-                    { id: 'level-1-2-3', text: 'Level 1.2.3' }
-                ]
-            },
-            { id: 'level-1-3', text: 'Level 1.3', expanded: true,
-                nodes: [
-                    { id: 'level-1-3-1', text: 'Level 1.3.1' },
-                    { id: 'level-1-3-2', text: 'Level 1.3.2' },
-                    { id: 'level-1-3-3', text: 'Level 1.3.3'}
-                ]
-            }
+			{ id: 'show', text: 'Show',
+          nodes: [
+              { id: 'show-rocks', text: 'Rocks' },
+              { id: 'show-lines', text: 'Lines' }
+          ]
+      }
 		]
 	})
 
-	//w2ui['layout'].load('main', 'map.html');
-	w2ui['layout'].html('left', w2ui['navigation']);
-	w2ui['layout'].html('right', w2ui['filter']);
+  
+	w2ui['layout'].html('left', w2ui['left-pane']);
+  w2ui['left-pane'].html('top', w2ui['navigation-toolbar']);
+  w2ui['left-pane'].html('main', w2ui['navigation']);
+	w2ui['left-pane'].html('bottom', w2ui['filter']);
 });
 
 </script>
@@ -485,7 +487,87 @@ $(function () {
     // });
     */
     
-    </script>
+</script>
+<script type='module'>
+  var state;
+  //loadFromURL()
+
+  function loadState(loaded) {
+    if (loaded == null) {
+      var objectStates = data.map(o => ({id: o.name, 
+                                    hidden: false,
+                                    fragments: o.location.map((f, index) => ({id: getFragmentName(f.x, f.y, index), hidden: false}))
+                                  }));
+
+      state = {filters: {rocks: true, lines: true}, objects: objectStates};
+      loadState(state);
+    } else {
+      loaded.objectStates.forEach(o => {if (!o.hidden) hideObject(o.id, false)});
+    } 
+  }
+
+  function hideObject(id, hide) {
+    state.find(o => o.id == id).hidden = hide;
+
+    let object = data.find(o => o._name = id);
+    let locationsToUpdate = objectsByDots.filter(e => object.location.some(l => compareLocation(e.location, l)));
+
+    console.log("going to update")
+    updateURL()
+
+    if (hide) {
+      locationsToUpdate.forEach(e => e.objects = e.objects.filter(o => o._name != object._name))
+      locationsToUpdate.forEach(svgloc => {
+          if (svgloc.objects.length == 0) {
+              svgloc.svgNode.setAttribute("visiblity", "hidden")
+              svgloc.textNode.setAttribute("visibility", "hidden")
+          } else {
+              if (svgloc.objects.length == 1) {
+                  svgloc.textNode.innerHTML = svgloc.objects[0]._name
+              } else {
+                  svgloc.textNode.innerHTML = svgloc.objects[0]._name + " +" + (svgloc.objects.length - 1)
+              }
+          }
+      });
+    } else {
+      locationsToUpdate.forEach(e => { e.objects.push(object)})
+      locationsToUpdate.forEach(svgloc => {
+          svgloc.svgNode.setAttribute("visibility", "visible")
+          svgloc.textNode.setAttribute("visibility", "visible")
+          if (svgloc.objects.length == 1) {
+              svgloc.textNode.innerHTML = svgloc.objects[0]._name
+          } else {
+              svgloc.textNode.innerHTML = svgloc.objects[0]._name + " +" + (svgloc.objects.length - 1)
+          }
+      });
+    }
+  }
+
+  function hideFragment(id) {
+
+  }
+
+  function updateURL() {
+    let IExplorerAgent = userAgentString.indexOf("MSIE") > -1 || 
+                     userAgentString.indexOf("rv:") > -1;
+    if (IExplorerAgent) {
+      // Oh no
+      console.log("cant do this on a IE browser")
+    } else {
+      console.log("updating")
+      const url = new URL(`https://kaltag1925.github.io/`);
+      url.search = new URLSearchParams(state);
+      const response = await fetch(url);
+    }
+  }
+
+  function loadFromURL() {
+    var search = location.search.substring(1);
+    state = JSON.parse('{"' + search.replace(/&/g, '","').replace(/=/g,'":"') + '"}', function(key, value) { return key===""?value:decodeURIComponent(value) })
+    loadState(state)
+  }
+
+</script>
 
 </body>
 </html>
