@@ -76,6 +76,7 @@ $(function () {
             class : '',    // class for yes button (or yes_class)
             style : '',    // style for yes button (or yes_style)
             click : console.log(JSON.stringify(state))   // callBack for yes button (or yes_callBack)
+            // Maybe see if we can copy it to the clickboard automatically with this
         },
         btn_no: {
             text  : 'Close',  // text for no button (or no_text)
@@ -104,6 +105,7 @@ $(function () {
           console.log('change', event);
       })
       .ok((event) => {
+          console.log(event)
           loadFromCode(event);
       });}}
     ]
@@ -176,6 +178,7 @@ $(function () {
       } else {    // Is hidden
           bp.push(id)
           $(el).addClass('toggle')
+          console.log(id)
           hideObject(id, false)
           
       }
@@ -550,21 +553,24 @@ $(function () {
   function loadState(loaded) {
     if (loaded == null) {
       var objectStates = data.map(o => ({id: o._name, 
-                                    hidden: false,
+                                    hidden: true,
                                     fragments: o.location.map((f, index) => ({id: getFragmentName(f.x, f.y, index), hidden: false}))
                                   }));
 
       state = {filters: {rocks: true, lines: true}, objectStates: objectStates};
+      console.log(state)
       loadState(state);
+      console.log(state)
     } else {
-      loaded.objectStates.forEach(o => {if (!o.hidden) hideObject(o.id, false)});
+      loaded.objectStates.forEach(o => {hideObject(o.id, o.hidden)});
     } 
   }
 
   function hideObject(id, hide) {
     state.objectStates.find(o => o.id == id).hidden = hide;
 
-    let object = data.find(o => o._name = id);
+    let object = data.find(o => o._name == id);
+    console.log(object)
     let locationsToUpdate = objectsByDots.filter(e => object.location.some(l => compareLocation(e.location, l)));
 
     if (hide) {
@@ -583,6 +589,7 @@ $(function () {
       });
     } else {
       locationsToUpdate.forEach(e => { e.objects.push(object)})
+      console.log(locationsToUpdate)
       locationsToUpdate.forEach(svgloc => {
           svgloc.svgNode.setAttribute("visibility", "visible")
           svgloc.textNode.setAttribute("visibility", "visible")
@@ -607,8 +614,17 @@ $(function () {
   }
 
   function loadFromCode(code) {
-    state = JSON.parse(code)
-    loadState(state)
+    try {
+      // Probably need to regex
+      state = JSON.parse(code)
+      loadState(state)
+    } catch (e) {
+      if (e instanceof SyntaxError) {
+        w2alert('Invalid code')
+      } else {
+        w2alert('Something bad happened, please email kaltagkaasen@gmail.com with what you did, becuase frankly I did not expect anything to happen. :)')
+      }
+    }
   }
 
 </script>
