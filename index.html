@@ -63,10 +63,10 @@ $(function () {
     var bp = []
 
   $().w2toolbar({
-    name: 'main-toolbar',
+    name: 'mainToolbar',
     items: [
       { type: 'button', id: 'reset', text: 'Reset' },
-      { type: 'button', id: 'save-export', text: 'Save/Export', onClick() { w2confirm({
+      { type: 'button', id: 'saveExport', text: 'Save/Export', onClick() { w2confirm({
         msg: saveToCode(),
         title: 'Confirmation',
         width: 450,        // width of the dialog
@@ -116,7 +116,7 @@ $(function () {
     }
 
   $().w2layout({
-    name: 'left-pane',
+    name: 'leftPane',
     panels: [
       { type: 'top', size: 50, style: pstyle},
       { type: 'main', size: 500, style: pstyle, resizable: true },
@@ -125,12 +125,12 @@ $(function () {
   });
 
   $().w2toolbar({
-    name: 'navigation-toolbar',
+    name: 'navigationToolbar',
     items: [
-      { type: 'menu-radio', id: 'navigation-sortby',
+      { type: 'menu-radio', id: 'navigationSortBy',
           text(item) {
             let text = item.selected;
-            let el = this.get('navigation-sortby:' + item.selected);
+            let el = this.get('navigationSortBy:' + item.selected);
             return 'Sort by: ' + el.text;
           },
           selected: 'sortby-name',
@@ -140,7 +140,7 @@ $(function () {
             { id: 'sortby-id', text: 'ID'}
           ]
       },
-      { type: 'menu-check', id: 'navigation-filter', text: 'Filter',
+      { type: 'menu-check', id: 'navigationFilter', text: 'Filter',
         selected: ['lot', 'kw'],
         onRefresh(event){
           console.log(event)
@@ -193,19 +193,31 @@ $(function () {
 		nodes: [
 			{ id: 'show', text: 'Show',
           nodes: [
-              { id: 'show-rocks', text: 'Rocks' },
-              { id: 'show-lines', text: 'Lines' }
+              { id: 'showRocks', text: 'Rocks' },
+              { id: 'showLines', text: 'Lines' }
           ]
       }
 		]
 	})
 
+  $().w2tabs({
+    name: 'rightBar',
+    active: 'info',
+    tabs: [
+      { id: 'infoTab', text: 'Info' },
+      { id: 'propertiesTab', text: 'Properties' }
+    ]
+  })
+
   
-  w2ui['layout'].html('top', w2ui['main-toolbar']);
-	w2ui['layout'].html('left', w2ui['left-pane']);
-  w2ui['left-pane'].html('top', w2ui['navigation-toolbar']);
-  w2ui['left-pane'].html('main', w2ui['navigation']);
-	w2ui['left-pane'].html('bottom', w2ui['filter']);
+  w2ui['layout'].html('top', w2ui['mainToolbar']);
+	
+  w2ui['layout'].html('left', w2ui['leftPane']);
+  w2ui['leftPane'].html('top', w2ui['navigationToolbar']);
+  w2ui['leftPane'].html('main', w2ui['navigation']);
+	w2ui['leftPane'].html('bottom', w2ui['filter']);
+
+  w2ui['layout'].html('right', w2ui['rightBar'])
   
 });
 
@@ -259,7 +271,7 @@ $(function () {
       var o = data.map(a => a = {head: a.location[0].x + " " + a.location[0].y, others: a})
       objs = []
       var mid = groupBy(o, o => o.head)
-        mid.forEach((v, k) => objs.push({location: {x: k.slice(0,2), y: k.slice(3)}, objects: v.map(x => x.others)})) ////// AAAAAAAAAA
+        mid.forEach((v, k) => objs.push({id: "point" + k.slice(0,2)+ "-" + k.slice(3), location: {x: k.slice(0,2), y: k.slice(3)}}))//, objects: v.map(x => x.others)})) ////// AAAAAAAAAA
     
     function assembleFragment(s, objName, index) {
       var loc = s.split(" ");
@@ -371,7 +383,6 @@ $(function () {
           .attr("stroke", "green")
           .attr("data", d => (d))
           .attr("r", 10)
-          .attr("locations", d => d.location)
           .attr("id", d =>  "point" + d.location.x + "-" + d.location.y + "")
       .style("cursor", "pointer")
             .attr("visibility", "hidden")
@@ -390,29 +401,31 @@ $(function () {
           .text(d => getText(d))
     
       function getText(d) {
-        var text = d.objects[0]._name //HOW DO WE KNOW WHICH ONE IS THE TOP ONE???
-        if (d.objects.length > 1) {
-          text += " +" + (d.objects.length - 1)
-        }
-        return text
+        // var text = d.objects[0]._name //HOW DO WE KNOW WHICH ONE IS THE TOP ONE???
+        // if (d.objects.length > 1) {
+        //   text += " +" + (d.objects.length - 1)
+        // }
+        // return text
       }
                 
       const lines = chart.append("g");
       const overlap = chart.append("g");
     
       // When an object dot is clicked
-      function objectClicked(event, p) {
+      function objectClicked(object) {
         overlap.selectAll("*").remove();
         lines.append("g")
           .attr("stroke", "red")
           .attr("stroke-opacity", 0.6)
-          .selectAll("links")
-          .data(p.others.map((frag, index, array) => frag = {x: frag.x, y: frag.y, xNext: array[(index + 1) % array.length].x, yNext: array[(index + 1) % array.length].y}).flat())
+          .selectAll("links");
+
+        w2ui['layout'].html('right', `This is <b>${object._name}</b>. It is a <b>${object._type}</b>. It has <b>${object.location.length}</b> fragments.`)
+          /*.data(p.others.map((frag, index, array) => frag = {x: frag.x, y: frag.y, xNext: array[(index + 1) % array.length].x, yNext: array[(index + 1) % array.length].y}).flat())
           .join("line")
             .attr("x1", d => x(d.x))
             .attr("y1", d => y(d.y))
             .attr("x2", d => x(d.xNext))
-            .attr("y2", d => y(d.yNext));
+            .attr("y2", d => y(d.yNext));*/
       }
     
       // When a dot on the map is clicked, if there are multiple do that functions
@@ -420,27 +433,34 @@ $(function () {
       function mapIconClicked(event, p) {
         overlap.selectAll("*").remove();
         lines.selectAll("*").remove();
-        if (p.objects.length > 1) {
-            multiobjectClicked(event, p)
+        let objectsOnPoint = findObjects(p.id)
+        if (objectsOnPoint.length > 1) {
+            console.log("multi clicked")
+            multiobjectClicked(event, p, objectsOnPoint)
         } else {
-            objectClicked(event, p.objects[0])
+            console.log("object clicked")
+            objectClicked(objectsOnPoint[0])
         }
       }
     
       // When a location with multiple objects is clicked on
-      function multiobjectClicked(event, p) {
+      function multiobjectClicked(event, p, objectsOnPoint) {
        overlap.append("g")
           .attr("stroke", "steelblue")
           .attr("stroke-width", 1.5)
           .attr("fill", "red")
           .selectAll("overlap")
-        .data(p.objects)
+        .data(objectsOnPoint)
           .join("circle")
           .attr("cx", d => x(p.location.x))
             .attr("cy", (d, i) => y(p.location.y) - i * 10)
             .attr("r", 10)
             .on("click", objectClicked)
           .style("cursor", "pointer")
+      }
+
+      function findObjects(id) {
+        return objectsByDots.find(l => l.svgNode.id == id).objects
       }
       
       // ID
