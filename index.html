@@ -18,7 +18,9 @@
     function getFragmentName(x, y, index) {
       return "(" + x + ", " + y + ")-" + index
     }
-    var convexHull = require('monotone-convex-hull-2d')
+
+    // require('requirejs')
+    // var convexHull = require('monotone-convex-hull-2d')
 	</script>
 </head>
 <body>
@@ -443,14 +445,23 @@ $(function () {
       }
 
 
+
       // When an object dot is clicked
       function objectClicked(object) {
         overlap.selectAll("*").remove();
+
+        // const grahamScan = new GrahamScan();
+        // grahamScan.setPoints(object.location.map(l => [parseInt(l.x), l.y]));
+        // const hull = grahamScan.getHull();  // [1,0], [2,1], [0,1]
+
+        var points = object.location.map(l => [parseInt(l.x), l.y])
+        var hull = convexHull(points).map(i => points[i])
+
         lines.append("g")
           .attr("stroke", "red")
           .attr("stroke-opacity", 0.6)
           .selectAll("links")
-          .data(object.location.map((frag, index, array) => frag = {x: parseInt(frag.x), y: frag.y, xNext: parseInt(array[(index + 1) % array.length].x), yNext: array[(index + 1) % array.length].y}).flat())
+          .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
           .join("line")
             .attr("x1", d => x(d.x))
             .attr("y1", d => y(d.y))
@@ -458,8 +469,9 @@ $(function () {
             .attr("y2", d => y(d.yNext));
 
         w2ui['layout'].html('right', `This is <b>${object._name}</b>. It is a <b>${object._type}</b>. It has <b>${object.location.length}</b> fragments.`)
-        console.log(object.location.map((frag, index, array) => frag = {x: parseInt(frag.x), y: frag.y, xNext: parseInt(array[(index + 1) % array.length].x), yNext: array[(index + 1) % array.length].y}).flat())
-        console.log(object)
+        // console.log(object.location.map((frag, index, array) => frag = {x: parseInt(frag.x), y: frag.y, xNext: parseInt(array[(index + 1) % array.length].x), yNext: array[(index + 1) % array.length].y}).flat())
+        // console.log(object)
+
       }
 
       function findObjects(id) {

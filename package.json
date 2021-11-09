@@ -21,7 +21,9 @@
     "url": "https://github.com/Kaltag1925/kaltag1925.github.io/issues"
   },
   "dependencies": {
-    "@observablehq/runtime": "^4.17.5",
-    "express": "^4.17.1"
+    "@lucio/graham-scan": "^1.0.0",
+    "@observablehq/runtime": "4",
+    "express": "^4.17.1",
+    "requirejs": "^2.3.6"
   }
 }
