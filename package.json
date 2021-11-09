@@ -4,7 +4,6 @@
   "version": "1.0.0",
   "homepage": "https://observablehq.com/@kaltag1925/this-is-probably-like-my-15th-fork-or-something-of-whatever-t",
   "author": "Davis Bray (https://observablehq.com/@kaltag1925)",
-  "type": "module",
   "peerDependencies": {
     "@observablehq/runtime": "4"
   },

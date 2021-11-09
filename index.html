@@ -11,6 +11,10 @@
 		var data;
     var objectsByDots;
 
+    var convexHull;
+
+    var shadeObjectRegion;
+
     function compareLocation(loc1, loc2) {
         return String(loc1.x) == String(loc2.x) && String(loc1.y) == String(loc2.y)
     }
@@ -22,6 +26,7 @@
     // require('requirejs')
     // var convexHull = require('monotone-convex-hull-2d')
 	</script>
+  <script src="bundle.js"></script>
 </head>
 <body>
 
@@ -51,7 +56,43 @@
 
 
 <script type="text/javascript">
-$(function () {
+  $(function () {
+    $().w2form({
+      name: 'visualizations',
+      fields: [
+        { field: 'lines', type: 'checkbox',
+            html: {
+                label: 'Lines'
+            }
+        },
+        { field: 'shade', type: 'checkbox',
+            html: {
+                label: 'Shade'
+            },
+            onChange() {
+              shadeObjectRegion(state.selectedObject)
+            }
+        },
+      ]
+    })
+
+    console.log()
+
+    w2ui['visualizations'].on('*', function (event) {
+        //console.log(event)
+        if(event.type == 'change') {
+          var form = w2ui['visualizations'].fields.find(f => f.field == event.target)
+          form.onChange()
+        }
+        // let edata = $.extend({}, event)
+        // if (edata.originalEvent) edata.originalEvent = {'...':'...'}
+        // if (edata.error) edata.error = {'...':'...'}
+        // if (edata.errors) edata.errors = {'...':'...'}
+        // if (edata.xhr) edata.xhr = {'...':'...'}
+        // $('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
+        // console.log('Event: '+ event.type, 'Target: '+ event.target, event);
+    });
+
     var pstyle = 'border: 1px solid #efefef; padding: 5px;';
     $('#layout').w2layout({
         name: 'layout',
@@ -59,10 +100,33 @@ $(function () {
             { type: 'top', style: pstyle, content: 'top', resizable: true },
             { type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
             { type: 'main', style: pstyle, html: `<div id='map'></div>`, resizable: true },
-			      { type: 'right', content: 'right', resizable: true }
+			      { type: 'right', content: 'right', resizable: true,
+              tabs: [
+                { id: 'infoTab', text: 'Info',
+                  onClick() {
+                    if (state != null && state.selectedObject != null) {
+                      var object = state.selectedObject
+                      w2ui['layout'].html('right', `This is <b>${object._name}</b>. It is a <b>${object._type}</b>. It has <b>${object.location.length}</b> fragments.`)
+                    }
+                  }       
+                },
+                { id: 'propertiesTab', text: 'Properties',
+                  onClick() {
+                    if (state != null && state.selectedObject != null) {
+                      w2ui['layout'].html('right',
+                        w2ui['visualizations'])  
+                    }
+                  }
+                }
+              ],
+              loadObject() {
+                this.tabs.click(this.tabs.active)
+              }
+            }
             //https://stackoverflow.com/questions/16510991/how-can-i-make-a-layout-widget-expand-to-full-height-in-w2ui
         ]
     });
+
     var bp = []
 
   $().w2toolbar({
@@ -181,7 +245,6 @@ $(function () {
       } else {    // Is hidden
           bp.push(id)
           $(el).addClass('toggle')
-          console.log(id)
           hideObject(id, false)
           
       }
@@ -203,15 +266,6 @@ $(function () {
 		]
 	})
 
-  $().w2tabs({
-    name: 'rightBar',
-    active: 'info',
-    tabs: [
-      { id: 'infoTab', text: 'Info' },
-      { id: 'propertiesTab', text: 'Properties' }
-    ]
-  })
-
   
   w2ui['layout'].html('top', w2ui['mainToolbar']);
 	
@@ -219,8 +273,6 @@ $(function () {
   w2ui['leftPane'].html('top', w2ui['navigationToolbar']);
   w2ui['leftPane'].html('main', w2ui['navigation']);
 	w2ui['leftPane'].html('bottom', w2ui['filter']);
-
-  w2ui['layout'].html('right', w2ui['rightBar'])
   
 });
 
@@ -235,7 +287,6 @@ $(function () {
     var k = height / width
     
     var artiJson = await d3.json("artifacts.json")
-    console.log(artiJson);
     data = artiJson.UluburunShipwreck.artifact.map(a => a = {location: a.location.map((l, index) => assembleFragment(l, a._name, index)), description: a.description, _type: a._type, _name: a._name});
     
     
@@ -369,9 +420,10 @@ $(function () {
     
     
       // Basic bg Image
-      chart.append("image")
+      var image = chart.append("image")
       .attr("xlink:href", "http://www.superiortrips.com/ShipwreckImages/AlgomaSiteMap.jpg")
     
+      var polygons = chart.append("g")
     
       let transform;
     
@@ -448,6 +500,8 @@ $(function () {
 
       // When an object dot is clicked
       function objectClicked(object) {
+        selectObject(object)
+
         overlap.selectAll("*").remove();
 
         // const grahamScan = new GrahamScan();
@@ -468,10 +522,22 @@ $(function () {
             .attr("x2", d => x(d.xNext))
             .attr("y2", d => y(d.yNext));
 
-        w2ui['layout'].html('right', `This is <b>${object._name}</b>. It is a <b>${object._type}</b>. It has <b>${object.location.length}</b> fragments.`)
+        
         // console.log(object.location.map((frag, index, array) => frag = {x: parseInt(frag.x), y: frag.y, xNext: parseInt(array[(index + 1) % array.length].x), yNext: array[(index + 1) % array.length].y}).flat())
         // console.log(object)
 
+      }
+
+      shadeObjectRegion = function(object) {
+        console.log("hello")
+        var points = object.location.map(l => [parseInt(l.x), l.y])
+        var hull = convexHull(points).map(i => points[i]).map(p => x(p[0]) + "," + y(p[1])).join(" ")
+  
+        chart.selectAll("polygon")
+          .data([hull])
+        .enter().append("polygon")
+          .attr("points", d => d)
+          .attr("fill", "beige"); 
       }
 
       function findObjects(id) {
@@ -494,7 +560,6 @@ $(function () {
           .on("zoom", zoomed)
     
     function zoomed({transform}) {
-      console.log(transform)
         const zx = transform.rescaleX(x).interpolate(d3.interpolateRound);
         const zy = transform.rescaleY(y).interpolate(d3.interpolateRound);
         gx.call(xAxis, zx);
@@ -593,9 +658,7 @@ $(function () {
                                   }));
 
       state = {filters: {rocks: true, lines: true}, objectStates: objectStates};
-      console.log(state)
       loadState(state);
-      console.log(state)
     } else {
       loaded.objectStates.forEach(o => {hideObject(o.id, o.hidden)});
     } 
@@ -605,7 +668,6 @@ $(function () {
     state.objectStates.find(o => o.id == id).hidden = hide;
 
     let object = data.find(o => o._name == id);
-    console.log(object)
     let locationsToUpdate = objectsByDots.filter(e => object.location.some(l => compareLocation(e.location, l)));
 
     if (hide) {
@@ -624,7 +686,6 @@ $(function () {
       });
     } else {
       locationsToUpdate.forEach(e => { e.objects.push(object)})
-      console.log(locationsToUpdate)
       locationsToUpdate.forEach(svgloc => {
           svgloc.svgNode.setAttribute("visibility", "visible")
           svgloc.textNode.setAttribute("visibility", "visible")
@@ -644,8 +705,12 @@ $(function () {
 
   function saveToCode() {
     console.log("saving")
-    return JSON.stringify(state)
-    
+    return JSON.stringify(state) 
+  }
+
+  function selectObject(object) { //add to save load
+    state.selectedObject = object
+    w2ui['layout'].panels.find(p => p.type == 'right').loadObject()
   }
 
   function loadFromCode(code) {
