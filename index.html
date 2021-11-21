@@ -7,9 +7,7 @@
     <link rel="stylesheet" type="text/css" href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
 	<script src="https://d3js.org/d3.v6.min.js"></script>
 	<script type='text/javascript' > 
-		var objs;
-		var data;
-    var objectsByDots;
+    var sourceData
 
     var convexHull;
 
@@ -26,6 +24,10 @@
     // require('requirejs')
     // var convexHull = require('monotone-convex-hull-2d')
 	</script>
+
+  <script src="./js/loadData.js"></script>
+  <script src="./js/model.js"></script>
+
   <script src="bundle.js"></script>
   <script src="./js/map.js"></script>
 </head>
@@ -64,27 +66,37 @@
         { field: 'lines', type: 'checkbox',
             html: {
                 label: 'Lines'
+            },
+            onChange(change) {
+              var points = state.selectedObject.location.map(l => [parseInt(l.x), l.y])
+              connectRegion(points, "lines" + state.selectedObject._name)
             }
         },
         { field: 'shade', type: 'checkbox',
             html: {
                 label: 'Shade'
             },
-            onChange() {
+            onChange(change) {
               shadeObjectRegion(state.selectedObject)
             }
-        },
-      ]
+        }
+      ],
+      onChange(event) {
+        console.log(event)
+        var field = this.fields.find(f => f.field == event.target)
+        field.onChange(event.value_new)
+      }
     })
 
     console.log()
 
     w2ui['visualizations'].on('*', function (event) {
         //console.log(event)
-        if(event.type == 'change') {
-          var form = w2ui['visualizations'].fields.find(f => f.field == event.target)
-          form.onChange()
-        }
+        // if(event.type == 'change') {
+        //   var form = w2ui['visualizations'].fields.find(f => f.field == event.target)
+        //   console.log(event)
+        //   form.onChange()
+        // }
         // let edata = $.extend({}, event)
         // if (edata.originalEvent) edata.originalEvent = {'...':'...'}
         // if (edata.error) edata.error = {'...':'...'}
@@ -101,7 +113,7 @@
             { type: 'top', style: pstyle, content: 'top', resizable: true },
             { type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
             { type: 'main', style: pstyle, html: `<div id='map'></div>`, resizable: true },
-			      { type: 'right', content: 'right', resizable: true,
+			      { type: 'right', size: 300, style: pstyle, content: 'right', resizable: true,
               tabs: [
                 { id: 'infoTab', text: 'Info',
                   onClick() {
@@ -275,7 +287,7 @@
   w2ui['leftPane'].html('main', w2ui['navigation']);
 	w2ui['leftPane'].html('bottom', w2ui['filter']);
   
-  readDataFile()
+  readWreckDataFile('artifacts.json')
 });
 
 </script>

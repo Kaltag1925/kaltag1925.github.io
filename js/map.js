@@ -9,35 +9,35 @@ function readDataFile() {
   d3.json("artifacts.json").then(f => startMap(f))
 }
 
-function startMap(dataFile) {
-  loadData(dataFile)
-  setUpMapHelpers()
+function startMap(data) {
+  setUpMapHelpers(data)
   setUpMap()
-  plotFragments()
-  addFragmentLabels()
-  setUpSidebarData()
-  loadState(null)
+  //plotFragments(data)
+  //addFragmentLabels(data)
+  setUpSidebarData(data)
+  // loadState(null)
 }
 
-function loadData(dataFile) {
-  data = dataFile.UluburunShipwreck.artifact.map(a => a = {location: a.location.map((l, index) => assembleFragment(l, a._name, index)), description: a.description, _type: a._type, _name: a._name});
-  var objectsWithALocation = data.map(o => o.location.map(l => ({id: "point" + l.x + "-" + l.y, location: l, object: o}))).flat()
+// function loadData(dataFile) {
+//   console.log(dataFile)
+//   data = dataFile.UluburunShipwreck.artifact.map(a => a = {location: a.location.map((l, index) => assembleFragment(l, a._name, index)), description: a.description, _type: a._type, _name: a._name});
+//   var objectsWithALocation = data.map(o => o.location.map(l => ({id: "point" + l.x + "-" + l.y, location: l, object: o}))).flat()
 
-  objs = Array.from(groupBy(objectsWithALocation, o => o.id))
-  objs = objs.map(o => ({id: o[0], location: ({x: o[1][0].location.x, y: o[1][0].location.y}), objects: o[1].map(v => v.object)}))
+//   objs = Array.from(groupBy(objectsWithALocation, o => o.id))
+//   objs = objs.map(o => ({id: o[0], location: ({x: o[1][0].location.x, y: o[1][0].location.y}), objects: o[1].map(v => v.object)}))
 
-  var alphaIntDic = d3.range(17).map(i => String.fromCharCode(65 + i)) //dont need this but i was tired mkay?
-}
+//   var alphaIntDic = d3.range(17).map(i => String.fromCharCode(65 + i)) //dont need this but i was tired mkay?
+// }
 
-function assembleFragment(s, objName, index) {
-  var loc = s.split(" ");
-  const y = alphaToInt(loc[0][0])
-  const x = loc[0].slice(1)
+// function assembleFragment(s, objName, index) {
+//   var loc = s.split(" ");
+//   const y = alphaToInt(loc[0][0])
+//   const x = loc[0].slice(1)
   
-  const id = objName + "-" + "(" + x + ", " + y + ")" + "-" + index;
+//   const id = objName + "-" + "(" + x + ", " + y + ")" + "-" + index;
   
-  return {id: id, x: x, y:y};
-}
+//   return {id: id, x: x, y:y};
+// }
 
 
 
@@ -55,38 +55,38 @@ function assembleFragment(s, objName, index) {
  */
 //export function groupBy<K, V>(list: Array<V>, keyGetter: (input: V) => K): Map<K, Array<V>> {
 //    const map = new Map<K, Array<V>>();
-function groupBy(list, keyGetter) {
-    const map = new Map();
-    list.forEach((item) => {
-          const key = keyGetter(item);
-          const collection = map.get(key);
-          if (!collection) {
-              map.set(key, [item]);
-          } else {
-              collection.push(item);
-          }
-    });
-    return map;
-}
+// function groupBy(list, keyGetter) {
+//     const map = new Map();
+//     list.forEach((item) => {
+//           const key = keyGetter(item);
+//           const collection = map.get(key);
+//           if (!collection) {
+//               map.set(key, [item]);
+//           } else {
+//               collection.push(item);
+//           }
+//     });
+//     return map;
+// }
 
-function alphaToInt(a) {
-  return a.charCodeAt(0) - 65;
-}
+// function alphaToInt(a) {
+//   return a.charCodeAt(0) - 65;
+// }
 
-function intToAlpha(n) {
-  return String.fromCharCode(n+65);
-}
+// function intToAlpha(n) {
+//   return String.fromCharCode(n+65);
+// }
 
 var y;
 var x;
 
-function setUpMapHelpers() {
+function setUpMapHelpers(data) {
   y = d3.scaleLinear()
-    .domain(d3.extent(objs.map(a => a.location), d => d.y)).nice() //hOW TO MAKE EQUAL SIZED TICKS?
+    .domain(d3.extent((data.fragmentData.values()), d => d.y)).nice() //hOW TO MAKE EQUAL SIZED TICKS?
     .range([height, 0])
     
   x = d3.scaleLinear()
-    .domain(d3.extent(objs.map(a => a.location), d => d.x)).nice() // how to LIMIT SCROLL
+    .domain(d3.extent((data.fragmentData.values()), d => d.x)).nice() // how to LIMIT SCROLL
     .range([0, width])
 }
     
@@ -270,28 +270,25 @@ function grid(g, x, y) {
     selectObject(object)
 
     overlap.selectAll("*").remove();
+  }
 
+  function connectRegion(points, id) {
     // const grahamScan = new GrahamScan();
     // grahamScan.setPoints(object.location.map(l => [parseInt(l.x), l.y]));
     // const hull = grahamScan.getHull();  // [1,0], [2,1], [0,1]
 
-    var points = object.location.map(l => [parseInt(l.x), l.y])
     var hull = convexHull(points).map(i => points[i])
 
     lines.append("g")
       .attr("stroke", "red")
       .attr("stroke-opacity", 0.6)
-      .selectAll("links")
+      .selectAll(id)
       .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
       .join("line")
         .attr("x1", d => x(d.x))
         .attr("y1", d => y(d.y))
         .attr("x2", d => x(d.xNext))
         .attr("y2", d => y(d.yNext));
-
-    
-    // console.log(object.location.map((frag, index, array) => frag = {x: parseInt(frag.x), y: frag.y, xNext: parseInt(array[(index + 1) % array.length].x), yNext: array[(index + 1) % array.length].y}).flat())
-    // console.log(object)
 
   }
 
@@ -322,30 +319,32 @@ function grid(g, x, y) {
   //     .attr("y", d => y(d.y))
   //     .text(d => d.id);
 
-  function objectToNode(object) {
-    var objectName = object._name;
-    var locations = object.location;
-    var mainNode = {id: objectName, text: objectName, count: locations.length, node: locations.map((f, i) => fragmentToNode(f, i, objectName)) };
+  function objectToNode(pair) {
+    var objectID = pair[0]
+    var object = pair[1]
+
+    var mainNode = {id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(fragmentToNode)};
     return mainNode;
   }
   
-  function fragmentToNode(fragment, index, objectName) {
-        var fragmentName = "(" + fragment.x + ", " + fragment.y + ")";
-        return { id: objectName + "-" + fragmentName + "-" + index + "-button", text: fragmentName, onClick: function(event) {
-            
-        d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
+  function fragmentToNode(fragmentID) {
+    console.log(fragmentID)
+        return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
+            // find svg node based on position ID
+            // make it beeeg
+        // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
         }}
   }
   
-  function setUpSidebarData() {
-    var nodes = data.map(objectToNode);
+  function setUpSidebarData(data) {
+    var nodes = Array.from(data.objectData, objectToNode);
     w2ui['navigation'].add(nodes);
 
   /* Var setting */
-    objectsByDots = objs.map(e => ({svgNode: document.getElementById("point" + e.location.x + "-" + e.location.y),
-                                  textNode: document.getElementById("text" + e.location.x + "-" + e.location.y),
-                                  location:e.location, 
-                                  objects: []}))
+    // objectsByDots = objs.map(e => ({svgNode: document.getElementById("point" + e.location.x + "-" + e.location.y),
+    //                               textNode: document.getElementById("text" + e.location.x + "-" + e.location.y),
+    //                               location:e.location, 
+    //                               objects: []}))
   }
 
   // Divider
