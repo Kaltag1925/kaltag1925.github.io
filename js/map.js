@@ -152,7 +152,7 @@ function grid(g, x, y) {
     chart2 = svg.append("g")
     chart = chart2.append("g")
     var image = chart.append("image")
-      .attr("xlink:href", "https://www.superiortrips.com/ShipwreckImages/AlgomaSiteMap.jpg")
+      .attr("xlink:href", "./imgs/reallysmallsitemap.png")
     polygons = chart.append("g")
     
     points = chart.append("g")
@@ -235,16 +235,17 @@ function grid(g, x, y) {
   // When a dot on the map is clicked, if there are multiple do that functions
   
   function mapIconClicked(event, p) {
+    console.log(p)
     overlap.selectAll("*").remove();
     lines.selectAll("*").remove();
-    let objectsOnPoint = findObjects(p.id)
-    if (objectsOnPoint.length > 1) {
-        console.log("multi clicked")
-        multiobjectClicked(event, p, objectsOnPoint)
-    } else {
+    // let objectsOnPoint = findObjects(p.id)
+    // if (objectsOnPoint.length > 1) {
+    //     console.log("multi clicked")
+    //     multiobjectClicked(event, p, objectsOnPoint)
+    // } else {
         console.log("object clicked")
-        objectClicked(objectsOnPoint[0])
-    }
+        objectClicked(p.object)
+    // }
   }
 
   // When a location with multiple objects is clicked on
@@ -266,10 +267,11 @@ function grid(g, x, y) {
 
 
   // When an object dot is clicked
-  function objectClicked(object) {
-    selectObject(object)
+  function objectClicked(objectID) {
+    // selectObject(object)
 
-    overlap.selectAll("*").remove();
+    // overlap.selectAll("*").remove();
+    connectRegion(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)).map(frag => [frag.x, frag.y]), objectID)
   }
 
   function connectRegion(points, id) {
@@ -325,6 +327,25 @@ function grid(g, x, y) {
 
     var mainNode = {id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(fragmentToNode)};
     return mainNode;
+  }
+
+  function plotObject(objectID) {
+    points
+      .selectAll(objectID)
+      .data(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)))
+      .join("circle")
+        .attr("cx", d => x(d.x))
+        .attr("cy", d => y(d.y))
+        .attr("stroke", "green")
+        .attr("data", d => (d))
+        .attr("r", 10)
+        .attr("id", d =>  "point" + d.x + "-" + d.y + "")
+    .style("cursor", "pointer")
+        .on("click", mapIconClicked)
+  }
+
+  function plotFragment(fragment) {
+    
   }
   
   function fragmentToNode(fragmentID) {

@@ -96,5 +96,7 @@ function loadSourceData(rawFile) {
         })
     })
 
+    loadNewModel(sourceData) // remove later!!!
+
     return sourceData
 }

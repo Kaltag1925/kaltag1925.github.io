@@ -13,6 +13,8 @@
 
     var shadeObjectRegion;
 
+    var model;
+
     function compareLocation(loc1, loc2) {
         return String(loc1.x) == String(loc2.x) && String(loc1.y) == String(loc2.y)
     }
@@ -222,10 +224,10 @@
       },
       { type: 'menu-check', id: 'navigationFilter', text: 'Filter',
         selected: ['lot', 'kw'],
-        onRefresh(event){
+        /* onRefresh(event){
           console.log(event)
           event.item.count = event.item.selected.reduce((a,b) => a + event.item.items.find(i => i.id == b).count, 0);
-        },
+        }, */
         items: [
           { id: 'kw', text: 'KW', count: 100 },
           { id: 'lot', text: 'Lots', count: 400}
@@ -234,14 +236,15 @@
     ]
   })
 
+  var bp = []
 	$().w2sidebar({
 		name: 'navigation',
 		img: null,
 		handle: {
-			size: 18,
-			//style: 'height: 22px; width: 20px; margin-top: 0px; margin-left: -15px;',
-			content: `<div onclick="w2ui.navigation.toggle(this, event)"
-                ${w2utils.tooltip('Toggle visability', { className: 'w2ui-light', left: -6, position: 'top|bottom' })}></div>`
+        size: 22,
+        style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
+        html: `<div onclick="w2ui.navigation.toggle(this, event)"
+            ${w2utils.tooltip('Toggle Visiblity', { className: 'w2ui-light', left: -6, position: 'top|bottom' })}></div>`
 		},
 		nodes: [],
 		toggle(el) {
@@ -250,15 +253,16 @@
 			//let nodeID = $(el).closest('.w2ui-node').attr('id')
       let id = node[0].id.substring(5) //dangerous should use regex
   
+      console.log(id)
       if (bp.indexOf(id) != -1) { // Is visible
           bp.splice(bp.indexOf(id), 1)
           $(el).removeClass('toggle')
-          hideObject(id, true)
+          objectVisible(id, false)
 
       } else {    // Is hidden
           bp.push(id)
           $(el).addClass('toggle')
-          hideObject(id, false)
+          objectVisible(id, true)
           
       }
       event.preventDefault()
@@ -291,8 +295,17 @@
 });
 
 </script>
+
 <script type='text/javascript'>
-  var state;
+  function objectVisible(id, isVisible) {
+    if (isVisible) {
+      plotObject(id)
+    }
+  }
+</script>
+
+<script type='text/javascript'>
+ /* var state;
 
   function loadState(loaded) {
     if (loaded == null) {
@@ -370,7 +383,7 @@
       }
     }
   }
-
+*/
 </script>
 
 </body>
