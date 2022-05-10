@@ -272,6 +272,7 @@ function grid(g, x, y) {
 
     // overlap.selectAll("*").remove();
     connectRegion(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)).map(frag => [frag.x, frag.y]), objectID)
+    model.globalState.selectedObject = objectID
   }
 
   function connectRegion(points, id) {
@@ -344,8 +345,19 @@ function grid(g, x, y) {
         .on("click", mapIconClicked)
   }
 
-  function plotFragment(fragment) {
-    
+  function plotPithos(pithosID) {
+    points
+      .selectAll("pithos")
+      .data([[14, 13], [15,12], [16, 20], [17, 12]])
+      .join("circle")
+        .attr("cx", d => x(d[0]))
+        .attr("cy", d => y(d[1]))
+        .attr("stroke", "pink")
+        //.attr("data", d => (d))
+        .attr("r", 20)
+        .attr("id", d =>  "point" + d.x + "-" + d.y + "")
+    // .style("cursor", "pointer")
+    //     .on("click", mapIconClicked)
   }
   
   function fragmentToNode(fragmentID) {

@@ -1,5 +1,5 @@
 function loadNewModel(sourceData) {
-    var globalState = {showBackground: true, pos: {x: 0, y: 0, z: 100.0}}
+    var globalState = {showBackground: true, selectedObject: 'none', pos: {x: 0, y: 0, z: 100.0}}
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((key, value) =>{

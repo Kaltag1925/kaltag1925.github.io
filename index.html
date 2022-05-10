@@ -119,9 +119,9 @@
               tabs: [
                 { id: 'infoTab', text: 'Info',
                   onClick() {
-                    if (state != null && state.selectedObject != null) {
-                      var object = state.selectedObject
-                      w2ui['layout'].html('right', `This is <b>${object._name}</b>. It is a <b>${object._type}</b>. It has <b>${object.location.length}</b> fragments.`)
+                    if (model != null && model.globalState.selectedObject != 'none') {
+                      var object = sourceData.objectData.get(model.globalState.selectedObject)
+                      w2ui['layout'].html('right', `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>It is a piece of Cypriot pottery.</b>.<br>It has <b>${object.fragments.length}</b> fragments.`)
                     }
                   }       
                 },
@@ -231,7 +231,10 @@
         items: [
           { id: 'kw', text: 'KW', count: 100 },
           { id: 'lot', text: 'Lots', count: 400}
-        ]
+        ],
+        onChnage(event) {
+          w2ui['navigation'].search('KW')
+        }
       }
     ]
   })
@@ -270,18 +273,19 @@
 		}
 	});
     
-	$().w2sidebar({
-		name: 'filter',
-		img: null,
-		nodes: [
-			{ id: 'show', text: 'Show',
-          nodes: [
-              { id: 'showRocks', text: 'Rocks' },
-              { id: 'showLines', text: 'Lines' }
-          ]
+	$().w2form({
+    name   : 'filter',
+    fields : [
+        { name: 'rocks', type: 'checkbox'},
+        { name: 'pithoi',  type: 'checkbox'}
+    ],
+    onChange(event) {
+      console.log(event)
+      if (event.target == 'pithoi' && event.detail.value.current) {
+        plotPithos(1)
       }
-		]
-	})
+    }
+});
 
   
   w2ui['layout'].html('top', w2ui['mainToolbar']);
