@@ -7,55 +7,12 @@ function readWreckDataFile(file) {
     })
 }
 
-function trimID(nameString) {
-    return nameString.split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
-}
-
-function catagoryToID() {
-
-}
-
-
-
-function objectToCatagoryIDs(object){
-    var objectName = object._name
-    var type1 = objectName.substr(0, objectName.indexOf(' ')); 
-    var strEnd = objectName.substr(objectName.indexOf(' ') + 1);
-    var type2 = strEnd.substr(strEnd.indexOf(' ') + 1);
-    return [type1, type2].map(t => trimID(t))
-}
-
-function objectToID(object) {
-    return trimID(object._name)
-}
-
-/* temp stuff */
-function fragmentLocation(fragment) {
-    var loc = fragment.split(" ");
-    const y = alphaToInt(loc[0][0])
-    const x = parseInt(loc[0].slice(1))
-    
-    return {x: x, y:y};
-}
-
-function alphaToInt(a) {
-    return a.charCodeAt(0) - 65;
-}
-/* temp stuff */
-
-function fragmentToID(fragment, index, object) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
-    return trimID(object._name + fragment.x + fragment.y + index);
-}
-
-function fragmentToName(fragment) {
-    return "Fragment @ (" + fragment.x + ", " + fragment.y + ")";
-}
-
 function loadSourceData(rawFile) {
     console.log("load")
-    var sourceData = {catagoryData: new Map(), objectData: new Map(), fragmentData: new Map()}
+    var sourceData = {categoryData: new Map(), objectData: new Map(), fragmentData: new Map()}
     var rawData = rawFile.UluburunShipwreck.artifact;
 
+    //Load fragments
     rawData.forEach(object => {
         object.location.forEach((frag, index) => {
             var location = fragmentLocation(frag)
@@ -71,7 +28,7 @@ function loadSourceData(rawFile) {
         })
     })
 
-
+    //load objects
     rawData.forEach(object => {
         var objectID = objectToID(object)
         var objectName = object._name
@@ -80,18 +37,19 @@ function loadSourceData(rawFile) {
             var location = fragmentLocation(fragment)
             return fragmentToID(location, index, object)
         })
-        var catagoryIDs = objectToCatagoryIDs(object)
+        var categoryIDs = objectTocategoryIDs(object)
         
-        var objectObj = {name: objectName, fragments: fragmentIDs, catagories: catagoryIDs}
+        var objectObj = {name: objectName, fragments: fragmentIDs, categories: categoryIDs}
         sourceData.objectData.set(objectID, objectObj)
     })
 
+    //load categories
     sourceData.objectData.forEach(function(value, key) {
-        value.catagories.forEach(catagory => {
-            if (sourceData.catagoryData.has(catagory)) {
-                sourceData.catagoryData.get(catagory).objects.push(key)
+        value.categories.forEach(category => {
+            if (sourceData.categoryData.has(category)) {
+                sourceData.categoryData.get(category).objects.push(key)
             } else {
-                sourceData.catagoryData.set(catagory, {name: catagory, objects: [key]})
+                sourceData.categoryData.set(category, {name: category, objects: [key]})
             }
         })
     })
@@ -99,4 +57,48 @@ function loadSourceData(rawFile) {
     loadNewModel(sourceData) // remove later!!!
 
     return sourceData
+}
+
+function trimID(nameString) {
+    return nameString.split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
+}
+
+function categoryToID() {
+
+}
+
+
+
+function objectTocategoryIDs(object){
+    var objectName = object._name
+    var type1 = objectName.substr(0, objectName.indexOf(' ')); 
+    var strEnd = objectName.substr(objectName.indexOf(' ') + 1);
+    var type2 = strEnd.substr(strEnd.indexOf(' ') + 1);
+    return [type1, type2].map(t => trimID(t))
+}
+
+function objectToID(object) {
+    return trimID(object._name)
+}
+
+/* temp stuff */
+function fragmentLocation(fragment) {
+    var loc = fragment.split(" ");
+    //console.log(loc[0][0], alphaToInt(loc[0][0]))
+    const x = loc[0][0].charCodeAt(0)
+    const y = parseInt(loc[0].slice(1));
+    
+    return {x: x, y:y};
+}
+
+function alphaToInt(a) {
+}
+/* temp stuff */
+
+function fragmentToID(fragment, index, object) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
+    return trimID(object._name + fragment.x + fragment.y + index);
+}
+
+function fragmentToName(fragment) {
+    return "Fragment @ (" + fragment.x + ", " + fragment.y + ")";
 }

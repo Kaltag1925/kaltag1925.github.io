@@ -254,9 +254,10 @@
             // shoulda probably have done this D3 style?
 			let node = $(el).closest('.w2ui-node');
 			//let nodeID = $(el).closest('.w2ui-node').attr('id')
-      let id = node[0].id.substring(5) //dangerous should use regex
+      let id = node[0].id.substring(5) //dangerous should use regex or smthn idk
   
       console.log(id)
+      // Show and Hide fragment groups
       if (bp.indexOf(id) != -1) { // Is visible
           bp.splice(bp.indexOf(id), 1)
           $(el).removeClass('toggle')

@@ -11,12 +11,12 @@ function loadNewModel(sourceData) {
         objectStates.set(key, {show: false, color: "red", visualization: true})
     })
 
-    var catagoryStates = new Map()
-    sourceData.catagoryData.forEach((key, value) => {
-        catagoryStates.set(key, {show: false, color: "red", visualization: true})
+    var categoryStates = new Map()
+    sourceData.categoryData.forEach((key, value) => {
+        categoryStates.set(key, {show: false, color: "red", visualization: true})
     })
 
-    model = {globalState: globalState, fragmentStates: fragmentStates, objectStates: objectStates, catagoryStates: catagoryStates}
+    model = {globalState: globalState, fragmentStates: fragmentStates, objectStates: objectStates, categoryStates: categoryStates}
 }
 
 function loadModel(sourceData, states) {
