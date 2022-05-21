@@ -277,13 +277,38 @@
 	$().w2form({
     name   : 'filter',
     fields : [
-        { name: 'rocks', type: 'checkbox'},
-        { name: 'pithoi',  type: 'checkbox'}
+        { field: 'mapToggle', type: 'toggle',
+          html: {
+            label: 'Map'
+          }
+        },
+        { field: 'pithoiToggle', type: 'toggle',
+          html: {
+            label: 'Pithoi'
+          }
+        },
+        { field: 'rocksToggle', type: 'toggle',
+          html: {
+            label: 'Rocks'
+          }
+        }
     ],
     onChange(event) {
-      console.log(event)
-      if (event.target == 'pithoi' && event.detail.value.current) {
-        plotPithos(1)
+      //console.log(event)
+
+      // Map
+      if (event.target == 'mapToggle') {
+        toggleMap(event.detail.value.current)
+      }
+
+      // Pithoi
+      if (event.target == 'pithoiToggle') {
+        togglePithoi(event.detail.value.current)
+      }
+
+      // Rocks
+      if (event.target == 'rocksToggle') {
+        toggleRocks(event.detail.value.current)
       }
     }
 });

@@ -15,6 +15,7 @@ function startMap(data) {
   setUpSidebarData(data)
 }
 
+//#region Set Up Map
 var y;
 var x;
 
@@ -76,6 +77,7 @@ function grid(g, x, y) {
   var pointsLabels;
   var lines;
   var overlap;
+  var image;
 
   function setUpMap() {
     svg = d3.select("#map").append("svg")
@@ -89,8 +91,9 @@ function grid(g, x, y) {
     
     chart2 = svg.append("g")
     chart = chart2.append("g")
-    var image = chart.append("image")
+    image = chart.append("image")
       .attr("xlink:href", "./imgs/reallysmallsitemap.png")
+      .style('visibility', 'hidden')
     polygons = chart.append("g")
     
     points = chart.append("g")
@@ -128,6 +131,8 @@ function grid(g, x, y) {
 
   let transform;
 
+  //#endregion
+
 
   function plotObject(objectID) {
     points
@@ -144,10 +149,19 @@ function grid(g, x, y) {
         .on("click", mapIconClicked)
   }
 
-  function plotPithos(pithosID) {
-    points
+  function toggleMap(toggle) {
+    if (toggle) {
+      image.style('visibility', 'visible')
+    } else {
+      image.style('visibility', 'hidden')
+    }
+  }
+
+  function togglePithoi(toggle) {
+    if (toggle) {
+      points
       .selectAll("pithos")
-      .data([[14, 13], [15,12], [16, 20], [17, 12]])
+      .data([[66, 13], [77,12], [69, 20], [70, 12]]) //TODO: Real Data
       .join("circle")
         .attr("cx", d => x(d[0]))
         .attr("cy", d => y(d[1]))
@@ -157,6 +171,28 @@ function grid(g, x, y) {
         .attr("id", d =>  "point" + d.x + "-" + d.y + "")
     // .style("cursor", "pointer")
     //     .on("click", mapIconClicked)
+    } else {
+      points.selectAll("pithos").remove()
+    }
+  }
+
+  function toggleRocks(toggle) {
+    if (toggle) {
+      points
+      .selectAll("rock")
+      .data([[68,15], [72,12], [73, 20], [74, 10]]) //TODO: Real Data
+      .join("circle")
+        .attr("cx", d => x(d[0]))
+        .attr("cy", d => y(d[1]))
+        .attr("stroke", "grey")
+        //.attr("data", d => (d))
+        .attr("r", 20)
+        .attr("id", d =>  "point" + d.x + "-" + d.y + "")
+    // .style("cursor", "pointer")
+    //     .on("click", mapIconClicked)
+    } else {
+      points.selectAll("rock").remove()
+    }
   }
 
   function addFragmentLabels() {
