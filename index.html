@@ -61,6 +61,31 @@
 
 
 <script type="text/javascript">
+
+  /*
+  https://stackoverflow.com/questions/2854407/javascript-jquery-window-resize-how-to-fire-after-the-resize-is-completed
+  */
+  var waitForFinalEvent = (function () {
+    var timers = {};
+    return function (callback, ms, uniqueId) {
+      if (!uniqueId) {
+        uniqueId = "Don't call this twice without a uniqueId";
+      }
+      if (timers[uniqueId]) {
+        clearTimeout (timers[uniqueId]);
+      }
+      timers[uniqueId] = setTimeout(callback, ms);
+    };
+  })();
+
+  window.onresize = function() {
+    waitForFinalEvent(function() {
+      console.log("resized")
+      d3.select("#map").html("")
+      startMap()
+    })
+  }
+
   $(function () {
     $().w2form({
       name: 'visualizations',
@@ -295,20 +320,23 @@
     ],
     onChange(event) {
       //console.log(event)
-
+      var newValue = event.detail.value.current
       // Map
       if (event.target == 'mapToggle') {
-        toggleMap(event.detail.value.current)
+        toggleMap(newValue)
+        model.globalState.showMap = newValue
       }
 
       // Pithoi
       if (event.target == 'pithoiToggle') {
-        togglePithoi(event.detail.value.current)
+        togglePithoi(newValue)
+        model.globalState.showPithoi = newValue
       }
 
       // Rocks
       if (event.target == 'rocksToggle') {
-        toggleRocks(event.detail.value.current)
+        toggleRocks(newValue)
+        model.globalState.showRocks = newValue
       }
     }
 });
@@ -328,6 +356,7 @@
 
 <script type='text/javascript'>
   function objectVisible(id, isVisible) {
+    model.objectStates.get(id).visible = isVisible;
     if (isVisible) {
       plotObject(id)
     }

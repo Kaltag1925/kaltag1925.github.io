@@ -1,31 +1,37 @@
-const height = 1000;
+var width
+var height
+var k;
 
-const width = 1000;
-
-var k = height / width
-
+//reizable https://bl.ocks.org/anqi-lu/5c793fb952dd9f9204abe6ebbd657461
 
 function readDataFile() {
   d3.json("artifacts.json").then(f => startMap(f))
 }
 
-function startMap(data) {
-  setUpMapHelpers(data)
+function startMap() {
+  width = w2ui['layout'].get('main').width
+  height = w2ui['layout'].get('main').height
+  console.log("hello" + height)
+
+  k = height / width
+
+  setUpMapHelpers()
   setUpMap()
-  setUpSidebarData(data)
+  readModel()
 }
 
 //#region Set Up Map
 var y;
 var x;
 
-function setUpMapHelpers(data) {
+//Something when reizing is causing the scale of the distances between the dots to grow or shrink
+function setUpMapHelpers() {
   x = d3.scaleLinear()
-    .domain(d3.extent((data.fragmentData.values()), d => d.x)).nice() //hOW TO MAKE EQUAL SIZED TICKS?
+    .domain(d3.extent((sourceData.fragmentData.values()), d => d.x)).nice() //hOW TO MAKE EQUAL SIZED TICKS?
     .range([0, width])
     
   y = d3.scaleLinear()
-    .domain(d3.extent((data.fragmentData.values()), d => d.y)).nice() // how to LIMIT SCROLL
+    .domain(d3.extent((sourceData.fragmentData.values()), d => d.y)).nice() // how to LIMIT SCROLL
     .range([height, 0])
 }
     
@@ -79,9 +85,10 @@ function grid(g, x, y) {
   var overlap;
   var image;
 
+
   function setUpMap() {
-    svg = d3.select("#map").append("svg")
-    .attr("viewBox", [0, 0, width, height]);
+    svg = d3.select('#map').append("svg")
+        .attr("viewBox", [0, 0, width, height])
     
     gGrid = svg.append("g")
 
@@ -130,6 +137,18 @@ function grid(g, x, y) {
 
 
   let transform;
+
+  function readModel() {
+    model.objectStates.forEach((obj, id) => {
+      if (obj.visible) {
+        plotObject(id)
+      }
+    })
+
+    toggleMap(model.globalState.showMap)
+    togglePithoi(model.globalState.showPithoi)
+    toggleRocks(model.globalState.showRocks)
+  }
 
   //#endregion
 
@@ -285,24 +304,15 @@ function grid(g, x, y) {
   //     .attr("y", d => y(d.y))
   //     .text(d => d.id);
 
-  function setUpSidebarData(data) {
-    var nodes = Array.from(data.objectData, objectToNode);
-    w2ui['navigation'].add(nodes);
-  }
+// $(window).resize(function() {
+//   if(this.resizeTO) clearTimeout(this.resizeTO);
+//   this.resizeTO = setTimeout(function() {
+//       $(this).trigger('resizeEnd');
+//   }, 500);
+// });
 
-  function objectToNode(pair) {
-    var objectID = pair[0]
-    var object = pair[1]
-
-    var mainNode = {id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(fragmentToNode)};
-    return mainNode;
-  }
-  
-  function fragmentToNode(fragmentID) {
-    console.log(fragmentID)
-        return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
-            // find svg node based on position ID
-            // make it beeeg
-        // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
-        }}
-  }
+// $(window).bind('resizeEnd', function() {
+//     var height = $("#ma-p").width()/2;
+//     $("#map svg").css("height", height);
+//     draw(height);
+// });
