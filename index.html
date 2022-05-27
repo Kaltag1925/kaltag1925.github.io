@@ -90,28 +90,49 @@
     $().w2form({
       name: 'visualizations',
       fields: [
-        { field: 'lines', type: 'checkbox',
+        { field: 'linesToggle', type: 'toggle',
             html: {
                 label: 'Lines'
             },
-            onChange(change) {
-              var points = state.selectedObject.location.map(l => [parseInt(l.x), l.y])
-              connectRegion(points, "lines" + state.selectedObject._name)
+            onChange(newValue) {
+              var objectID = model.getSelectedObject()
+              var object = model.objectStates.get(objectID)
+              if (object.visualizations.lines != newValue) {
+                if (newValue) {
+                  connectRegion(model.getSelectedObject()) 
+                } else {
+                  removeLines()
+                }
+              }
+              object.visualizations.lines = newValue
             }
         },
-        { field: 'shade', type: 'checkbox',
+        { field: 'shadeToggle', type: 'toggle',
             html: {
                 label: 'Shade'
             },
-            onChange(change) {
-              shadeObjectRegion(state.selectedObject)
+            onChange(newValue) {
+              var objectID = model.getSelectedObject()
+              var object = model.objectStates.get(objectID)
+              if (object.visualizations.shaded != newValue) {
+                if (newValue) {
+                  shadeObjectRegion(model.getSelectedObject(), newValue)
+                } else {
+                  removeShading()
+                }
+              }
+              object.visualizations.shaded = newValue
             }
         }
       ],
       onChange(event) {
-        console.log(event)
         var field = this.fields.find(f => f.field == event.target)
-        field.onChange(event.value_new)
+        field.onChange(event.detail.value.current)
+      },
+      loadObject() {
+        objVisualizations = model.objectStates.get(model.getSelectedObject()).visualizations
+        this.setValue('linesToggle', objVisualizations.lines)
+        this.setValue('shadeToggle', objVisualizations.shaded)
       }
     })
 
@@ -141,31 +162,42 @@
             { type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
             { type: 'main', style: pstyle, html: `<div id='map'></div>`, resizable: true },
 			      { type: 'right', size: 300, style: pstyle, content: 'right', resizable: true,
-              tabs: [
-                { id: 'infoTab', text: 'Info',
-                  onClick() {
-                    if (model != null && model.globalState.selectedObject != 'none') {
-                      var object = sourceData.objectData.get(model.globalState.selectedObject)
-                      w2ui['layout'].html('right', `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>It is a piece of Cypriot pottery.</b>.<br>It has <b>${object.fragments.length}</b> fragments.`)
-                    }
-                  }       
-                },
-                { id: 'propertiesTab', text: 'Properties',
-                  onClick() {
-                    if (state != null && state.selectedObject != null) {
-                      w2ui['layout'].html('right',
-                        w2ui['visualizations'])  
+              tabs: {
+                active: 'infoTab',
+                tabs: [
+                  { id: 'infoTab', text: 'Info',
+                    onClick() {
+                      if (model != null && model.globalState.selectedObject != 'none') {
+                        var object = sourceData.objectData.get(model.globalState.selectedObject)
+                        w2ui['layout'].html('right', `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>It is a piece of Cypriot pottery.</b>.<br>It has <b>${object.fragments.length}</b> fragments.`)
+                      } else {
+                        w2ui['layout'].html('right', `No object selected.`)
+                      }
+                    }       
+                  },
+                  { id: 'propertiesTab', text: 'Properties',
+                    onClick() {
+                      if (model != null && model.globalState.selectedObject != 'none') {
+                        w2ui['visualizations'].loadObject()
+                        w2ui['layout'].html('right',
+                          w2ui['visualizations'])  
+                      } else {
+                        w2ui['layout'].html('right', `No object selected.`)
+                      }
                     }
                   }
-                }
-              ],
+                ]
+              },
               loadObject() {
                 this.tabs.click(this.tabs.active)
+                this.tabs
               }
             }
             //https://stackoverflow.com/questions/16510991/how-can-i-make-a-layout-widget-expand-to-full-height-in-w2ui
         ]
     });
+
+    w2ui['layout'].get('right').loadObject()
 
     var bp = []
 
@@ -305,39 +337,35 @@
         { field: 'mapToggle', type: 'toggle',
           html: {
             label: 'Map'
+          },
+          onChange(newValue) {
+            toggleMap(newValue)
+            model.globalState.showMap = newValue
           }
         },
         { field: 'pithoiToggle', type: 'toggle',
           html: {
             label: 'Pithoi'
+          },
+          onChange(newValue) {
+            togglePithoi(newValue)
+            model.globalState.showPithoi = newValue
           }
         },
         { field: 'rocksToggle', type: 'toggle',
           html: {
             label: 'Rocks'
+          },
+          onChange(newValue) {
+            toggleRocks(newValue)
+            model.globalState.showRocks = newValue
           }
         }
     ],
     onChange(event) {
-      //console.log(event)
-      var newValue = event.detail.value.current
-      // Map
-      if (event.target == 'mapToggle') {
-        toggleMap(newValue)
-        model.globalState.showMap = newValue
-      }
-
-      // Pithoi
-      if (event.target == 'pithoiToggle') {
-        togglePithoi(newValue)
-        model.globalState.showPithoi = newValue
-      }
-
-      // Rocks
-      if (event.target == 'rocksToggle') {
-        toggleRocks(newValue)
-        model.globalState.showRocks = newValue
-      }
+      console.log(event)
+      var field = this.fields.find(f => f.field == event.target)
+      field.onChange(event.detail.value.current)
     }
 });
 

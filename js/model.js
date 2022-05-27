@@ -3,20 +3,30 @@ function loadNewModel(sourceData) {
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((value, key) =>{
-        fragmentStates.set(key, {visible: false, color: "red", visualization: true})
+        fragmentStates.set(key, {visible: false, color: "red", visualizations: true})
     })
 
     var objectStates = new Map()
     sourceData.objectData.forEach((value, key) => {
-        objectStates.set(key, {visible: false, color: "red", visualization: true})
+        objectStates.set(key, {visible: false, color: "red", 
+        visualizations: {
+            lines: false,
+            shaded: false
+        }})
     })
 
     var categoryStates = new Map()
     sourceData.categoryData.forEach((value, key) => {
-        categoryStates.set(key, {visible: false, color: "red", visualization: true})
+        categoryStates.set(key, {visible: false, color: "red", visualizations: true})
     })
 
-    model = {globalState: globalState, fragmentStates: fragmentStates, objectStates: objectStates, categoryStates: categoryStates}
+    model = {globalState: globalState, 
+        fragmentStates: fragmentStates, 
+        objectStates: objectStates, 
+        categoryStates: categoryStates,
+        getSelectedObject() {
+            return model.globalState.selectedObject
+        }}
 }
 
 function loadModel(sourceData, states) {

@@ -82,6 +82,7 @@ function grid(g, x, y) {
   var points;
   var pointsLabels;
   var lines;
+  var shaded;
   var overlap;
   var image;
 
@@ -105,6 +106,7 @@ function grid(g, x, y) {
     
     points = chart.append("g")
     overlap = chart.append("g")
+    shaded = chart.append("g")
     lines = chart.append("g")
     pointsLabels = chart.append("g")
 
@@ -152,20 +154,180 @@ function grid(g, x, y) {
 
   //#endregion
 
+  // {id : "point{x}-{y}" , fragmentIds: Array}
+  var dotsOnMap = new Map()
 
   function plotObject(objectID) {
-    points
-      .selectAll(objectID)
-      .data(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)))
-      .join("circle")
-        .attr("cx", d => x(d.x))
-        .attr("cy", d => y(d.y))
+    var fragments = sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id))
+    fragments.forEach(f => processFragment(f))
+
+    // points
+    //   .selectAll(objectID)
+    //   .data(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)))
+    //   .join("circle")
+    //     .attr("cx", d => x(d.x))
+    //     .attr("cy", d => y(d.y))
+    //     .attr("stroke", "green")
+    //     .attr("data", d => (d))
+    //     .attr("r", 10)
+    //     .attr("id", d =>  "point" + d.x + "-" + d.y + "")
+    // .style("cursor", "pointer")
+    //     .on("click", mapIconClicked)
+  }
+
+  function processFragment(frag) { // multiple fragments of the same object, should be fine
+    var pointID = "point" + frag.x + "-" + frag.y
+    var fragmentArray = dotsOnMap.get(pointID)
+    if (fragmentArray == null) {
+      dotsOnMap.set(pointID, [frag])
+      plotFragment(frag, pointID)
+      addFragmentLabel(frag)
+    } else {
+      if (fragmentArray.length == 0) {
+        fragmentArray.push(frag)
+        plotFragment(frag, pointID)
+        addFragmentLabel(frag)
+      } else {
+        fragmentArray.push(frag)
+        updateFragmentLabel([frag.x, frag.y])
+      }
+    }
+  }
+
+  function plotFragment(frag, pointID) {
+    points.append("circle")
+        .attr("cx", x(frag.x))
+        .attr("cy", y(frag.y))
         .attr("stroke", "green")
-        .attr("data", d => (d))
         .attr("r", 10)
-        .attr("id", d =>  "point" + d.x + "-" + d.y + "")
+        .attr("id", pointID)
     .style("cursor", "pointer")
         .on("click", mapIconClicked)
+  }
+
+  function addFragmentLabel(frag) {
+    pointsLabels.append("text")
+      .attr("x", x(frag.x)+10)
+      .attr("y", y(frag.y)-10)
+      .attr("id", "text" + frag.x + "-" + frag.y)
+      .attr("transform", d => `rotate(-45,${x(frag.x)},${y(frag.y)})`)
+      .text(frag.name)
+  }
+  
+  function updateFragmentLabel (location) {
+    var fragments = dotsOnMap.get("point" + location[0] + "-" + location[1])
+    var svgElement = d3.select("#text" + location[0] + '-' + location[1])
+    if (fragments.length == 0) {
+      svgElement.remove()
+    } else {
+      console.log(fragments)
+      if (fragments.length == 1) {
+        svgElement.text(fragments[0].name)
+      } else {
+        svgElement.text(fragments[0].name + " + " + (fragments.length - 1))
+      }
+    }
+  }
+  
+  function mapIconClicked(event) {
+    console.log(event)
+    overlap.selectAll("*").remove();
+    let fragmentsOnPoint = dotsOnMap.get(event.srcElement.id)
+    if (fragmentsOnPoint.length > 1) {
+        console.log("multi clicked")
+        multiobjectClicked(event, fragmentsOnPoint)
+    } else {
+        console.log(fragmentsOnPoint)
+        objectClicked(fragmentsOnPoint[0].object)
+    }
+  }
+
+  function multiobjectClicked(event, objectsOnPoint) {
+    overlap
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("fill", "red")
+      .selectAll("overlap")
+    .data(objectsOnPoint)
+      .join("circle")
+      .attr("cx", event.srcElement.cx)
+      .attr("cy", (d, i) => event.srcElement.cy - i * 10)
+      .attr("r", 10)
+      .attr("id", d => d.object)
+      .on("click", event => {
+        objectClicked(event.srcElement.id)
+      })
+      .style("cursor", "pointer")
+  }
+
+
+
+  function objectClicked(objectID) {
+    console.log(objectID)
+    removeLines()
+    removeShading()
+
+    // overlap.selectAll("*").remove();
+    model.globalState.selectedObject = objectID
+    w2ui['layout'].get('right').loadObject()
+    w2ui['visualizations'].loadObject()
+    if (model.objectStates.get(objectID).visualizations.lines) {
+      connectRegion(objectID)
+    }
+    if (model.objectStates.get(objectID).visualizations.shaded) {
+      shadeObjectRegion(objectID)
+    }
+  }
+
+  function connectRegion(objectID) {
+    console.log(objectID)
+    var fragLocations = sourceData.objectData.get(objectID).fragments.map(fragID => {
+      var frag = sourceData.fragmentData.get(fragID)
+      return [frag.x, frag.y]
+    })
+    var hull = convexHull(fragLocations).map(i => fragLocations[i])
+
+    lines.append("g")
+      .attr("stroke", "red")
+      .attr("stroke-opacity", 0.6)
+      .selectAll(objectID + "lines")
+      .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
+      .join("line")
+        .attr("x1", d => x(d.x))
+        .attr("y1", d => y(d.y))
+        .attr("x2", d => x(d.xNext))
+        .attr("y2", d => y(d.yNext));
+
+  }
+
+  function removeLines() {
+    lines.select('*').remove()
+  }
+
+  function shadeObjectRegion(objectID) {
+    var fragLocations = sourceData.objectData.get(objectID).fragments.map(fragID => {
+      var frag = sourceData.fragmentData.get(fragID)
+      return [frag.x, frag.y]
+    })
+    var hull = convexHull(fragLocations).map(i => fragLocations[i])
+
+    console.log(hull.map(d => {
+      return [x(d[0]), y(d[1])].join(',')
+  }).join(' '))
+
+    shaded.selectAll('shading')
+      .data([hull])
+    .enter().append('polygon')
+      .attr("points", d => {
+        return d.map(d => {
+            return [x(d[0]), y(d[1])].join(',')
+        }).join(' ')
+      })
+      .attr("fill", "beige"); 
+  }
+
+  function removeShading() {
+    shaded.selectAll('*').remove()
   }
 
   function toggleMap(toggle) {
@@ -212,84 +374,6 @@ function grid(g, x, y) {
     } else {
       points.selectAll("rock").remove()
     }
-  }
-
-  function addFragmentLabels() {
-      pointsLabels.selectAll("pointLabelText")
-      .data(objs)
-      .join("text")
-        .attr("x", d => x(d.location.x))
-        .attr("y", d => y(d.location.y))
-        .attr("id", d =>  "text" + d.location.x + "-" + d.location.y + "")
-        .attr("visibility", "hidden")
-        .attr("transform", d => `rotate(-45,${x(d.location.x)},${y(d.location.y)})`)
-  }
-  
-  function mapIconClicked(event, p) {
-    console.log(p)
-    overlap.selectAll("*").remove();
-    lines.selectAll("*").remove();
-    // let objectsOnPoint = findObjects(p.id)
-    // if (objectsOnPoint.length > 1) {
-    //     console.log("multi clicked")
-    //     multiobjectClicked(event, p, objectsOnPoint)
-    // } else {
-        console.log("object clicked")
-        objectClicked(p.object)
-    // }
-  }
-
-  function multiobjectClicked(event, p, objectsOnPoint) {
-    overlap
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("fill", "red")
-      .selectAll("overlap")
-    .data(objectsOnPoint)
-      .join("circle")
-      .attr("cx", d => x(p.location.x))
-        .attr("cy", (d, i) => y(p.location.y) - i * 10)
-        .attr("r", 10)
-        .on("click", objectClicked)
-      .style("cursor", "pointer")
-  }
-
-
-
-  function objectClicked(objectID) {
-    // selectObject(object)
-
-    // overlap.selectAll("*").remove();
-    connectRegion(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)).map(frag => [frag.x, frag.y]), objectID)
-    model.globalState.selectedObject = objectID
-  }
-
-  function connectRegion(points, id) {
-
-    var hull = convexHull(points).map(i => points[i])
-
-    lines.append("g")
-      .attr("stroke", "red")
-      .attr("stroke-opacity", 0.6)
-      .selectAll(id)
-      .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
-      .join("line")
-        .attr("x1", d => x(d.x))
-        .attr("y1", d => y(d.y))
-        .attr("x2", d => x(d.xNext))
-        .attr("y2", d => y(d.yNext));
-
-  }
-
-  function shadeObjectRegion(object) {
-    var points = object.location.map(l => [parseInt(l.x), l.y])
-    var hull = convexHull(points).map(i => points[i]).map(p => x(p[0]) + "," + y(p[1])).join(" ")
-
-    chart.selectAll("polygon")
-      .data([hull])
-    .enter().append("polygon")
-      .attr("points", d => d)
-      .attr("fill", "beige"); 
   }
   
   // ID // What does this do?
