@@ -1,6 +1,6 @@
 var width
 var height
-var k;
+var k
 
 //reizable https://bl.ocks.org/anqi-lu/5c793fb952dd9f9204abe6ebbd657461
 
@@ -16,6 +16,7 @@ function startMap() {
   k = height / width
 
   setUpMapHelpers()
+  setUpCoordinateBox()
   setUpMap()
   readModel()
 }
@@ -26,24 +27,39 @@ var x;
 
 //Something when reizing is causing the scale of the distances between the dots to grow or shrink
 function setUpMapHelpers() {
+  var domain
+
+  if (d3.extent((sourceData.fragmentData.values()), d => d.x) > d3.extent((sourceData.fragmentData.values()), d => d.y)) {
+    domain = d3.extent((sourceData.fragmentData.values()), d => d.x) 
+  } else {
+    domain = d3.extent((sourceData.fragmentData.values()), d => d.y)
+  }
+
+  
+
   x = d3.scaleLinear()
-    .domain(d3.extent((sourceData.fragmentData.values()), d => d.x)).nice() //hOW TO MAKE EQUAL SIZED TICKS?
+    .domain(["E".charCodeAt(0), "E".charCodeAt(0) + (27-9)]).nice() //hOW TO MAKE EQUAL SIZED TICKS?
     .range([0, width])
+
+  console.log(x)
     
   y = d3.scaleLinear()
-    .domain(d3.extent((sourceData.fragmentData.values()), d => d.y)).nice() // how to LIMIT SCROLL
-    .range([height, 0])
+    .domain([9, 27]).nice()
+    // how to LIMIT SCROLL
+    .range([0, width])
 }
     
 function xAxis(g, x) {
     g.attr("transform", `translate(0,${height})`)
     .call(d3.axisTop(x).ticks(12).tickFormat(d => String.fromCharCode(d)))
     .call(g => g.select(".domain").attr("display", "none"))
+    .style("font-size","30px");
     }
     
 function yAxis(g, y) {
     g.call(d3.axisRight(y).ticks(12 * k))
     .call(g => g.select(".domain").attr("display", "none"))
+    .style("font-size","30px");
     }
     
 function grid(g, x, y) {
@@ -70,6 +86,41 @@ function grid(g, x, y) {
     .attr("y1", d => 0.5 + y(d))
     .attr("y2", d => 0.5 + y(d)));
   }
+
+  function setUpCoordinateBox() {
+    d3.select('#map').append("div").attr('id', 'coordinates')
+      .style("position", "absolute")
+      .text("I'm a circle!")
+
+
+    // var svg = d3.select('#map').append('svg')
+    //   .on('mousemove', coordinateBoxMouseMove)
+    
+    // var g = svg.append('g').attr('id', 'coordinateBox').attr('transform', 'tranlateX(10) translate(100)')
+
+    // g.append('rect')
+    //   .attr("x", 0)
+    //   .attr("y", 0)
+    //   .attr("width", coordinateBoxWidth)
+    //   .attr("height", coordinateBoxHeight);
+
+    // g.append('text')
+    //   .attr("x", 0)
+    //   .attr("y", 0)
+    //   .attr("id", 'coordinateText')
+  }
+
+  function coordinateBoxMouseMove(event) {
+    //console.log(event)
+    var mouse = d3.pointer(event)
+    d3.select('#coordinates').style("top", (mouse[1]-20)+"px").style("left",(mouse[0]+20)+"px")
+      .text(`${String.fromCharCode(x.invert(mouse[0]-transformX))}, ${Math.round(y.invert(mouse[1]-transformY))}`)
+    
+    // var mouse = d3.pointer(event)
+    // console.log(transform)
+    // d3.select('#coordinateBox')
+    //   .attr("transform", 'tranlate(' + mouse[0] + ',' + mouse[1] + ')') //'tranlateX(' + mouse[0] + ') translateY(' + mouse[1] + ')')
+  }
         
   var margin = ({top: 25, right: 20, bottom: 35, left: 40})
   var svg;
@@ -86,23 +137,55 @@ function grid(g, x, y) {
   var overlap;
   var image;
 
+  // has to be this way because for some reason  d3.select("#chart").attr('transform')  gives an error >:[
+  var transformX = 0;
+  var transformY = 0;
+
+  // Upper left corner of the map that is E9, used as a reference point to make the map in the correct position
+  var imageE = 80
+  var image9 = 45
+  var image10 = 109 // top of the 10 row, used to get the cell size for scaling
+  var imageCellSize = image10 - image9
+  var imageWidth = 1004
+  var imageHeight = 1310
+
+  function setUpBackgroundImage() {
+    var mapE = x('E'.charCodeAt(0))
+    var map9 = y(9)
+    var map10 = y(10)
+    var mapCellSize = map10 - map9
+    var ratio = mapCellSize/imageCellSize
+    console.log(ratio, mapCellSize, imageCellSize)
+    var realImageE = imageE * ratio
+    var realImage9 = image9 * ratio
+    var realImageWidth = imageWidth * ratio
+
+    image = chart.append("image")
+    .attr("xlink:href", "./imgs/reallysmallsitemap.png")
+    .style('visibility', 'hidden')
+    .attr('id', 'backgroundImage')
+    .attr('width', realImageWidth + 'px')
+    .attr('x', mapE - realImageE)
+    .attr('y', map9 - realImage9)
+
+    console.log(image.style.width)
+  }
 
   function setUpMap() {
     svg = d3.select('#map').append("svg")
-        .attr("viewBox", [0, 0, width, height])
+        .attr("viewBox", [0, 0, width, height]).on('mousemove', coordinateBoxMouseMove)
     
+    
+    chart2 = svg.append("g")
+    chart = chart2.append("g").attr('id', '#chart').attr('width', width).attr('height', height)
+    setUpBackgroundImage()
+    polygons = chart.append("g")
+
     gGrid = svg.append("g")
 
     gx = svg.append("g")
 
     gy = svg.append("g")
-    
-    chart2 = svg.append("g")
-    chart = chart2.append("g")
-    image = chart.append("image")
-      .attr("xlink:href", "./imgs/reallysmallsitemap.png")
-      .style('visibility', 'hidden')
-    polygons = chart.append("g")
     
     points = chart.append("g")
     overlap = chart.append("g")
@@ -119,7 +202,11 @@ function grid(g, x, y) {
       const zy = transform.rescaleY(y).interpolate(d3.interpolateRound);
       gx.call(xAxis, zx);
       gy.call(yAxis, zy);
+      
       chart.attr("transform", transform).attr("stroke-width", 5 / transform.k);
+      transformX = transform.x
+      transformY = transform.y
+
       chart.style("stroke-width", 3 / Math.sqrt(transform.k));
       points.attr("r", 10 / Math.sqrt(transform.k));
     gGrid.call(grid, zx, zy)
@@ -141,8 +228,10 @@ function grid(g, x, y) {
   let transform;
 
   function readModel() {
+    dotsOnMap = new Map()
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
+        console.log("object plotted")
         plotObject(id)
       }
     })
@@ -175,7 +264,7 @@ function grid(g, x, y) {
     //     .on("click", mapIconClicked)
   }
 
-  function processFragment(frag) { // multiple fragments of the same object, should be fine
+  function processFragment(frag) { // multiple fragments of the same object, should be fine // called again when resizing
     var pointID = "point" + frag.x + "-" + frag.y
     var fragmentArray = dotsOnMap.get(pointID)
     if (fragmentArray == null) {
@@ -189,12 +278,13 @@ function grid(g, x, y) {
         addFragmentLabel(frag)
       } else {
         fragmentArray.push(frag)
-        updateFragmentLabel([frag.x, frag.y])
+        updateFragmentLabel([frag.x, frag.y]) 
       }
     }
   }
 
   function plotFragment(frag, pointID) {
+    console.log("plotting fragment")
     points.append("circle")
         .attr("cx", x(frag.x))
         .attr("cy", y(frag.y))
@@ -206,6 +296,7 @@ function grid(g, x, y) {
   }
 
   function addFragmentLabel(frag) {
+    console.log(frag)
     pointsLabels.append("text")
       .attr("x", x(frag.x)+10)
       .attr("y", y(frag.y)-10)
@@ -375,6 +466,8 @@ function grid(g, x, y) {
       points.selectAll("rock").remove()
     }
   }
+
+
   
   // ID // What does this do?
   // chart.append("g")

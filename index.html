@@ -158,10 +158,10 @@
     $('#layout').w2layout({
         name: 'layout',
         panels: [
-            { type: 'top', style: pstyle, content: 'top', resizable: true },
-            { type: 'left', size: 300, style: pstyle, content: 'left', resizable: true },
-            { type: 'main', style: pstyle, html: `<div id='map'></div>`, resizable: true },
-			      { type: 'right', size: 300, style: pstyle, content: 'right', resizable: true,
+            { type: 'top', style: pstyle, content: 'top' },
+            { type: 'left', size: 300, style: 'pstyle', content: 'left' },
+            { type: 'main', style: pstyle, html: `<div id='map'></div>` },
+			      { type: 'right', size: 300, style: pstyle, content: 'right',
               tabs: {
                 active: 'infoTab',
                 tabs: [
@@ -376,8 +376,12 @@
   w2ui['leftPane'].html('top', w2ui['navigationToolbar']);
   w2ui['leftPane'].html('main', w2ui['navigation']);
 	w2ui['leftPane'].html('bottom', w2ui['filter']);
+
+  //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
   
   readWreckDataFile()
+  document.getElementsByName("navigation")[0].style.overflow = ''
+
 });
 
 </script>
