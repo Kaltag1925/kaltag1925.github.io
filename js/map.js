@@ -70,7 +70,7 @@ function yAxis(g, y) {
     
 function grid(g, x, y) {
   g.attr("stroke", "currentColor")
-  .attr("stroke-opacity", 0.1)
+  .attr("stroke-opacity", 0.3)
   .call(g => g
     .selectAll(".x")
     .data(x.ticks(dimension/(x("F".charCodeAt(0)) - x("E".charCodeAt(0)))))
@@ -107,7 +107,7 @@ function grid(g, x, y) {
     d3.select('#specificGrid').remove()
     var specificGrid = gGrid.append('g')
       .attr('id', 'specificGrid')
-      .attr("stroke-opacity", 1)
+      .attr("stroke-opacity", .3)
     
     // up down line
     specificGrid.append("line")
