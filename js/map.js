@@ -25,39 +25,45 @@ function startMap() {
 var y;
 var x;
 
+var defaultY
+var defaultX
+
 //Something when reizing is causing the scale of the distances between the dots to grow or shrink
+var dimension
 function setUpMapHelpers() {
   var domain
 
-  if (d3.extent((sourceData.fragmentData.values()), d => d.x) > d3.extent((sourceData.fragmentData.values()), d => d.y)) {
-    domain = d3.extent((sourceData.fragmentData.values()), d => d.x) 
+  if (height > width) {
+    dimension = height
   } else {
-    domain = d3.extent((sourceData.fragmentData.values()), d => d.y)
+    dimension = width
   }
 
   
 
   x = d3.scaleLinear()
     .domain(["E".charCodeAt(0), "E".charCodeAt(0) + (27-9)]).nice() //hOW TO MAKE EQUAL SIZED TICKS?
-    .range([0, width])
+    .range([0, dimension])
 
-  console.log(x)
+  defaultX = x.copy()
     
   y = d3.scaleLinear()
     .domain([9, 27]).nice()
     // how to LIMIT SCROLL
-    .range([0, width])
+    .range([0, dimension])
+
+  defaultY = y.copy()
 }
     
 function xAxis(g, x) {
     g.attr("transform", `translate(0,${height})`)
-    .call(d3.axisTop(x).ticks(12).tickFormat(d => String.fromCharCode(d)))
+    .call(d3.axisTop(x).ticks(dimension/(x("F".charCodeAt(0)) - x("E".charCodeAt(0)))).tickFormat(d => String.fromCharCode(d)))
     .call(g => g.select(".domain").attr("display", "none"))
     .style("font-size","30px");
     }
     
 function yAxis(g, y) {
-    g.call(d3.axisRight(y).ticks(12 * k))
+    g.call(d3.axisRight(y).ticks(dimension/(y(10)-y(9))))
     .call(g => g.select(".domain").attr("display", "none"))
     .style("font-size","30px");
     }
@@ -67,7 +73,7 @@ function grid(g, x, y) {
   .attr("stroke-opacity", 0.1)
   .call(g => g
     .selectAll(".x")
-    .data(x.ticks(12))
+    .data(x.ticks(dimension/(x("F".charCodeAt(0)) - x("E".charCodeAt(0)))))
     .join(
       enter => enter.append("line").attr("class", "x").attr("y2", height),
       update => update,
@@ -77,7 +83,7 @@ function grid(g, x, y) {
       .attr("x2", d => 0.5 + x(d)))
   .call(g => g
     .selectAll(".y")
-    .data(y.ticks(12 * k))
+    .data(y.ticks(dimension/(y(10)-y(9))))
     .join(
       enter => enter.append("line").attr("class", "y").attr("x2", width),
       update => update,
@@ -87,10 +93,72 @@ function grid(g, x, y) {
     .attr("y2", d => 0.5 + y(d)));
   }
 
+  function drawSpecificGrid(event) { // maybe add an if statement that detects if it needs to redraw ie in a new cell, if this causes performance issues
+    var mouse = d3.pointer(event)
+    var mouseGridX = Math.floor(x.invert(mouse[0]))
+    var mouseGridY = Math.floor(y.invert(mouse[1]))
+    var leftGridX = x(mouseGridX)
+    var upGridY = y(mouseGridY)
+    var xCellSize = (x("F".charCodeAt(0)) - x("E".charCodeAt(0)))
+    var yCellSize = (y(10)-y(9))
+
+    // up right down left
+
+    d3.select('#specificGrid').remove()
+    var specificGrid = gGrid.append('g')
+      .attr('id', 'specificGrid')
+      .attr("stroke-opacity", 1)
+    
+    // up down line
+    specificGrid.append("line")
+      .attr("x1", leftGridX + xCellSize/2)
+      .attr("y1", upGridY)
+      .attr("x2", leftGridX + xCellSize/2)
+      .attr("y2", upGridY + yCellSize)
+
+    // left right line
+    specificGrid.append("line")
+      .attr("x1", leftGridX)
+      .attr("y1", upGridY + yCellSize/2)
+      .attr("x2", leftGridX + xCellSize)
+      .attr("y2", upGridY + yCellSize/2)
+
+    var numberGridX
+    if (mouse[0] < leftGridX + xCellSize/2) {
+      numberGridX = leftGridX
+    } else {
+      numberGridX = leftGridX + xCellSize/2
+    }
+
+    var numberGridY
+    if (mouse[1] < upGridY + yCellSize/2) {
+      numberGridY = upGridY
+    } else {
+      numberGridY = upGridY + yCellSize/2
+    }
+
+    // up down line
+    specificGrid.append("line")
+      .attr("x1", numberGridX + xCellSize/4)
+      .attr("y1", numberGridY)
+      .attr("x2", numberGridX + xCellSize/4)
+      .attr("y2", numberGridY + yCellSize/2)
+
+    // left right line
+    specificGrid.append("line")
+      .attr("x1", numberGridX)
+      .attr("y1", numberGridY + yCellSize/4)
+      .attr("x2", numberGridX + xCellSize/2)
+      .attr("y2", numberGridY + yCellSize/4)
+
+      // Add text labels?
+
+  }
+
   function setUpCoordinateBox() {
     d3.select('#map').append("div").attr('id', 'coordinates')
       .style("position", "absolute")
-      .text("I'm a circle!")
+      .text("") //TODO: Hide when off map
 
 
     // var svg = d3.select('#map').append('svg')
@@ -110,11 +178,11 @@ function grid(g, x, y) {
     //   .attr("id", 'coordinateText')
   }
 
-  function coordinateBoxMouseMove(event) {
+  function coordinateBoxMouseMove(event) {//doesnt work with zoom
     //console.log(event)
     var mouse = d3.pointer(event)
     d3.select('#coordinates').style("top", (mouse[1]-20)+"px").style("left",(mouse[0]+20)+"px")
-      .text(`${String.fromCharCode(x.invert(mouse[0]-transformX))}, ${Math.round(y.invert(mouse[1]-transformY))}`)
+      .text(`${String.fromCharCode(x.invert(mouse[0]))}, ${Math.floor(y.invert(mouse[1]))}`)
     
     // var mouse = d3.pointer(event)
     // console.log(transform)
@@ -172,8 +240,10 @@ function grid(g, x, y) {
   }
 
   function setUpMap() {
-    svg = d3.select('#map').append("svg")
-        .attr("viewBox", [0, 0, width, height]).on('mousemove', coordinateBoxMouseMove)
+    svg = d3.select('#map').append("svg").on("mousemove", event => {
+      drawSpecificGrid(event)
+      coordinateBoxMouseMove(event)
+    }).attr("viewBox", [0, 0, width, height])
     
     
     chart2 = svg.append("g")
@@ -198,18 +268,19 @@ function grid(g, x, y) {
 
     function zoomed({transform}) {
       console.log(transform)
-      const zx = transform.rescaleX(x).interpolate(d3.interpolateRound);
-      const zy = transform.rescaleY(y).interpolate(d3.interpolateRound);
-      gx.call(xAxis, zx);
-      gy.call(yAxis, zy);
+      x = transform.rescaleX(defaultX).interpolate(d3.interpolateRound);
+      y = transform.rescaleY(defaultY).interpolate(d3.interpolateRound);
+      gx.call(xAxis, x);
+      gy.call(yAxis, y);
       
       chart.attr("transform", transform).attr("stroke-width", 5 / transform.k);
+      k = transform.k
       transformX = transform.x
       transformY = transform.y
 
       chart.style("stroke-width", 3 / Math.sqrt(transform.k));
       points.attr("r", 10 / Math.sqrt(transform.k));
-    gGrid.call(grid, zx, zy)
+      gGrid.call(grid, x, y)
     };
             
     svg.call(zoom)
