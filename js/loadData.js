@@ -153,6 +153,14 @@ function trimID(nameString) {
     return nameString.split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
 }
 
+function getObjectFragments(object) {
+    return object.fragments.map(f => sourceData.fragmentData.get(f))
+}
+
+function getObjectIDFragments(id) {
+    return getObjectFragments(sourceData.objectData.get(id))
+}
+
 
 function objectTocategoryIDs(object){
     return [object.type]

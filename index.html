@@ -169,7 +169,7 @@
                     onClick() {
                       if (model != null && model.globalState.selectedObject != 'none') {
                         var object = sourceData.objectData.get(model.globalState.selectedObject)
-                        w2ui['layout'].html('right', `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>It is a piece of Cypriot pottery.</b>.<br>It has <b>${object.fragments.length}</b> fragments.`)
+                        w2ui['layout'].html('right', displayObjectInfo(object))
                       } else {
                         w2ui['layout'].html('right', `No object selected.`)
                       }
@@ -196,6 +196,25 @@
             //https://stackoverflow.com/questions/16510991/how-can-i-make-a-layout-widget-expand-to-full-height-in-w2ui
         ]
     });
+
+    function displayObjectInfo(object) {
+      var html = `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
+      It is a piece of Cypriot pottery.</b>.<br>
+      It has <b>${object.fragments.length}</b> fragments.<br>
+      Fragments:<br>
+      ${displayObjectFragments(object)}
+      `
+      return html
+    }
+
+    function displayObjectFragments(object) {
+      var html = ''
+      var fragments = getObjectFragments(object)
+      fragments.forEach(f => {
+        html += `- ${f.name} @ (${String.fromCharCode(f.x)}, ${f.y})<br>`
+      })
+      return html
+    }
 
     w2ui['layout'].get('right').loadObject()
 
