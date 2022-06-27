@@ -599,6 +599,7 @@ function grid(g, x, y) {
     }
   }
 
+  var pithosSVG = d3.xml('imgs/pithos.svg')
   function togglePithoi(toggle) {
     if (toggle) {
       points
@@ -618,6 +619,7 @@ function grid(g, x, y) {
     }
   }
 
+  var rockSVG = d3.xml('imgs/rock.svg')
   function toggleRocks(toggle) {
     if (toggle) {
       points
