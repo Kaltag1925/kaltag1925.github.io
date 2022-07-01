@@ -329,6 +329,7 @@
 
 <script type="text/javascript">
   function loadObjectInfoPanel(objectID) {
+    objectID = "objectKW2720"
     object = sourceData.objectData.get(objectID)
 
     $().w2form({
@@ -411,7 +412,7 @@
       ]
     })
 
-    //objectID = "objectKW2720"
+
     var coll = document.getElementsByClassName("collapsible");
     var i;
 
@@ -421,52 +422,22 @@
         var content = this.nextElementSibling;
         if (content.style.maxHeight){
           content.style.maxHeight = null;
+          content.style.height = "0%"
         } else {
           content.style.maxHeight = 800 + "px";
+          content.style.height = "100%"
         } 
   
         var content = document.getElementById(objectID +"infodiv").children[0];
         
         if (content.style.height == 0 + "px") {
-          content.style.height = 800 + "px"; //need to calculate / continully update or smthn
+          content.style.height = "fit-content"; //need to calculate / continully update or smthn
         } else {
           content.style.height = 0 + "px"
         }
+        w2ui[objectID + "info"].resize()
       });
     }
-    /*
-    document.getElementById(objectID + "infocollapse").addEventListener("click", function() {
-      this.classList.toggle("active");
-
-      var content = this.nextElementSibling;
-      if (content.style.maxHeight){
-        content.style.maxHeight = null;
-      } else {
-        content.style.maxHeight = 800 + "px";
-      } 
-
-      var content = document.getElementById(objectID +"infodiv").children[0];
-      console.log(document.getElementById(objectID +"infodiv").children[0])
-      
-      if (content.style.height == 0 + "px") {
-        content.style.height = 800 + "px"; //need to calculate / continully update or smthn
-      } else {
-        content.style.height = 0 + "px"
-      }
-    });
-    */
-
-      //var content = document.getElementById(objectID +"infodiv").children[0];
-      //console.log(document.getElementById(objectID +"infodiv").children[0])
-      /*
-      if (content.style.height){
-        content.style.height = null;
-      } else {
-        content.style.height = 400 + "px"; //need to calculate / continully update or smthn
-      }
-      content.style.height = 400 + "px";
-    });
-    */
   }
 
   function displayObjectInfo(object) {
