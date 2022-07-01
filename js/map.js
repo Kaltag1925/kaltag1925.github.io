@@ -11,7 +11,6 @@ function readDataFile() {
 function startMap() {
   width = w2ui['layout'].get('main').width
   height = w2ui['layout'].get('main').height
-  console.log("hello" + height)
 
   k = height / width
 
@@ -184,7 +183,6 @@ function grid(g, x, y) {
   }
 
   function coordinateBoxMouseMove(event) {//doesnt work with zoom
-    //console.log(event)
     var mouse = d3.pointer(event)
     var cellSize = (gridX("F".charCodeAt(0)) - gridX("E".charCodeAt(0)))
 
@@ -234,8 +232,6 @@ function grid(g, x, y) {
 
     var numberRelativeMouseX = mouse[0] - numberCellX
     var numberRelativeMouseY = mouse[1] - numberCellY
-
-    console.log(numberCellX, numberCellY)
 
     if (numberRelativeMouseX > cellSize / 4) {
       // right
@@ -301,7 +297,7 @@ function grid(g, x, y) {
     var map10 = y(10)
     var mapCellSize = map10 - map9
     var ratio = mapCellSize/imageCellSize
-    console.log(ratio, mapCellSize, imageCellSize)
+    //console.log(ratio, mapCellSize, imageCellSize)
     var realImageE = imageE * ratio
     var realImage9 = image9 * ratio
     var realImageWidth = imageWidth * ratio
@@ -313,8 +309,6 @@ function grid(g, x, y) {
     .attr('width', realImageWidth + 'px')
     .attr('x', mapE - realImageE)
     .attr('y', map9 - realImage9)
-
-    console.log(image.style.width)
   }
 
   function setUpMap() {
@@ -383,7 +377,6 @@ function grid(g, x, y) {
     dotsOnMap = new Map()
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
-        console.log("object plotted")
         plotObject(id)
       }
     })
@@ -461,7 +454,6 @@ function grid(g, x, y) {
     if (fragments.length == 0) {
       svgElement.remove()
     } else {
-      console.log(fragments)
       if (fragments.length == 1) {
         svgElement.text(fragments[0].name)
       } else {
@@ -504,7 +496,6 @@ function grid(g, x, y) {
       .style("cursor", "pointer")
 
     // labels
-    console.log(event)
     d3.select(`#${id}text`).attr("visibility", "hidden")
     pointsLabels.selectAll("overlapLabels").data(objectsOnPoint).join("text")
     .attr("x", (f, i) => cx+15)
@@ -524,8 +515,11 @@ function grid(g, x, y) {
 
     // overlap.selectAll("*").remove();
     model.globalState.selectedObject = objectID
-    w2ui['layout'].get('right').loadObject()
-    w2ui['visualizations'].loadObject()
+   
+    // FIX
+    loadObjectInfoPanel(objectID)
+    // w2ui['layout'].get('right').loadObject()
+    // w2ui['visualizations'].loadObject()
     if (model.objectStates.get(objectID).visualizations.lines) {
       connectRegion(objectID)
     }
@@ -571,10 +565,6 @@ function grid(g, x, y) {
       return [frag.x, frag.y]
     })
     var hull = convexHull(fragLocations).map(i => fragLocations[i])
-
-    console.log(hull.map(d => {
-      return [x(d[0]), y(d[1])].join(',')
-  }).join(' '))
 
     shaded.selectAll('shading')
       .data([hull])

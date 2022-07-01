@@ -23,6 +23,8 @@
       return "(" + x + ", " + y + ")-" + index
     }
 
+    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
+
     // require('requirejs')
     // var convexHull = require('monotone-convex-hull-2d')
 	</script>
@@ -54,6 +56,45 @@
 .w2ui-sidebar[name=navigation] .w2ui-sidebar-body .w2ui-node .w2ui-node-handle > div.toggle {
     background-color: #55ca2e;
     border: 1px solid #55ca2e
+}
+
+/*
+ Collapsable
+*/
+.collapsible {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+}
+
+.active, .collapsible:hover {
+  background-color: #555;
+}
+
+.collapsible:after {
+  content: '\002B';
+  color: white;
+  font-weight: bold;
+  float: right;
+  margin-left: 5px;
+}
+
+.active:after {
+  content: "\2212";
+}
+
+.content {
+  padding: 0 18px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  background-color: #f1f1f1;
 }
 </style>
 <div style="clear: both"/>
@@ -87,136 +128,16 @@
   }
 
   $(function () {
-    $().w2form({
-      name: 'visualizations',
-      fields: [
-        { field: 'linesToggle', type: 'toggle',
-            html: {
-                label: 'Lines'
-            },
-            onChange(newValue) {
-              var objectID = model.getSelectedObject()
-              var object = model.objectStates.get(objectID)
-              if (object.visualizations.lines != newValue) {
-                if (newValue) {
-                  connectRegion(model.getSelectedObject()) 
-                } else {
-                  removeLines()
-                }
-              }
-              object.visualizations.lines = newValue
-            }
-        },
-        { field: 'shadeToggle', type: 'toggle',
-            html: {
-                label: 'Shade'
-            },
-            onChange(newValue) {
-              var objectID = model.getSelectedObject()
-              var object = model.objectStates.get(objectID)
-              if (object.visualizations.shaded != newValue) {
-                if (newValue) {
-                  shadeObjectRegion(model.getSelectedObject(), newValue)
-                } else {
-                  removeShading()
-                }
-              }
-              object.visualizations.shaded = newValue
-            }
-        }
-      ],
-      onChange(event) {
-        var field = this.fields.find(f => f.field == event.target)
-        field.onChange(event.detail.value.current)
-      },
-      loadObject() {
-        objVisualizations = model.objectStates.get(model.getSelectedObject()).visualizations
-        this.setValue('linesToggle', objVisualizations.lines)
-        this.setValue('shadeToggle', objVisualizations.shaded)
-      }
-    })
-
-    console.log()
-
-    w2ui['visualizations'].on('*', function (event) {
-        //console.log(event)
-        // if(event.type == 'change') {
-        //   var form = w2ui['visualizations'].fields.find(f => f.field == event.target)
-        //   console.log(event)
-        //   form.onChange()
-        // }
-        // let edata = $.extend({}, event)
-        // if (edata.originalEvent) edata.originalEvent = {'...':'...'}
-        // if (edata.error) edata.error = {'...':'...'}
-        // if (edata.errors) edata.errors = {'...':'...'}
-        // if (edata.xhr) edata.xhr = {'...':'...'}
-        // $('#preview').html(`Event: ${event.type}<pre style="font-size: 12px; line-height: 1.4">${JSON.stringify(edata, null, 2)}</pre>`);
-        // console.log('Event: '+ event.type, 'Target: '+ event.target, event);
-    });
-
-    var pstyle = 'border: 1px solid #efefef; padding: 5px;';
     $('#layout').w2layout({
         name: 'layout',
         panels: [
             { type: 'top', style: pstyle, content: 'top' },
             { type: 'left', size: 300, style: 'pstyle', content: 'left' },
             { type: 'main', style: pstyle, html: `<div id='map'></div>` },
-			      { type: 'right', size: 300, style: pstyle, content: 'right',
-              tabs: {
-                active: 'infoTab',
-                tabs: [
-                  { id: 'infoTab', text: 'Info',
-                    onClick() {
-                      if (model != null && model.globalState.selectedObject != 'none') {
-                        var object = sourceData.objectData.get(model.globalState.selectedObject)
-                        w2ui['layout'].html('right', displayObjectInfo(object))
-                      } else {
-                        w2ui['layout'].html('right', `No object selected.`)
-                      }
-                    }       
-                  },
-                  { id: 'propertiesTab', text: 'Properties',
-                    onClick() {
-                      if (model != null && model.globalState.selectedObject != 'none') {
-                        w2ui['visualizations'].loadObject()
-                        w2ui['layout'].html('right',
-                          w2ui['visualizations'])  
-                      } else {
-                        w2ui['layout'].html('right', `No object selected.`)
-                      }
-                    }
-                  }
-                ]
-              },
-              loadObject() {
-                this.tabs.click(this.tabs.active)
-                this.tabs
-              }
-            }
+			      { type: 'right', size: 300, style: pstyle, content: 'No objects selected.'}
             //https://stackoverflow.com/questions/16510991/how-can-i-make-a-layout-widget-expand-to-full-height-in-w2ui
         ]
     });
-
-    function displayObjectInfo(object) {
-      var html = `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
-      It is a piece of Cypriot pottery.</b>.<br>
-      It has <b>${object.fragments.length}</b> fragments.<br>
-      Fragments:<br>
-      ${displayObjectFragments(object)}
-      `
-      return html
-    }
-
-    function displayObjectFragments(object) {
-      var html = ''
-      var fragments = getObjectFragments(object)
-      fragments.forEach(f => {
-        html += `- ${f.name} @ (${String.fromCharCode(f.x)}, ${f.y})<br>`
-      })
-      return html
-    }
-
-    w2ui['layout'].get('right').loadObject()
 
     var bp = []
 
@@ -268,6 +189,7 @@
       });}}
     ]
   })
+  
 
   function saveExport() {
       
@@ -403,6 +325,186 @@
 
 });
 
+</script>
+
+<script type="text/javascript">
+  function loadObjectInfoPanel(objectID) {
+    object = sourceData.objectData.get(objectID)
+
+    $().w2form({
+      name: objectID + 'visualizations',
+      fields: [
+        { field: 'linesToggle', type: 'toggle',
+            html: {
+                label: 'Lines'
+            },
+            onChange(newValue) {
+              var objectState = model.objectStates.get(objectID)
+              if (objectState.visualizations.lines != newValue) {
+                if (newValue) {
+                  connectRegion(objectID) 
+                } else {
+                  removeLines()
+                }
+              }
+              objectState.visualizations.lines = newValue
+            }
+        },
+        { field: 'shadeToggle', type: 'toggle',
+            html: {
+                label: 'Shade'
+            },
+            onChange(newValue) {
+              var objectState = model.objectStates.get(objectID)
+              if (objectState.visualizations.shaded != newValue) {
+                if (newValue) {
+                  shadeObjectRegion(objectID, newValue)
+                } else {
+                  removeShading()
+                }
+              }
+              object.visualizations.shaded = newValue
+            }
+        }
+      ],
+      onChange(event) {
+        var field = this.fields.find(f => f.field == event.target)
+        field.onChange(event.detail.value.current)
+      },
+      loadObject() {
+        objVisualizations = model.objectStates.get(objectID).visualizations
+        this.setValue('linesToggle', objVisualizations.lines)
+        this.setValue('shadeToggle', objVisualizations.shaded)
+      }
+    })
+
+    currentHTML = w2ui['layout'].html('right').html
+    console.log(currentHTML)
+    newHTML = currentHTML + `
+    <button class="collapsible" id="${objectID}infocollapse">Open Section 1</button>
+    <div class="content" id="${objectID}infodiv">
+    </div>
+    `
+    w2ui['layout'].html('right', newHTML)
+
+    $(`#${objectID}infodiv`).w2layout({
+      name: objectID + "info",
+      panels: [
+        {type: "main", style: pstyle, size: 400, html: displayObjectInfo(object),
+          tabs: {
+            active: 'infoTab',
+            tabs: [
+              { id: 'infoTab', text: 'Info',
+                onClick() {
+                    w2ui[objectID + "info"].html('main', displayObjectInfo(object))
+                }       
+              },
+              { id: 'propertiesTab', text: 'Properties',
+                onClick() {
+                    w2ui[objectID + 'visualizations'].loadObject()
+                    w2ui[objectID + "info"].html('main', w2ui[objectID + 'visualizations'])  
+                }
+              }
+            ]
+          }
+        }
+      ]
+    })
+
+    //objectID = "objectKW2720"
+    var coll = document.getElementsByClassName("collapsible");
+    var i;
+
+    for (i = 0; i < coll.length; i++) {
+      coll[i].addEventListener("click", function() {
+        this.classList.toggle("active");
+        var content = this.nextElementSibling;
+        if (content.style.maxHeight){
+          content.style.maxHeight = null;
+        } else {
+          content.style.maxHeight = 800 + "px";
+        } 
+  
+        var content = document.getElementById(objectID +"infodiv").children[0];
+        
+        if (content.style.height == 0 + "px") {
+          content.style.height = 800 + "px"; //need to calculate / continully update or smthn
+        } else {
+          content.style.height = 0 + "px"
+        }
+      });
+    }
+    /*
+    document.getElementById(objectID + "infocollapse").addEventListener("click", function() {
+      this.classList.toggle("active");
+
+      var content = this.nextElementSibling;
+      if (content.style.maxHeight){
+        content.style.maxHeight = null;
+      } else {
+        content.style.maxHeight = 800 + "px";
+      } 
+
+      var content = document.getElementById(objectID +"infodiv").children[0];
+      console.log(document.getElementById(objectID +"infodiv").children[0])
+      
+      if (content.style.height == 0 + "px") {
+        content.style.height = 800 + "px"; //need to calculate / continully update or smthn
+      } else {
+        content.style.height = 0 + "px"
+      }
+    });
+    */
+
+      //var content = document.getElementById(objectID +"infodiv").children[0];
+      //console.log(document.getElementById(objectID +"infodiv").children[0])
+      /*
+      if (content.style.height){
+        content.style.height = null;
+      } else {
+        content.style.height = 400 + "px"; //need to calculate / continully update or smthn
+      }
+      content.style.height = 400 + "px";
+    });
+    */
+  }
+
+  function displayObjectInfo(object) {
+    var html = `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
+    It is a piece of Cypriot pottery.</b>.<br>
+    It has <b>${object.fragments.length}</b> fragments.<br>
+    Fragments:<br>
+    ${displayObjectFragments(object)}
+    `
+    return html
+  }
+
+  function displayObjectFragments(object) {
+    var html = ''
+    var fragments = getObjectFragments(object)
+    fragments.forEach(f => {
+      html += `- ${f.name} @ (${String.fromCharCode(f.x)}, ${f.y})<br>`
+    })
+    return html
+  }
+
+   /* 
+   Collapsable Script
+  */
+  var coll = document.getElementsByClassName("collapsible");
+  var i;
+  
+  for (i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.maxHeight){
+        content.style.maxHeight = null;
+      } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+      } 
+    });
+  }
 </script>
 
 <script type='text/javascript'>

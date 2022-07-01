@@ -173,8 +173,7 @@ function objectTocategoryIDs(object){
 }
 
 function objectToID(object) {
-    return "object" + object.name
-    //return trimID(object._name + )
+    return "object" + trimID(object.name) // this is lossy since there are +'s n stuff need to replace them with words?
 }
 
 /* temp stuff */
