@@ -574,7 +574,7 @@ function grid(g, x, y) {
             return [x(d[0]), y(d[1])].join(',')
         }).join(' ')
       })
-      .attr("fill", "beige"); 
+      .attr("fill", "blue"); 
   }
 
   function removeShading() {
