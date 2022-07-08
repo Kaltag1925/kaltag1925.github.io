@@ -153,15 +153,6 @@ function trimID(nameString) {
     return nameString.split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
 }
 
-function getObjectFragments(object) {
-    return object.fragments.map(f => sourceData.fragmentData.get(f))
-}
-
-function getObjectIDFragments(id) {
-    return getObjectFragments(sourceData.objectData.get(id))
-}
-
-
 function objectTocategoryIDs(object){
     return [object.type]
     
@@ -208,4 +199,20 @@ function alphaToInt(a) {
 
 function fragmentToID(fragment, index, object) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
     return trimID(object.name + fragment.x + fragment.y + index);
+}
+
+function getObjectData(id) {
+    return sourceData.objectData.get(id)
+}
+
+function getObjectFragments(object) {
+    return object.fragments.map(f => sourceData.fragmentData.get(f))
+}
+
+function getObjectIDFragments(id) {
+    return getObjectFragments(sourceData.objectData.get(id))
+}
+
+function getFragmentData(id) {
+    return sourceData.fragmentData.get(id)
 }

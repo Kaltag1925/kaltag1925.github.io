@@ -391,10 +391,12 @@ function grid(g, x, y) {
   // {id : "point{x}-{y}" , fragmentIds: Array}
   var dotsOnMap = new Map()
 
-  function plotObject(objectID) {
-    var fragments = sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id))
-    fragments.forEach(f => processFragment(f))
-
+  function processObject(objectID, visible) {
+    if (visible) {
+      sourceData.objectData.get(objectID).fragments.forEach(f => processFragment(f))
+    } else {
+      sourceData.objectData.get(objectID).fragments.forEach(f => processRemoveFragment(f))
+    }
     // points
     //   .selectAll(objectID)
     //   .data(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)))
@@ -409,20 +411,21 @@ function grid(g, x, y) {
     //     .on("click", mapIconClicked)
   }
 
-  function processFragment(frag) { // multiple fragments of the same object, should be fine // called again when resizing
+  function processFragment(fragID) { // multiple fragments of the same object, should be fine // called again when resizing
+    var frag = getFragmentData(fragID)
     var pointID = "point" + frag.x + "-" + frag.y
     var fragmentArray = dotsOnMap.get(pointID)
     if (fragmentArray == null) {
-      dotsOnMap.set(pointID, [frag])
+      dotsOnMap.set(pointID, [fragID])
       plotFragment(frag, pointID)
       addFragmentLabel(frag)
     } else {
       if (fragmentArray.length == 0) {
-        fragmentArray.push(frag)
+        fragmentArray.push(fragID)
         plotFragment(frag, pointID)
         addFragmentLabel(frag)
       } else {
-        fragmentArray.push(frag)
+        fragmentArray.push(fragID)
         updateFragmentLabel([frag.x, frag.y]) 
       }
     }
@@ -447,9 +450,29 @@ function grid(g, x, y) {
       .attr("transform", d => `rotate(-45,${x(frag.x) + 10},${y(frag.y) - 10})`)
       .text(frag.name)
   }
+
+  function processRemoveFragment(fragID) {
+    var frag = getFragmentData(fragID)
+    var pointID = "point" + frag.x + "-" + frag.y
+    var fragmentArray = dotsOnMap.get(pointID)
+    var fragIDIndex = fragmentArray.indexOf(fragID)
+    fragmentArray.splice(fragIDIndex, 1)
+    console.log(fragmentArray)
+    
+    updateFragmentLabel([frag.x, frag.y])
+    console.log(fragmentArray.length)
+    if (fragmentArray.length == 0) {
+      d3.select("#"+pointID).remove()
+    } else {
+      var someObjectSelected = fragmentArray.map(f => getObjectState(f.object)).some(o => o.selected)
+      if (!someObjectSelected) {
+        d3.select(pointID).attr("fill", "black")
+      }
+    }
+  }
   
   function updateFragmentLabel (location) {
-    var fragments = dotsOnMap.get("point" + location[0] + "-" + location[1])
+    var fragments = dotsOnMap.get("point" + location[0] + "-" + location[1]).map(f => getFragmentData(f))
     var svgElement = d3.select("#point" + location[0] + '-' + location[1] + "text")
     if (fragments.length == 0) {
       svgElement.remove()
@@ -464,11 +487,11 @@ function grid(g, x, y) {
   
   function mapIconClicked(event) {
     overlap.selectAll("*").remove();
-    let fragmentsOnPoint = dotsOnMap.get(event.srcElement.id)
-    if (fragmentsOnPoint.length > 1) {
-        multiobjectClicked(event, fragmentsOnPoint)
+    let objectsOnPoint = dotsOnMap.get(event.srcElement.id).map(f => getFragmentData(f).object)
+    if (objectsOnPoint.length > 1) {
+        multiobjectClicked(event, objectsOnPoint)
     } else {
-        objectClicked(fragmentsOnPoint[0].object)
+        objectClicked(objectsOnPoint[0])
     }
   }
 
@@ -486,10 +509,10 @@ function grid(g, x, y) {
       .attr("cx", cx)
       .attr("cy", (d, i) => cy - i * 20)
       .attr("r", 10)
-      .attr("id", d => d.object)
+      .attr("id", d => d)
       .on("click", event => {
-        pointsLabels.selectAll("overlapLabels").remove()
-        overlap.selectAll("overlap").remove()
+        pointsLabels.selectAll("*").remove()
+        overlap.selectAll("*").remove()
         d3.select(`#${id}text`).attr("visibility", "visible")
         objectClicked(event.target.id)
       })
@@ -510,29 +533,46 @@ function grid(g, x, y) {
 
 
   function objectClicked(objectID) {
-    removeLines()
-    removeShading()
+    var objState = getObjectState(objectID)
+    console.log(objectID, objState)
+    if (!(objState.selected)) {
+      objState.selected = true
 
-    // overlap.selectAll("*").remove();
-    model.globalState.selectedObject = objectID
-   
-    // FIX
-    loadObjectInfoPanel(objectID)
-    // w2ui['layout'].get('right').loadObject()
-    // w2ui['visualizations'].loadObject()
-    if (model.objectStates.get(objectID).visualizations.lines) {
-      connectRegion(objectID)
+      loadObjectInfoPanel(objectID)
+
+      if (model.objectStates.get(objectID).visualizations.lines) {
+        connectRegion(objectID)
+      }
+      if (model.objectStates.get(objectID).visualizations.shaded) {
+        shadeObjectRegion(objectID)
+      }
+
+      //highlight fragments
+      getObjectIDFragments(objectID).forEach(f => {
+        d3.select(`#point${f.x}-${f.y}`).attr("fill", "greenyellow")
+      })
+    } else {
+      objState.selected = false
+      // remove lines and shading of deselected object
+      removeLines()
+      removeShading() // fix
+
+      document.getElementById(`${objectID}InfoCollapsible`).remove()
+      document.getElementById(`${objectID}InfoDiv`).remove()
+      w2ui[`${objectID}visualizations`].destroy()
+      w2ui[`${objectID}info`].destroy()
+
+      getObjectIDFragments(objectID).forEach(f => {
+        var pointID = `point${f.x}-${f.y}`
+        var someObjectSelected = dotsOnMap.get(pointID).some(f => {
+          return getObjectState(getFragmentData(f).object).selected
+        })
+        console.log(someObjectSelected)
+        if (!someObjectSelected) {
+          d3.select("#" + pointID).attr("fill", "black")
+        }
+      })
     }
-    if (model.objectStates.get(objectID).visualizations.shaded) {
-      shadeObjectRegion(objectID)
-    }
-
-    //highlight fragments
-    getObjectIDFragments(objectID).forEach(f => {
-      d3.select(`#point${f.x}-${f.y}`).attr("fill", "greenyellow")
-    })
-
-    // todo remove when deselected
   }
 
   function connectRegion(objectID) {
