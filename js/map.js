@@ -189,8 +189,8 @@ function grid(g, x, y) {
     var xChar = Math.floor(gridX.invert(mouse[0]))
     var yNumber = Math.floor(gridY.invert(mouse[1]))
 
-    var xCoord = x(xChar)
-    var yCoord = y(yNumber)
+    var xCoord = gridX(xChar)
+    var yCoord = gridY(yNumber)
 
     // sometimes these are negative not sure why, probably doesnt matter???
     var relativeMouseX = mouse[0] - xCoord
