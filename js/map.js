@@ -397,18 +397,6 @@ function grid(g, x, y) {
     } else {
       sourceData.objectData.get(objectID).fragments.forEach(f => processRemoveFragment(f))
     }
-    // points
-    //   .selectAll(objectID)
-    //   .data(sourceData.objectData.get(objectID).fragments.map(id => sourceData.fragmentData.get(id)))
-    //   .join("circle")
-    //     .attr("cx", d => x(d.x))
-    //     .attr("cy", d => y(d.y))
-    //     .attr("stroke", "green")
-    //     .attr("data", d => (d))
-    //     .attr("r", 10)
-    //     .attr("id", d =>  "point" + d.x + "-" + d.y + "")
-    // .style("cursor", "pointer")
-    //     .on("click", mapIconClicked)
   }
 
   function processFragment(fragID) { // multiple fragments of the same object, should be fine // called again when resizing
@@ -485,49 +473,75 @@ function grid(g, x, y) {
     }
   }
   
+  var lastSelectedPoint = null
+
   function mapIconClicked(event) {
+    if (lastSelectedPoint != null) {
+      d3.select(`#${lastSelectedPoint}text`).attr("visibility", "visible")
+    }
+    
     overlap.selectAll("*").remove();
-    let objectsOnPoint = dotsOnMap.get(event.srcElement.id).map(f => getFragmentData(f).object)
-    if (objectsOnPoint.length > 1) {
-        multiobjectClicked(event, objectsOnPoint)
+
+
+    let fragmentsOnPoint = dotsOnMap.get(event.srcElement.id)
+    if (fragmentsOnPoint.length > 1) {
+        multiobjectClicked(event, fragmentsOnPoint)
     } else {
-        objectClicked(objectsOnPoint[0])
+        objectClicked(getFragmentData(fragmentsOnPoint[0]).object)
     }
   }
 
-  function multiobjectClicked(event, objectsOnPoint) {
+  function multiobjectClicked(event, fragmentsOnPoint) {
     var cx = event.srcElement.cx.baseVal.value
     var cy = event.srcElement.cy.baseVal.value
-    var id = event.target.id
-    overlap
+    var pointID = event.target.id
+    d3.select(`#${pointID}text`).attr("visibility", "hidden")
+    
+    overlap.append("g")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
-      .attr("fill", "red")
       .selectAll("overlap")
-    .data(objectsOnPoint)
+      .data(fragmentsOnPoint)
       .join("circle")
       .attr("cx", cx)
-      .attr("cy", (d, i) => cy - i * 20)
+      .attr("cy", cy)
       .attr("r", 10)
       .attr("id", d => d)
+      .attr("fill", d => {
+        var state = getObjectState(getFragmentData(d).object)
+        if (state.selected) {
+          return "greenyellow"
+        } else {
+          return "black"
+        }
+      })
       .on("click", event => {
-        pointsLabels.selectAll("*").remove()
         overlap.selectAll("*").remove()
-        d3.select(`#${id}text`).attr("visibility", "visible")
-        objectClicked(event.target.id)
+        d3.select(`#${pointID}text`).attr("visibility", "visible")
+        objectClicked(getFragmentData(event.target.id).object)
       })
       .style("cursor", "pointer")
+      .transition()
+      .duration(500)
+      .attr("cy", (d, i) => cy - i * 20)
+
 
     // labels
-    d3.select(`#${id}text`).attr("visibility", "hidden")
-    pointsLabels.selectAll("overlapLabels").data(objectsOnPoint).join("text")
-    .attr("x", (f, i) => cx+15)
-    .attr("y", (f, i) => cy - 5 - i * 20)
-    .attr("id", (f, i) => "text" + f.x + "-" + f.y + "-" + i)
-    .attr("transform", (f, i) => `rotate(-45,${cx+15},${cy -5 - i * 20})`)
-    .text(f => f.name)
-
-
+    overlap.append("g")
+      .attr("stroke", "black")
+      .attr("stroke-width", 0.5)
+      .selectAll("text")
+      .data(fragmentsOnPoint)
+      .join("text")
+      .attr("x", cx+15)
+      .attr("y", cy-10)
+      .attr("id", d => "multi" + d + "text")
+      .attr("transform", d => `rotate(-45,${cx + 15},${cy - 10})`)
+      .text(d => getFragmentData(d).name)
+      .transition()
+      .duration(500)
+      .attr("transform", (d, i) => `rotate(-45,${cx + 15},${cy - i * 20 - 10})`)
+      .attr("y", (d, i) => cy - i * 20 - 10)
   }
 
 
@@ -543,6 +557,7 @@ function grid(g, x, y) {
       if (model.objectStates.get(objectID).visualizations.lines) {
         connectRegion(objectID)
       }
+      console.log("shaded" + model.objectStates.get(objectID).visualizations.shaded)
       if (model.objectStates.get(objectID).visualizations.shaded) {
         shadeObjectRegion(objectID)
       }
@@ -553,9 +568,9 @@ function grid(g, x, y) {
       })
     } else {
       objState.selected = false
-      // remove lines and shading of deselected object
-      removeLines()
-      removeShading() // fix
+
+      removeLines(objectID)
+      removeShading(objectID)
 
       document.getElementById(`${objectID}InfoCollapsible`).remove()
       document.getElementById(`${objectID}InfoDiv`).remove()
@@ -585,18 +600,19 @@ function grid(g, x, y) {
     lines.append("g")
       .attr("stroke", "red")
       .attr("stroke-opacity", 0.6)
-      .selectAll(objectID + "lines")
+      .attr("id", objectID + "lines")
+      .selectAll("lines")
       .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
       .join("line")
         .attr("x1", d => x(d.x))
         .attr("y1", d => y(d.y))
         .attr("x2", d => x(d.xNext))
-        .attr("y2", d => y(d.yNext));
+        .attr("y2", d => y(d.yNext))
 
   }
 
-  function removeLines() {
-    lines.select('*').remove()
+  function removeLines(objectID) {
+    d3.select("#" + objectID + "lines").remove()
   }
 
   function shadeObjectRegion(objectID) {
@@ -606,19 +622,21 @@ function grid(g, x, y) {
     })
     var hull = convexHull(fragLocations).map(i => fragLocations[i])
 
-    shaded.selectAll('shading')
+    shaded.append("g")
+      .attr("id", objectID + "shading")
+      .selectAll("polygon")
       .data([hull])
-    .enter().append('polygon')
+      .enter().append('polygon')
       .attr("points", d => {
         return d.map(d => {
             return [x(d[0]), y(d[1])].join(',')
         }).join(' ')
       })
-      .attr("fill", "blue"); 
+      .attr("fill", "blue")
   }
 
-  function removeShading() {
-    shaded.selectAll('*').remove()
+  function removeShading(objectID) {
+    d3.select("#" + objectID + "shading").remove()
   }
 
   function toggleMap(toggle) {

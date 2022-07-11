@@ -359,7 +359,7 @@
                 if (newValue) {
                   connectRegion(objectID) 
                 } else {
-                  removeLines()
+                  removeLines(objectID)
                 }
               }
               objectState.visualizations.lines = newValue
@@ -373,12 +373,12 @@
               var objectState = model.objectStates.get(objectID)
               if (objectState.visualizations.shaded != newValue) {
                 if (newValue) {
-                  shadeObjectRegion(objectID, newValue)
+                  shadeObjectRegion(objectID)
                 } else {
-                  removeShading()
+                  removeShading(objectID)
                 }
               }
-              object.visualizations.shaded = newValue
+              objectState.visualizations.shaded = newValue
             }
         }
       ],
@@ -393,11 +393,11 @@
       }
     })
 
-    currentHTML = w2ui['layout'].el('right').innerHTML += `
+    currentHTML = w2ui['layout'].el('right').insertAdjacentHTML("beforeend", `
       <button class="collapsible" id="${objectID}InfoCollapsible">${object.name}</button>
       <div class="content" id="${objectID}InfoDiv">
       </div>
-      `
+      `)
 
     $(`#${objectID}InfoDiv`).w2layout({
       name: objectID + "info",
