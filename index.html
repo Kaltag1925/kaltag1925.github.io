@@ -328,6 +328,21 @@
 </script>
 
 <script type="text/javascript">
+  function objectVisible(objectID, isVisible) {
+    model.objectStates.get(objectID).visible = isVisible;
+
+    /*
+    if (isVisible) {
+      loadObjectInfoPanel(id)
+    } else {
+      document.getElementById(id + "infocollapisble").remove()
+      document.getElementById(id + "infodiv").remove()
+    }
+    */
+
+    processObject(objectID, isVisible)
+  }
+
   function loadObjectInfoPanel(objectID) {
     object = sourceData.objectData.get(objectID)
 
@@ -344,7 +359,7 @@
                 if (newValue) {
                   connectRegion(objectID) 
                 } else {
-                  removeLines()
+                  removeLines(objectID)
                 }
               }
               objectState.visualizations.lines = newValue
@@ -358,12 +373,12 @@
               var objectState = model.objectStates.get(objectID)
               if (objectState.visualizations.shaded != newValue) {
                 if (newValue) {
-                  shadeObjectRegion(objectID, newValue)
+                  shadeObjectRegion(objectID)
                 } else {
-                  removeShading()
+                  removeShading(objectID)
                 }
               }
-              object.visualizations.shaded = newValue
+              objectState.visualizations.shaded = newValue
             }
         }
       ],
@@ -378,16 +393,13 @@
       }
     })
 
-    currentHTML = w2ui['layout'].html('right').html
-    console.log(currentHTML)
-    newHTML = currentHTML + `
-    <button class="collapsible" id="${objectID}infocollapse">Open Section 1</button>
-    <div class="content" id="${objectID}infodiv">
-    </div>
-    `
-    w2ui['layout'].html('right', newHTML)
+    currentHTML = w2ui['layout'].el('right').insertAdjacentHTML("beforeend", `
+      <button class="collapsible" id="${objectID}InfoCollapsible">${object.name}</button>
+      <div class="content" id="${objectID}InfoDiv">
+      </div>
+      `)
 
-    $(`#${objectID}infodiv`).w2layout({
+    $(`#${objectID}InfoDiv`).w2layout({
       name: objectID + "info",
       panels: [
         {type: "main", style: pstyle, size: 400, html: displayObjectInfo(object),
@@ -412,32 +424,29 @@
     })
 
 
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
+    var collapsible = document.getElementById(objectID + "InfoCollapsible");
 
-    for (i = 0; i < coll.length; i++) {
-      coll[i].addEventListener("click", function() {
-        this.classList.toggle("active");
-        var content = this.nextElementSibling;
-        if (content.style.maxHeight){
-          content.style.maxHeight = null;
-          content.style.height = "0%"
-        } else {
-          content.style.maxHeight = 800 + "px";
-          content.style.height = "100%"
-        } 
-  
-        var content = document.getElementById(objectID +"infodiv").children[0];
-        
-        if (content.style.height == 0 + "px") {
-          content.style.height = "fit-content"; //need to calculate / continully update or smthn
-        } else {
-          content.style.height = 0 + "px"
-        }
-        w2ui[objectID + "info"].resize()
-      });
-    }
-  }
+    collapsible.addEventListener("click", function() {
+      this.classList.toggle("active");
+      var content = this.nextElementSibling;
+      if (content.style.maxHeight){
+        content.style.maxHeight = null;
+        content.style.height = "0%"
+      } else {
+        content.style.maxHeight = 800 + "px";
+        content.style.height = "100%"
+      } 
+
+      var content = document.getElementById(objectID +"InfoDiv").children[0];
+      
+      if (content.style.height == 0 + "px") {
+        content.style.height = "fit-content"; //need to calculate / continully update or smthn
+      } else {
+        content.style.height = 0 + "px"
+      }
+      w2ui[objectID + "info"].resize()
+    });
+}
 
   function displayObjectInfo(object) {
     var html = `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
@@ -474,15 +483,6 @@
         content.style.maxHeight = content.scrollHeight + "px";
       } 
     });
-  }
-</script>
-
-<script type='text/javascript'>
-  function objectVisible(id, isVisible) {
-    model.objectStates.get(id).visible = isVisible;
-    if (isVisible) {
-      plotObject(id)
-    }
   }
 </script>
 

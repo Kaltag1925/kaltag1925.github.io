@@ -1,5 +1,5 @@
 function loadNewModel(sourceData) {
-    var globalState = {showMap: false, showPithoi: false, showRocks: false, selectedObjects: [], pos: {x: 0, y: 0, z: 100.0}}
+    var globalState = {showMap: false, showPithoi: false, showRocks: false, pos: {x: 0, y: 0, z: 100.0}}
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((value, key) =>{
@@ -8,7 +8,7 @@ function loadNewModel(sourceData) {
 
     var objectStates = new Map()
     sourceData.objectData.forEach((value, key) => {
-        objectStates.set(key, {visible: false, color: "red", 
+        objectStates.set(key, {visible: false, selected: false, color: "red", 
         visualizations: {
             lines: false,
             shaded: false
@@ -23,10 +23,11 @@ function loadNewModel(sourceData) {
     model = {globalState: globalState, 
         fragmentStates: fragmentStates, 
         objectStates: objectStates, 
-        categoryStates: categoryStates,
-        getSelectedObject() {
-            return model.globalState.selectedObject
-        }}
+        categoryStates: categoryStates}
+}
+
+function getObjectState(objectID) {
+    return model.objectStates.get(objectID)
 }
 
 function loadModel(sourceData, states) {
