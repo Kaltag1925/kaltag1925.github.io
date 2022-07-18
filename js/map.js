@@ -384,6 +384,7 @@ function grid(g, x, y) {
     toggleMap(model.globalState.showMap)
     togglePithoi(model.globalState.showPithoi)
     toggleRocks(model.globalState.showRocks)
+    toggleMouseCoordinates(model.globalState.showMouseCoordinates)
   }
 
   //#endregion
@@ -687,7 +688,14 @@ function grid(g, x, y) {
     }
   }
 
-
+  function toggleMouseCoordinates(toggle) {
+    const coordinates = d3.select('#coordinates')
+    if (toggle) {
+      coordinates.style('color', 'transparent')
+    } else {
+      coordinates.style('color', 'black')
+    }
+  }
   
   // ID // What does this do?
   // chart.append("g")

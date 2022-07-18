@@ -301,6 +301,15 @@
             toggleRocks(newValue)
             model.globalState.showRocks = newValue
           }
+        },
+        { field: 'mouseCoordinatesToggle', type: 'toggle',
+          html: {
+            label: 'Mouse Coordinates'
+          },
+          onChange(newValue) {
+            toggleMouseCoordinates(newValue)
+            model.globalState.showMouseCOordaintes = newValue
+          }
         }
     ],
     onChange(event) {
