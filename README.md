@@ -13,3 +13,38 @@ Then go here: [localhost:5000](localhost:5000)
 
 [Google Drive](https://drive.google.com/file/d/1123-OkrgLOjJL_gHSwlRZk0zlLD-ZgD9/view?usp=sharing)
 
+# Input Format
+
+```JSON
+{
+  "description": "Input data for Uluburun mapping project",
+  "type": "object",
+  "properties": {
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "ID" : { "type" : "string" },
+          "objType" : { "type" : "string" },
+          "status" : { "type" : "string" },
+          "numFragments" : { "type" : "string" },
+          "locationNotes" : { "type" : "string" },
+          "loc" : { "type" : "string" },
+          "origLoc" : { "type" : "string" },
+          "desc" : { "type" : "string" },
+          "fragments" : {
+            "type" : "array",
+            "items" : { 
+              "type" : "object",
+              "properties" : {
+                "ID" : { "type" : "string" },
+                "parentID" : { "type" : "string" },
+                "loc" : { "type" : "string" },
+                "origLoc" : { "type" : "string" },
+                "important" : { "type" : "boolean" },
+                "tentative" : { "type" : "boolean" }
+          }}}
+    }}}
+}}
+```
