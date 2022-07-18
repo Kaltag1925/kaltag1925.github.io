@@ -25,7 +25,7 @@ Then go here: [localhost:5000](localhost:5000)
       "items": {
         "type": "object",
         "properties": {
-          "ID" : { "type" : "string" },
+          "id" : { "type" : "string" },
           "objType" : { "type" : "string" },
           "status" : { "type" : "string" },
           "numFragments" : { "type" : "string" },
@@ -38,7 +38,7 @@ Then go here: [localhost:5000](localhost:5000)
             "items" : { 
               "type" : "object",
               "properties" : {
-                "ID" : { "type" : "string" },
+                "id" : { "type" : "string" },
                 "parentID" : { "type" : "string" },
                 "locs" : { "type" : "array", "items": { "type": "string" } },
                 "origLoc" : { "type" : "string" },
