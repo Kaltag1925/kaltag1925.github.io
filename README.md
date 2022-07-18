@@ -30,7 +30,7 @@ Then go here: [localhost:5000](localhost:5000)
           "status" : { "type" : "string" },
           "numFragments" : { "type" : "string" },
           "locationNotes" : { "type" : "string" },
-          "loc" : { "type" : "string" },
+          "loc" : { "type" : "array", "items": { "type": "string" } },
           "origLoc" : { "type" : "string" },
           "desc" : { "type" : "string" },
           "fragments" : {
@@ -40,7 +40,7 @@ Then go here: [localhost:5000](localhost:5000)
               "properties" : {
                 "ID" : { "type" : "string" },
                 "parentID" : { "type" : "string" },
-                "loc" : { "type" : "string" },
+                "loc" : { "type" : "array", "items": { "type": "string" } },
                 "origLoc" : { "type" : "string" },
                 "important" : { "type" : "boolean" },
                 "tentative" : { "type" : "boolean" }
