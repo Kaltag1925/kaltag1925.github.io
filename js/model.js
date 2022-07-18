@@ -33,3 +33,24 @@ function getObjectState(objectID) {
 function loadModel(sourceData, states) {
     
 }
+
+function setUpSidebarData(sourceData) {
+    var nodes = Array.from(sourceData.objectData, o => objectToNode(o, sourceData));
+    w2ui['navigation'].add(nodes);
+}
+
+function objectToNode(pair, sourceData) {
+    var objectID = pair[0]
+    var object = pair[1]
+
+    var mainNode = {id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(f => fragmentToNode(f, sourceData))};
+    return mainNode;
+}
+
+function fragmentToNode(fragmentID, sourceData) {
+    return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
+        // find svg node based on position ID
+        // make it beeeg
+    // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
+    }}
+}

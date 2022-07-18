@@ -123,11 +123,37 @@
     waitForFinalEvent(function() {
       console.log("resized")
       d3.select("#map").html("")
-      startMap()
+      startMap() // need to save zoom/pan
     })
   }
 
+  function reset() {
+    d3.select("#layout").html("")
+
+    w2ui["layout"].destroy()
+    w2ui["mainToolbar"].destroy()
+    w2ui["leftPane"].destroy()
+    w2ui["navigationToolbar"].destroy()
+    w2ui["navigation"].destroy()
+    w2ui["filter"].destroy()
+
+    loadNewModel(sourceData)
+    loadUI()
+    setUpSidebarData(sourceData)
+    startMap()
+    //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
+    document.getElementsByName("navigationToolbar")[0].style.overflow = ''
+  }
+
   $(function () {
+    loadUI()
+    readWreckDataFile()
+    //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
+    document.getElementsByName("navigationToolbar")[0].style.overflow = ''
+  })
+  
+  function loadUI() {
+    console.log("ran")
     $('#layout').w2layout({
         name: 'layout',
         panels: [
@@ -144,7 +170,9 @@
   $().w2toolbar({
     name: 'mainToolbar',
     items: [
-      { type: 'button', id: 'reset', text: 'Reset' },
+      { type: 'button', id: 'reset', text: 'Reset', onClick() {
+        reset()
+      } },
       { type: 'button', id: 'saveExport', text: 'Save/Export', onClick() { w2confirm({
         msg: saveToCode(),
         title: 'Confirmation',
@@ -326,12 +354,8 @@
   w2ui['leftPane'].html('main', w2ui['navigation']);
 	w2ui['leftPane'].html('bottom', w2ui['filter']);
 
-  //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
-  
-  readWreckDataFile()
-  document.getElementsByName("navigationToolbar")[0].style.overflow = ''
-
-});
+  console.log("finished")
+}
 
 </script>
 

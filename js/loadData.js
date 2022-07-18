@@ -4,29 +4,8 @@ function readWreckDataFile() {
         sourceData = loadSourceData(data)
         loadNewModel(sourceData)
         startMap()
-        setUpSidebarData()
+        setUpSidebarData(sourceData)
     })
-}
-
-function setUpSidebarData() {
-    var nodes = Array.from(sourceData.objectData, objectToNode);
-    w2ui['navigation'].add(nodes);
-}
-
-function objectToNode(pair) {
-var objectID = pair[0]
-var object = pair[1]
-
-var mainNode = {id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(fragmentToNode)};
-return mainNode;
-}
-  
-function fragmentToNode(fragmentID) {
-    return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
-        // find svg node based on position ID
-        // make it beeeg
-    // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
-    }}
 }
 
 function readObjects(rawData) {
