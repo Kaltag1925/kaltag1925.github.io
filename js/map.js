@@ -419,10 +419,18 @@ function grid(g, x, y) {
     }
   }
 
+  function plotX(n) {
+    return x(n + 0.5)
+  }
+
+  function plotY(n) {
+    return y(n + 0.5)
+  }
+
   function plotFragment(frag, pointID) {
     points.append("circle")
-        .attr("cx", x(frag.x))
-        .attr("cy", y(frag.y))
+        .attr("cx", plotX(frag.x))
+        .attr("cy", plotY(frag.y))
         .attr("stroke", "green")
         .attr("r", 10)
         .attr("id", pointID)
@@ -432,10 +440,10 @@ function grid(g, x, y) {
 
   function addFragmentLabel(frag) {
     pointsLabels.append("text")
-      .attr("x", x(frag.x)+10)
-      .attr("y", y(frag.y)-10)
+      .attr("x", plotX(frag.x)+10)
+      .attr("y", plotY(frag.y)-10)
       .attr("id", "point" + frag.x + "-" + frag.y + "text")
-      .attr("transform", d => `rotate(-45,${x(frag.x) + 10},${y(frag.y) - 10})`)
+      .attr("transform", d => `rotate(-45,${plotX(frag.x) + 10},${plotY(frag.y) - 10})`)
       .text(frag.name)
   }
 
@@ -445,7 +453,6 @@ function grid(g, x, y) {
     var fragmentArray = dotsOnMap.get(pointID)
     var fragIDIndex = fragmentArray.indexOf(fragID)
     fragmentArray.splice(fragIDIndex, 1)
-    console.log(fragmentArray)
     
     updateFragmentLabel([frag.x, frag.y])
     console.log(fragmentArray.length)
@@ -604,10 +611,10 @@ function grid(g, x, y) {
       .selectAll("lines")
       .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
       .join("line")
-        .attr("x1", d => x(d.x))
-        .attr("y1", d => y(d.y))
-        .attr("x2", d => x(d.xNext))
-        .attr("y2", d => y(d.yNext))
+        .attr("x1", d => plotX(d.x))
+        .attr("y1", d => plotY(d.y))
+        .attr("x2", d => plotX(d.xNext))
+        .attr("y2", d => plotY(d.yNext))
 
   }
 
@@ -629,7 +636,7 @@ function grid(g, x, y) {
       .enter().append('polygon')
       .attr("points", d => {
         return d.map(d => {
-            return [x(d[0]), y(d[1])].join(',')
+            return [plotX(d[0]), plotY(d[1])].join(',')
         }).join(' ')
       })
       .attr("fill", "blue")
@@ -654,8 +661,8 @@ function grid(g, x, y) {
       .selectAll("pithos")
       .data([[66, 13], [77,12], [69, 20], [70, 12]]) //TODO: Real Data
       .join("circle")
-        .attr("cx", d => x(d[0]))
-        .attr("cy", d => y(d[1]))
+        .attr("cx", d => plotX(d[0]))
+        .attr("cy", d => plotY(d[1]))
         .attr("stroke", "pink")
         //.attr("data", d => (d))
         .attr("r", 20)
@@ -674,8 +681,8 @@ function grid(g, x, y) {
       .selectAll("rock")
       .data([[68,15], [72,12], [73, 20], [74, 10]]) //TODO: Real Data
       .join("circle")
-        .attr("cx", d => x(d[0]))
-        .attr("cy", d => y(d[1]))
+        .attr("cx", d => plotX(d[0]))
+        .attr("cy", d => plotY(d[1]))
         .attr("stroke", "grey")
         //.attr("data", d => (d))
         .attr("r", 20)
