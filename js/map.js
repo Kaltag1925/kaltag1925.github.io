@@ -384,7 +384,6 @@ function grid(g, x, y) {
     toggleMap(model.globalState.showMap)
     togglePithoi(model.globalState.showPithoi)
     toggleRocks(model.globalState.showRocks)
-    toggleMouseCoordinates(model.globalState.showMouseCoordinates)
   }
 
   //#endregion
