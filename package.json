@@ -23,6 +23,7 @@
     "@lucio/graham-scan": "^1.0.0",
     "@observablehq/runtime": "4",
     "express": "^4.17.1",
+    "martinez-polygon-clipping": "^0.7.3",
     "requirejs": "^2.3.6"
   }
 }

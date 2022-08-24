@@ -1,12 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>W2UI Demo: layout/4</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript" src="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css" />
-	<script src="https://d3js.org/d3.v6.min.js"></script>
+  <title>W2UI Demo: layout/4</title>
+  <script src="./deps/jquery.min.js"></script>
+  <script type="text/javascript" src="./deps/w2ui.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="./deps/w2ui.min.css" />
+	<script src="./deps/d3.v6.min.js"></script>
+  <script src="./deps/polylabel.2"></script>
+  <script src="./deps/polybool.min.js" charset="utf-8"></script>
 	<script type='text/javascript' > 
+    /*
+
+      https://cdn.discordapp.com/attachments/379492408208916481/1006805670537990184/unknown.png
+
+      Sources
+      https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+      https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.js"
+      https://rawgit.com/vitmalina/w2ui/master/dist/w2ui.min.css
+      https://d3js.org/d3.v6.min.js
+      https://github.com/mapbox/polylabel
+      https://github.com/velipso/polybooljs
+    */
+
+
     var sourceData
 
     var convexHull;
@@ -362,6 +378,8 @@
 <script type="text/javascript">
   function objectVisible(objectID, isVisible) {
     model.objectStates.get(objectID).visible = isVisible;
+    console.log(sourceData.objectData.get(objectID).fragments)
+    sourceData.objectData.get(objectID).fragments.forEach(fID => model.fragmentStates.get(fID).visible = isVisible)
 
     /*
     if (isVisible) {

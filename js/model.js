@@ -48,6 +48,7 @@ function objectToNode(pair, sourceData) {
 }
 
 function fragmentToNode(fragmentID, sourceData) {
+    console.log(fragmentID)
     return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
         // find svg node based on position ID
         // make it beeeg

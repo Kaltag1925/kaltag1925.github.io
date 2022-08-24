@@ -1,3 +1,5 @@
+const e = require("express")
+
 var width
 var height
 var k
@@ -328,11 +330,11 @@ function grid(g, x, y) {
     gx = svg.append("g")
 
     gy = svg.append("g")
-    
-    points = chart.append("g")
+  
     overlap = chart.append("g")
     shaded = chart.append("g")
     lines = chart.append("g")
+    points = chart.append("g")
     pointsLabels = chart.append("g")
 
     const zoom = d3.zoom().scaleExtent([0.5, 32])
@@ -377,7 +379,7 @@ function grid(g, x, y) {
     dotsOnMap = new Map()
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
-        plotObject(id)
+        processObject(id, true)
       }
     })
 
@@ -389,7 +391,7 @@ function grid(g, x, y) {
   //#endregion
 
   // {id : "point{x}-{y}" , fragmentIds: Array}
-  var dotsOnMap = new Map()
+  //var dotsOnMap = new Map()
 
   function processObject(objectID, visible) {
     if (visible) {
@@ -399,86 +401,380 @@ function grid(g, x, y) {
     }
   }
 
+
+  // {polygon, [fragments]}
+  var regionsOnMap = [];
+
+
   function processFragment(fragID) { // multiple fragments of the same object, should be fine // called again when resizing
-    var frag = getFragmentData(fragID)
-    var pointID = "point" + frag.x + "-" + frag.y
-    var fragmentArray = dotsOnMap.get(pointID)
-    if (fragmentArray == null) {
-      dotsOnMap.set(pointID, [fragID])
-      plotFragment(frag, pointID)
-      addFragmentLabel(frag)
-    } else {
-      if (fragmentArray.length == 0) {
-        fragmentArray.push(fragID)
-        plotFragment(frag, pointID)
-        addFragmentLabel(frag)
-      } else {
-        fragmentArray.push(fragID)
-        updateFragmentLabel([frag.x, frag.y]) 
-      }
+    if (regionsOnMap == null) {
+      regionsOnMap = []
     }
+
+    plotFragment(fragID)
+
+
+    var hull = {regions: [fragmentBoundingBox(fragID)], inverted: false}
+    
+    //TODO: this is gonna get really slow
+    var overlapingRegions = regionsOnMap.map((region, index) => {
+    
+      //TODO: Does this work when one contains the other?
+      var intersection = PolyBool.intersect(region.polygon, hull)
+
+      if (intersection.regions.length != 0) {
+        return {polygon: region.polygon, fragments: region.fragments, index: index}
+      } else {
+        return region
+      }
+    }).filter(e => e.index != null)
+
+    //console.log(overlapingRegions)
+
+    
+    if (overlapingRegions.length == 0) {
+      var region = {polygon: hull, fragments: [fragID]}
+      regionsOnMap.push(region)
+      plotRegion(region)
+    } else {
+      overlapingRegions.forEach(r => {
+        regionsOnMap.splice(r.index, 1)
+        console.log("removing" + r)
+        removeRegion(r)
+      })
+
+      var polygonsToUnion = overlapingRegions.map(r => r.polygon)
+      polygonsToUnion.push(hull)
+      var fragArray = overlapingRegions.map(r => r.fragments).flat()
+      console.log(fragArray)
+      fragArray.push(fragID)
+
+      var newPolygon = polygonsToUnion.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polygonsToUnion[0])
+      var newRegion = {polygon: newPolygon, fragments: fragArray}
+      plotRegion(newRegion)
+      regionsOnMap.push(newRegion)
+    }
+
+    addFragmentLabel(fragID)
   }
 
-  function plotX(n) {
-    return x(n + 0.5)
+  function processRemoveFragment(fragID) {
+    var region = regionsOnMap.find(r => r.fragments.includes(fragID))
+    removeRegion(region)
+
+    var newFragments = region.fragments.splice(region.fragments.indexOf(fragID), 1)
+    if (newFragments.length > 0) {
+      var newPolygon = newFragments.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), newFragments[0])
+      var newRegion = {polygon: newPolygon, fragments: newFragments}
+      plotRegion(region)
+    }
+
   }
 
-  function plotY(n) {
-    return y(n + 0.5)
+  function regionID(region) {
+    return region.fragments[0].split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
   }
 
-  function plotFragment(frag, pointID) {
+  function highlightRegion(region) {
+    var poly = d3.select(`#${regionID(region)}shading`)
+    var lines = d3.select(`#${regionID(region)}lines`)
+    var labels = region.fragments.map(fradID => d3.select(`#${fradID}text`))
+
+    lines.attr("stroke", "green")
+    poly.attr("fill", "greenyellow")
+    labels.forEach(l => l.style("fill", "dodgerblue"))
+  }
+
+  function unhighlightRegion(region) {
+    var poly = d3.select(`#${regionID(region)}shading`)
+    var lines = d3.select(`#${regionID(region)}lines`)
+    var labels = region.fragments.map(fradID => d3.select(`#${fradID}text`))
+
+    lines.attr("stroke", "red")
+    poly.attr("fill", "blue")
+    labels.forEach(l => l.style("fill", "black"))
+  }
+
+  function highlightFragment(fragID) {
+    var hull = fragmentBoundingBox(fragID)
+    lines.append("g")
+      .attr("stroke", "green")
+      .attr("stroke-opacity", 0.6)
+      .attr("id", fragID + "lines")
+      .selectAll("lines")
+      .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
+      .join("line")
+        .attr("x1", d => x(d.x))
+        .attr("y1", d => y(d.y))
+        .attr("x2", d => x(d.xNext))
+        .attr("y2", d => y(d.yNext))
+
+    shaded.append("g")
+      .attr("id", fragID + "shading")
+      .attr("fill", "greenyellow")
+      .attr("fill-opacity", 0.4)
+      .append('polygon')
+        .attr("points", hull.map(d => {
+              return [x(d[0]), y(d[1])].join(',')
+          }).join(' '))
+
+    d3.select(`#${fragID}text`).style("color", "dodgerblue")
+  }
+
+  function unhighlightFragment(fragID) {
+    d3.select(`#${fragID}lines`).remove("*")
+    d3.select(`#${fragID}shading`).remove("*")
+    d3.select(`#${fragID}text`).style("color", "black")
+  }
+
+  function plotRegion(region) {
+    var coords = region.polygon.regions[0]
+
+    lines.append("g")
+      .attr("stroke", "red")
+      .attr("stroke-opacity", 0.6)
+      .attr("id", regionID(region) + "lines")
+      .selectAll("lines")
+      .data(coords.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
+      .join("line")
+        .attr("x1", d => x(d.x))
+        .attr("y1", d => y(d.y))
+        .attr("x2", d => x(d.xNext))
+        .attr("y2", d => y(d.yNext))
+        .on('mouseover', (d, i) => {
+          highlightRegion(region)
+        })
+        .on('mouseout', (d, i) => {
+          unhighlightRegion(region)
+        })
+        .on("click", (d) => {
+          regionClicked(region)
+        })
+    
+    shaded.append("g")
+      .attr("id", regionID(region) + "shading")
+      .attr("fill", "blue")
+      .attr("fill-opacity", 0.4)
+      .append('polygon')
+        .attr("points", coords.map(d => {
+              return [x(d[0]), y(d[1])].join(',')
+          }).join(' '))
+        .on('mouseover', (d, i) => {
+          highlightRegion(region)
+        })
+        .on('mouseout', (d, i) => {
+          unhighlightRegion(region)
+        })
+        .on("click", (d) => {
+          regionClicked(region)
+        })  
+  }
+
+  function plotFragment(fragID) {
+
+    var hull = fragmentBoundingBox(fragID)
+    hull.push(hull[0])
+    var c = polylabel([hull], 1.0)
+
     points.append("circle")
-        .attr("cx", plotX(frag.x))
-        .attr("cy", plotY(frag.y))
-        .attr("stroke", "green")
-        .attr("r", 10)
-        .attr("id", pointID)
+        .attr("cx", x(c[0]))
+        .attr("cy", y(c[1]))
+        .attr("stroke", "black")
+        .attr("r", 1)
+        .attr("id", fragID + "svg")
     .style("cursor", "pointer")
         .on("click", mapIconClicked)
   }
 
-  function addFragmentLabel(frag) {
+  function regionClicked(region) {
+    if (region.fragments.length > 1) {
+      multiRegionClicked(region)
+    } else {
+      objectSelected(region.fragments[0])
+    }
+  }
+
+  function multiRegionClicked(region) {
+
+  }
+
+  function objectSelected(fragID) {
+    var objectID = sourceData.fragmentData.get(fragID).object
+    var object = sourceData.objectData.get(objectID)
+    var state = getObjectState(objectID)
+    if (!state.selected) {
+      object.fragments.forEach(f => highlightFragment(f))
+      
+      loadObjectInfoPanel(objectID)
+    } else {
+      object.fragments.forEach(f => unhighlightFragment(f))
+      
+      document.getElementById(`${objectID}InfoCollapsible`).remove()
+      document.getElementById(`${objectID}InfoDiv`).remove()
+      w2ui[`${objectID}visualizations`].destroy()
+      w2ui[`${objectID}info`].destroy()
+    }
+  }
+
+
+  function removeRegion(region) {
+    d3.select("#" + regionID(region) + "lines").remove()
+    d3.select("#" + regionID(region) + "shading").remove()
+  }
+
+  
+  function addFragmentLabel(fragID) {
+    var frag = getFragmentData(fragID)
+    var hull = fragmentBoundingBox(fragID)
+    hull.push(hull[0])
+    var c = polylabel([hull], 1.0)
+
     pointsLabels.append("text")
-      .attr("x", plotX(frag.x)+10)
-      .attr("y", plotY(frag.y)-10)
-      .attr("id", "point" + frag.x + "-" + frag.y + "text")
-      .attr("transform", d => `rotate(-45,${plotX(frag.x) + 10},${plotY(frag.y) - 10})`)
+      .attr("x", x(c[0])+10)
+      .attr("y", y(c[1])+5)
+      .attr("id", fragID + "text")
+      //.attr("transform", d => `rotate(-45,${x(locs[0].x) + 10},${y(locs[0].y) - 10})`)
       .text(frag.name)
   }
 
-  function processRemoveFragment(fragID) {
-    var frag = getFragmentData(fragID)
-    var pointID = "point" + frag.x + "-" + frag.y
-    var fragmentArray = dotsOnMap.get(pointID)
-    var fragIDIndex = fragmentArray.indexOf(fragID)
-    fragmentArray.splice(fragIDIndex, 1)
-    
-    updateFragmentLabel([frag.x, frag.y])
-    console.log(fragmentArray.length)
-    if (fragmentArray.length == 0) {
-      d3.select("#"+pointID).remove()
-    } else {
-      var someObjectSelected = fragmentArray.map(f => getObjectState(f.object)).some(o => o.selected)
-      if (!someObjectSelected) {
-        d3.select(pointID).attr("fill", "black")
+   // function updateFragmentLabel(location) {
+  //   var fragments = dotsOnMap.get(fragID + "svg").map(f => getFragmentData(f))
+  //   var svgElement = d3.select(fragID + "text")
+  //   if (fragments.length == 0) {
+  //     svgElement.remove()
+  //   } else {
+  //     if (fragments.length == 1) {
+  //       svgElement.text(fragments[0].name)
+  //     } else {
+  //       svgElement.text(fragments[0].name + " + " + (fragments.length - 1))
+  //     }
+  //   }
+  // }
+
+  function fragmentLocToCoord(loc) {
+    var x = loc.x + 0.5
+    var y = loc.y + 0.5
+
+    var sl = loc.specLetter
+    if (sl != null) {
+      if (sl == "UL") {
+        x -= 0.25
+        y -= 0.25
+      }
+
+      if (sl == "LL") {
+        x -= 0.25
+        y += 0.25
+      }
+
+      if (sl == "UR") {
+        x += 0.25
+        y -= 0.25
+      }
+
+      if (sl == "LR") {
+        x += 0.25
+        y += 0.25
       }
     }
+
+    var sn = loc.specNumber
+    if (sn != null) {
+      if (sn == 1) {
+        x -= 0.125
+        y -= 0.125
+      }
+      
+      if (sn == 2) {
+        x -= 0.125
+        y += 0.125
+      }
+
+      if (sn == 3) {
+        x += 0.125
+        y -= 0.125
+      }
+
+      if (sn == 4) {
+        x += 0.125
+        y += 0.125
+      }
+    }
+
+    return {x: x, y: y}
+  }
+
+  function fragmentBoundingBox(fragID) {
+    var frag = getFragmentData(fragID)
+    var coords = frag.locs.map(l => fragmentLocBoundingBox(l)).flat(1)
+    
+
+    var hull = convexHull(coords).map(i => coords[i])
+    return hull
+  }
+
+  function fragmentLocBoundingBox(loc) {
+    var x = loc.x
+    var y = loc.y
+    var width = 1
+    var height = 1
+
+    var sl = loc.specLetter
+    if (sl != null) {
+      width = 0.5
+      height = 0.5
+      if (sl == "UL") {
+        // no change
+      }
+
+      if (sl == "LL") {
+        // x = no change
+        y += 0.5
+      }
+
+      if (sl == "UR") {
+        x += 0.5
+        // y = no change
+      }
+
+      if (sl == "LR") {
+        x += 0.5
+        y += 0.5
+      }
+    }
+
+    var sn = loc.specNumber
+    if (sn != null) {
+      width = 0.25
+      height = 0.25
+      if (sn == 1) {
+        // no change
+      }
+      
+      if (sn == 2) {
+        // x = no change
+        y += 0.25
+      }
+
+      if (sn == 3) {
+        x += 0.25
+        // y = no change
+      }
+
+      if (sn == 4) {
+        x += 0.25
+        y += 0.25
+      }
+    }
+
+    var coords = [[x,y],
+      [x + width, y],
+      [x, y + height],
+      [x + width, y + height]]
+
+    return coords
   }
   
-  function updateFragmentLabel (location) {
-    var fragments = dotsOnMap.get("point" + location[0] + "-" + location[1]).map(f => getFragmentData(f))
-    var svgElement = d3.select("#point" + location[0] + '-' + location[1] + "text")
-    if (fragments.length == 0) {
-      svgElement.remove()
-    } else {
-      if (fragments.length == 1) {
-        svgElement.text(fragments[0].name)
-      } else {
-        svgElement.text(fragments[0].name + " + " + (fragments.length - 1))
-      }
-    }
-  }
   
   var lastSelectedPoint = null
 
@@ -490,19 +786,19 @@ function grid(g, x, y) {
     overlap.selectAll("*").remove();
 
 
-    let fragmentsOnPoint = dotsOnMap.get(event.srcElement.id)
-    if (fragmentsOnPoint.length > 1) {
-        multiobjectClicked(event, fragmentsOnPoint)
-    } else {
-        objectClicked(getFragmentData(fragmentsOnPoint[0]).object)
-    }
+    // let fragmentsOnPoint = dotsOnMap.get(event.srcElement.id)
+    // if (fragmentsOnPoint.length > 1) {
+    //     multiobjectClicked(event, fragmentsOnPoint)
+    // } else {
+    //     objectClicked(getFragmentData(fragmentsOnPoint[0]).object)
+    // }
   }
 
   function multiobjectClicked(event, fragmentsOnPoint) {
     var cx = event.srcElement.cx.baseVal.value
     var cy = event.srcElement.cy.baseVal.value
-    var pointID = event.target.id
-    d3.select(`#${pointID}text`).attr("visibility", "hidden")
+    var svgID = event.target.id
+    d3.select(`#${svgID}text`).attr("visibility", "hidden")
     
     overlap.append("g")
       .attr("stroke", "steelblue")
