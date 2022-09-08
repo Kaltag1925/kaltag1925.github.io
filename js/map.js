@@ -15,6 +15,7 @@ function startMap() {
   height = w2ui['layout'].get('main').height
 
   k = height / width
+  regionsOnMap = new Map()
 
   setUpMapHelpers()
   setUpCoordinateBox()
@@ -267,6 +268,7 @@ function grid(g, x, y) {
         
   var margin = ({top: 25, right: 20, bottom: 35, left: 40})
   var svg;
+  var gGridLines;
   var gGrid;
   var gx;
   var gy;
@@ -279,6 +281,7 @@ function grid(g, x, y) {
   var shaded;
   var overlap;
   var image;
+  var mapIconSelection;
 
   // has to be this way because for some reason  d3.select("#chart").attr('transform')  gives an error >:[
   var transformX = 0;
@@ -325,22 +328,27 @@ function grid(g, x, y) {
     setUpBackgroundImage()
     polygons = chart.append("g")
 
-    gGrid = svg.append("g")
+    gGridLines = svg.append("g")
+      .style("pointer-events", "none")
 
-    gx = svg.append("g")
+    gGrid = gGridLines.append("g")
 
-    gy = svg.append("g")
-  
-    overlap = chart.append("g")
+    gx = gGridLines.append("g")
+
+    gy = gGridLines.append("g")
+
     shaded = chart.append("g")
     lines = chart.append("g")
     points = chart.append("g")
     pointsLabels = chart.append("g")
+    mapIconSelection = chart.append("g")
+    overlap = chart.append("g")
 
     const zoom = d3.zoom().scaleExtent([0.5, 32])
       .on("zoom", zoomed)
 
     function zoomed({transform}) {
+      console.log(transform)
       // x = transform.rescaleX(defaultX).interpolate(d3.interpolateRound);
       // y = transform.rescaleY(defaultY).interpolate(d3.interpolateRound);
       gridX = transform.rescaleX(x).interpolate(d3.interpolateRound);
@@ -379,6 +387,7 @@ function grid(g, x, y) {
     dotsOnMap = new Map()
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
+        console.log(id)
         processObject(id, true)
       }
     })
@@ -402,77 +411,85 @@ function grid(g, x, y) {
   }
 
 
-  // {polygon, [fragments]}
-  var regionsOnMap = [];
+  // (id, {polygon, [fragments]})
+  var regionsOnMap = new Map(); // TODO: make this a map
 
 
   function processFragment(fragID) { // multiple fragments of the same object, should be fine // called again when resizing
     if (regionsOnMap == null) {
-      regionsOnMap = []
+      regionsOnMap = new Map();
     }
 
-    plotFragment(fragID)
+    //plotFragment(fragID)
 
 
     var hull = {regions: [fragmentBoundingBox(fragID)], inverted: false}
     
     //TODO: this is gonna get really slow
-    var overlapingRegions = regionsOnMap.map((region, index) => {
-    
+    var overlapingRegions = Array.from(regionsOnMap).filter(([id, region]) => {
+
       //TODO: Does this work when one contains the other?
       var intersection = PolyBool.intersect(region.polygon, hull)
 
-      if (intersection.regions.length != 0) {
-        return {polygon: region.polygon, fragments: region.fragments, index: index}
-      } else {
-        return region
-      }
-    }).filter(e => e.index != null)
+      console.log(region.fragments, intersection)
+      console.log((intersection.regions.length != 0))
+      return (intersection.regions.length != 0)
+
+
+    })
 
     //console.log(overlapingRegions)
 
-    
+    console.log(fragID, overlapingRegions)
     if (overlapingRegions.length == 0) {
       var region = {polygon: hull, fragments: [fragID]}
-      regionsOnMap.push(region)
+      regionsOnMap.set(regionID(region), region)
       plotRegion(region)
+      addFragmentLabel(region)
     } else {
-      overlapingRegions.forEach(r => {
-        regionsOnMap.splice(r.index, 1)
+      overlapingRegions.forEach(([id, r]) => {
+        console.log(r)
+        regionsOnMap.delete(regionID(r))
         console.log("removing" + r)
         removeRegion(r)
+        removeFragmentLabel(r)
       })
 
-      var polygonsToUnion = overlapingRegions.map(r => r.polygon)
+      var polygonsToUnion = overlapingRegions.map(([id, r]) => r.polygon)
+      console.log(polygonsToUnion)
       polygonsToUnion.push(hull)
-      var fragArray = overlapingRegions.map(r => r.fragments).flat()
+      var fragArray = overlapingRegions.map(([id, r]) => r.fragments).flat()
       console.log(fragArray)
       fragArray.push(fragID)
 
       var newPolygon = polygonsToUnion.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polygonsToUnion[0])
       var newRegion = {polygon: newPolygon, fragments: fragArray}
       plotRegion(newRegion)
-      regionsOnMap.push(newRegion)
+      addFragmentLabel(newRegion)
+      regionsOnMap.set(regionID(newRegion, newRegion))
     }
 
-    addFragmentLabel(fragID)
   }
 
   function processRemoveFragment(fragID) {
-    var region = regionsOnMap.find(r => r.fragments.includes(fragID))
+    var region = Array.from(regionsOnMap).find(([id, r]) => r.fragments.includes(fragID))[1] // TODO: make this re call process fragments
     removeRegion(region)
+    removeFragmentLabel(region)
+    regionsOnMap.delete(regionID(region))
 
     var newFragments = region.fragments.splice(region.fragments.indexOf(fragID), 1)
-    if (newFragments.length > 0) {
-      var newPolygon = newFragments.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), newFragments[0])
-      var newRegion = {polygon: newPolygon, fragments: newFragments}
-      plotRegion(region)
-    }
+    newFragments.forEach(f => processFragment)
+    
+    // if (newFragments.length > 0) {
+    //   var newPolygon = newFragments.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), [newFragments[0]])
+    //   var newRegion = {polygon: newPolygon, fragments: newFragments}
+    //   plotRegion(newRegion)
+    // }
 
   }
 
   function regionID(region) {
-    return region.fragments[0].split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
+    return "region" + (region.fragments.join().split('').filter(char => /[a-zA-Z0-9]/.test(char)).join(''))
   }
 
   function highlightRegion(region) {
@@ -497,6 +514,7 @@ function grid(g, x, y) {
 
   function highlightFragment(fragID) {
     var hull = fragmentBoundingBox(fragID)
+    console.log("highlighti" + fragID)
     lines.append("g")
       .attr("stroke", "green")
       .attr("stroke-opacity", 0.6)
@@ -522,8 +540,9 @@ function grid(g, x, y) {
   }
 
   function unhighlightFragment(fragID) {
-    d3.select(`#${fragID}lines`).remove("*")
-    d3.select(`#${fragID}shading`).remove("*")
+    console.log("removing")
+    d3.selectAll(`#${fragID}lines`).remove()
+    d3.selectAll(`#${fragID}shading`).remove()
     d3.select(`#${fragID}text`).style("color", "black")
   }
 
@@ -541,20 +560,43 @@ function grid(g, x, y) {
         .attr("y1", d => y(d.y))
         .attr("x2", d => x(d.xNext))
         .attr("y2", d => y(d.yNext))
+    
+    shaded.append("g")
+      .attr("id", regionID(region) + "shading")
+      .attr("fill", "blue")
+      .attr("fill-opacity", 0.4)
+      .append('polygon')
+        .attr("points", coords.map(d => {
+              return [x(d[0]), y(d[1])].join(',')
+          }).join(' '))
+
+    //selection
+    
+    mapIconSelection.append("g")
+      .attr("stroke", "red")
+      .attr("stroke-opacity", 0)
+      .attr("id", regionID(region) + "selectionlines")
+      .selectAll("lines")
+      .data(coords.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
+      .join("line")
+        .attr("x1", d => x(d.x))
+        .attr("y1", d => y(d.y))
+        .attr("x2", d => x(d.xNext))
+        .attr("y2", d => y(d.yNext))
         .on('mouseover', (d, i) => {
           highlightRegion(region)
         })
         .on('mouseout', (d, i) => {
           unhighlightRegion(region)
         })
-        .on("click", (d) => {
-          regionClicked(region)
+        .on("click", (e) => {
+          regionClicked(e, region)
         })
     
-    shaded.append("g")
-      .attr("id", regionID(region) + "shading")
+    mapIconSelection.append("g")
+      .attr("id", regionID(region) + "selectionshading")
       .attr("fill", "blue")
-      .attr("fill-opacity", 0.4)
+      .attr("fill-opacity", 0)
       .append('polygon')
         .attr("points", coords.map(d => {
               return [x(d[0]), y(d[1])].join(',')
@@ -565,40 +607,110 @@ function grid(g, x, y) {
         .on('mouseout', (d, i) => {
           unhighlightRegion(region)
         })
-        .on("click", (d) => {
-          regionClicked(region)
-        })  
+        .on("click", (e) => {
+          regionClicked(e, region)
+        }) 
   }
 
-  function plotFragment(fragID) {
+  // function plotFragment(fragID) {
 
-    var hull = fragmentBoundingBox(fragID)
-    hull.push(hull[0])
-    var c = polylabel([hull], 1.0)
+  //   var hull = fragmentBoundingBox(fragID)
+  //   hull.push(hull[0])
+  //   var c = polylabel([hull], 1.0)
 
-    points.append("circle")
-        .attr("cx", x(c[0]))
-        .attr("cy", y(c[1]))
-        .attr("stroke", "black")
-        .attr("r", 1)
-        .attr("id", fragID + "svg")
-    .style("cursor", "pointer")
-        .on("click", mapIconClicked)
-  }
+  //   points.append("circle")
+  //       .attr("cx", x(c[0]))
+  //       .attr("cy", y(c[1]))
+  //       .attr("stroke", "black")
+  //       .attr("r", 1)
+  //       .attr("id", fragID + "svg")
+  //   .style("cursor", "pointer")
+  //       .on("click", mapIconClicked)
+  // }
 
-  function regionClicked(region) {
+  function regionClicked(event, region) {
+    overlap.selectAll("*").remove();
     if (region.fragments.length > 1) {
-      multiRegionClicked(region)
+      multiRegionClicked(event, region)
     } else {
       objectSelected(region.fragments[0])
     }
   }
 
-  function multiRegionClicked(region) {
+  function multiRegionClicked(event, region) {
+    console.log(event)
+    var arr = JSON.parse(JSON.stringify(region.polygon.regions))
+    var c = polylabel(arr, 1.0)
 
+    var mx = event.layerX
+    var my = event.layerY
+    overlap.append("g")
+      .selectAll("rect")
+      .data(region.fragments)
+      .join("rect")
+        .attr("id", d => `${d}select`)
+        .attr("fill", f => {
+          if (getObjectState(getFragmentData(f).object).selected) {
+            return "greenyellow"
+          } else {
+            return "white"
+          }
+        })
+        .attr("fill-opacity", 0.7)
+        .attr('stroke', 'black')
+        .attr("stroke-width", 3)
+        .attr("width", 60)
+        .attr("height", 20)
+        .attr("x", mx + 10)
+        .attr("y", (d, i) => my - 20*i)
+        .on('mouseover', (e, d) => {
+          d3.select(e.path[0]).attr("fill-opacity",  1)
+          highlightFragment(d)
+        })
+        .on('mouseout', (e, d) => {
+          d3.select(e.path[0]).attr("fill-opacity", 0.7)
+          unhighlightFragment(d)
+        })
+        .on("click", (e, d) => {
+          objectSelected(d)
+        }) 
+
+    overlap.append("g")
+      .selectAll("text")
+      .data(region.fragments)
+      .join("text")
+        .attr("x", mx + 15)
+        .attr("y", (d, i) => my - 20*(i-1)-5)
+        .text(d => getFragmentData(d).name)
+        .on('mouseover', (e, f) => {
+          d3.select(`#${f}select`).attr("fill-opacity",  1)
+          d3.select(`#${f}select`).attr("fill", () => {
+            if (getObjectState(getFragmentData(f).object).selected) {
+              return "darkgreen"
+            } else {
+              return "yellow"
+            }})
+          highlightFragment(f)
+        })
+        .on('mouseout', (e, f) => {
+          d3.select(`#${f}select`).attr("fill-opacity",  0.7)
+          d3.select(`#${f}select`).attr("fill", () => {
+            if (getObjectState(getFragmentData(f).object).selected) {
+              return "greenyellow"
+            } else {
+              return "white"
+            }})
+          unhighlightFragment(f)
+        })
+        .on("click", (e, d) => {
+          objectSelected(d)
+        }) 
+    
   }
 
   function objectSelected(fragID) {
+    overlap.selectAll("*").remove();
+
     var objectID = sourceData.fragmentData.get(fragID).object
     var object = sourceData.objectData.get(objectID)
     var state = getObjectState(objectID)
@@ -606,13 +718,16 @@ function grid(g, x, y) {
       object.fragments.forEach(f => highlightFragment(f))
       
       loadObjectInfoPanel(objectID)
+      state.selected = true
     } else {
       object.fragments.forEach(f => unhighlightFragment(f))
+      console.log(object.fragments)
       
       document.getElementById(`${objectID}InfoCollapsible`).remove()
       document.getElementById(`${objectID}InfoDiv`).remove()
       w2ui[`${objectID}visualizations`].destroy()
       w2ui[`${objectID}info`].destroy()
+      state.selected = false
     }
   }
 
@@ -620,21 +735,70 @@ function grid(g, x, y) {
   function removeRegion(region) {
     d3.select("#" + regionID(region) + "lines").remove()
     d3.select("#" + regionID(region) + "shading").remove()
+    d3.select("#" + regionID(region) + "selectionlines").remove()
+    d3.select("#" + regionID(region) + "selectionshading").remove()
   }
 
   
-  function addFragmentLabel(fragID) {
-    var frag = getFragmentData(fragID)
-    var hull = fragmentBoundingBox(fragID)
-    hull.push(hull[0])
-    var c = polylabel([hull], 1.0)
+  function labelID(c) {
+    return (`l${c[0]},${c[1]}`).split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
+  }
+  function addFragmentLabel(region) {
+    var map = new Map()
+    region.fragments.forEach(f => {
+      var hull = fragmentBoundingBox(f)
+      hull.push(hull[0])
+      var c = polylabel([hull], 1.0)
+      var id = labelID(c)
+      if (map.has(id)) {
+        map.get(id).fragments.push(f)
+      } else {
+        map.set(id, {c: c, fragments: [f]})
+      }
+    })
 
-    pointsLabels.append("text")
-      .attr("x", x(c[0])+10)
-      .attr("y", y(c[1])+5)
-      .attr("id", fragID + "text")
-      //.attr("transform", d => `rotate(-45,${x(locs[0].x) + 10},${y(locs[0].y) - 10})`)
-      .text(frag.name)
+    map.forEach(lr => {
+      var extraFrags = ""
+      if ((lr.fragments.length - 1) > 0) {
+        extraFrags = ` + ${(lr.fragments.length - 1)}`
+      }
+
+      pointsLabels.append("text")
+        .attr("x", x(lr.c[0])+10)
+        .attr("y", y(lr.c[1])+5)
+        .attr("id", labelID(lr.c) + "text")
+        //.attr("transform", d => `rotate(-45,${x(locs[0].x) + 10},${y(locs[0].y) - 10})`)
+        .text(getFragmentData(lr.fragments[0]).name + extraFrags)
+
+      points.append("circle")
+        .attr("cx", x(lr.c[0]))
+        .attr("cy", y(lr.c[1]))
+        .attr("stroke", "black")
+        .attr("r", 1)
+        .attr("id", labelID(lr.c) + "svg")
+        .style("cursor", "pointer")
+        .on("click", mapIconClicked)
+    })
+  }
+
+  function removeFragmentLabel(region) {
+    var map = new Map()
+    region.fragments.forEach(f => {
+      var hull = fragmentBoundingBox(f)
+      hull.push(hull[0])
+      var c = polylabel([hull], 1.0)
+      var id = labelID(c)
+      if (map.has(id)) {
+        map.get(id).fragments.push(f)
+      } else {
+        map.set(id, {c: c, fragments: [f]})
+      }
+    })
+
+    map.forEach(lr => {
+      d3.select("#" + labelID(lr.c) + "text").remove()
+      d3.select("#" + labelID(lr.c) + "svg").remove()
+    })
   }
 
    // function updateFragmentLabel(location) {

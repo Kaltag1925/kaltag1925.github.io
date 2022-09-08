@@ -8,6 +8,7 @@
 	<script src="./deps/d3.v6.min.js"></script>
   <script src="./deps/polylabel.2"></script>
   <script src="./deps/polybool.min.js" charset="utf-8"></script>
+  <script src="./deps/leaflet.js"></script>
 	<script type='text/javascript' > 
     /*
 
@@ -20,6 +21,7 @@
       https://d3js.org/d3.v6.min.js
       https://github.com/mapbox/polylabel
       https://github.com/velipso/polybooljs
+      https://leafletjs.com/
     */
 
 
@@ -243,7 +245,7 @@
     name: 'leftPane',
     panels: [
       { type: 'top', size: 50, style: pstyle},
-      { type: 'main', size: 500, style: pstyle, resizable: true },
+      { type: 'main', size: 500, style: pstyle },
       { type: 'bottom', size: 200, style: pstyle }
     ]
   });
@@ -288,17 +290,43 @@
 		handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
-        html: `<div onclick="w2ui.navigation.toggle(this, event)"
-            ${w2utils.tooltip('Toggle Visiblity', { className: 'w2ui-light', left: -6, position: 'top|bottom' })}></div>`
+        html: `<div onclick='w2ui.navigation.toggle(this, event)'
+            ></div>`
 		},
-		nodes: [],
-		toggle(el) {
+    // https://blog.davidcassel.net/2010/01/why-is-it-flickering/ i love this man <3<3<3 TODO: tooltips?
+    toggle(el) {
+      var objectID = query(el).closest('.w2ui-node')[0].id.substring(5)
+
+      if (bp.indexOf(objectID) != -1) { // is visible
+          bp.splice(bp.indexOf(objectID), 1)
+          query(el).removeClass('toggle')
+          objectVisible(objectID, false)
+      } else { // hidden
+          bp.push(objectID)
+          query(el).addClass('toggle')
+          objectVisible(objectID, true)
+      }
+      event.preventDefault()
+      event.stopPropagation()
+    },
+    onRefresh(event) { // what does this do TODO
+        event.done(() => {
+            let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
+            if (bp.indexOf(event.target) == -1) {
+                node.removeClass('toggle')
+            } else {
+                node.addClass('toggle')
+            }
+        })
+    }
+		/*
+    toggle(el) {
             // shoulda probably have done this D3 style?
 			let node = $(el).closest('.w2ui-node');
 			//let nodeID = $(el).closest('.w2ui-node').attr('id')
       let id = node[0].id.substring(5) //dangerous should use regex or smthn idk
   
-      console.log(id)
+      console.log("clicked")
       // Show and Hide fragment groups
       if (bp.indexOf(id) != -1) { // Is visible
           bp.splice(bp.indexOf(id), 1)
@@ -311,9 +339,10 @@
           objectVisible(id, true)
           
       }
-      event.preventDefault()
-      event.stopPropagation()
+      //event.preventDefault()
+      //event.stopPropagation()
 		}
+    */
 	});
     
 	$().w2form({
@@ -452,13 +481,13 @@
     $(`#${objectID}InfoDiv`).w2layout({
       name: objectID + "info",
       panels: [
-        {type: "main", style: pstyle, size: 400, html: displayObjectInfo(object),
+        {type: "main", style: pstyle, size: 400, html: `<div id="${objectID}InfoHead"></div>`,
           tabs: {
             active: 'infoTab',
             tabs: [
               { id: 'infoTab', text: 'Info',
                 onClick() {
-                    w2ui[objectID + "info"].html('main', displayObjectInfo(object))
+                  displayObjectInfo(object)
                 }       
               },
               { id: 'propertiesTab', text: 'Properties',
@@ -472,6 +501,8 @@
         }
       ]
     })
+
+    displayObjectInfo(objectID)
 
 
     var collapsible = document.getElementById(objectID + "InfoCollapsible");
@@ -498,41 +529,72 @@
     });
 }
 
-  function displayObjectInfo(object) {
-    var html = `<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
-    It is a piece of Cypriot pottery.</b>.<br>
-    It has <b>${object.fragments.length}</b> fragments.<br>
-    Fragments:<br>
-    ${displayObjectFragments(object)}
-    `
-    return html
+  function displayObjectInfo(objectID) {
+    var object = getObjectData(objectID)
+    d3.select(`#${objectID}InfoHead`)
+      .html(`<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
+      It is a piece of Cypriot pottery.</b>.<br>
+      It has <b>${object.fragments.length}</b> fragments.<br>
+      Fragments:<br>`)
+      .append(displayObjectFragments(objectID))
   }
 
-  function displayObjectFragments(object) {
-    var html = ''
-    var fragments = getObjectFragments(object)
-    fragments.forEach(f => {
-      html += `- ${f.name} @ (${String.fromCharCode(f.x)}, ${f.y})<br>`
-    })
-    return html
-  }
+  function displayObjectFragments(objectID) {
+    var object = getObjectData(objectID)
+    var fragments = object.fragments
 
-   /* 
-   Collapsable Script
-  */
-  var coll = document.getElementsByClassName("collapsible");
-  var i;
-  
-  for (i = 0; i < coll.length; i++) {
-    coll[i].addEventListener("click", function() {
-      this.classList.toggle("active");
-      var content = this.nextElementSibling;
-      if (content.style.maxHeight){
-        content.style.maxHeight = null;
-      } else {
-        content.style.maxHeight = content.scrollHeight + "px";
-      } 
-    });
+    var divs = d3.select(`#${objectID}InfoHead`)
+      .selectAll("div")
+      .data(fragments)
+      .enter()
+      .append("div")
+
+
+    divs.append("button")
+      .attr("id", fID => `${fID}InfoCollapsible`)
+      .attr("class", "collapsible")
+      .html(fID => {
+        f = getFragmentData(fID)
+        return ` - ${f.name} @ ${f.origLoc}<br>`
+      })
+      .on("click", function(event,fID) {
+          this.classList.toggle("active");
+          var content = document.getElementById(`${fID}InfoDiv`);
+          if (content.style.maxHeight){
+            content.style.maxHeight = null;
+            content.style.height = "0%"
+          } else {
+            content.style.maxHeight = 800 + "px";
+            content.style.height =  "100%";
+          } 
+      })
+
+    divs.append("div")
+      .attr("class", "content")
+      .attr("id", fID => `${fID}InfoDiv`)
+      .html(fID => {
+        var f = getFragmentData(fID)
+        
+        var importantText = ""
+        if (f.important) {
+          importantText =  "Important"
+        } else {
+          importantText = "Not Important"
+        }
+
+        var tentativeText = ""
+        if (f.tentative) {
+          tentativeText = "Tentative"
+        } else {
+          tentativeText = "Not Tentative"
+        }
+        return `
+        This fragment is:<br>
+        ${importantText}<br>
+        ${tentativeText}
+        `
+      })
+    
   }
 </script>
 

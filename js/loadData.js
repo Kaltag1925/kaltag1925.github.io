@@ -34,39 +34,48 @@ function createFragment(fragID, fragLoc) {
 function loadSourceData(rawData) {
     console.log("load")
     var sourceData = {categoryData: new Map(), objectData: new Map(), fragmentData: new Map()}
-    
-    //Load fragments
-    rawData.artifacts.forEach(o => {
-        o.fragments.forEach(f => {
-            var id = fragmentToID(f.id, o.id)
 
-            var fragment = {name: f.id,
-                object: objectToID(o.id),
-                origLoc: f.origLoc,
-                important: f.important,
-                tentative: f.tentative,
-                locs: parseLocs(f.locs, f.id)
+    function getPieces(object) {
+        if (object.fragments.length == 0) {
+            return [[pieceToID(object.id, object.id), {name: object.id,
+                object: objectToID(object.id),
+                origLoc: object.origLoc,
+                important: false,
+                tentative: false,
+                locs: parseLocs(object.locs, object.id)
+            }]]
+        } else {
+            if (object.locs.length != 0) {
+                var arr = object.fragments.map(f => { return [pieceToID(f.id, object.id), {name: f.id,
+                    object: objectToID(object.id),
+                    origLoc: f.origLoc,
+                    important: f.important,
+                    tentative: f.tentative,
+                    locs: parseLocs(f.locs, f.id)
+                }]})
+                arr.push([pieceToID(object.id + " Cluster", object.id), {name: object.id + " Cluster",
+                    object: objectToID(object.id + " Cluster"),
+                    origLoc: object.origLoc,
+                    important: false,
+                    tentative: false,
+                    locs: parseLocs(object.locs, object.id)
+                }])
+                return arr
+            } else {
+                return object.fragments.map(f => { return [pieceToID(f.id, object.id), {name: f.id,
+                    object: objectToID(object.id),
+                    origLoc: f.origLoc,
+                    important: f.important,
+                    tentative: f.tentative,
+                    locs: parseLocs(f.locs, f.id)
+                }]})
             }
-
-            sourceData.fragmentData.set(id, fragment)
-
-
-            // var location = fragmentLocation(frag)
-
-            // var fragmentID = fragmentToID(location, index, object)
-            // var fragmentName = frag.name
-            // var objectID = objectToID(object)
-            // var x = location.x
-            // var y = location.y
-            
-            // var fragObj = {name: fragmentName, object: objectID, x: x, y: y}
-            // sourceData.fragmentData.set(fragmentID, fragObj)
-        })
-    })
-    
-    //load objects
+        }
+    }
+    //load objects and fragments
     rawData.artifacts.forEach(o => {
-        var fragments = o.fragments.map(f => fragmentToID(f.id, o.id))
+        var peices = getPieces(o)
+
         var id = objectToID(o.id)
 
         var object = {name: o.id,
@@ -75,23 +84,13 @@ function loadSourceData(rawData) {
             locationNotes: o.locationNotes,
             locs: parseLocs(o.locs, o.id),
             origLoc: o.origLoc,
-            fragments: fragments,
+            fragmentsOrginal: o.fragments.map(f => pieceToID(f.id, o.id)),
+            fragments: peices.map(a => a[0]) //used to display fragments + whole object if its one peice
             }
 
         sourceData.objectData.set(id, object)
-
-
-        // var objectID = objectToID(object)
-        // var objectName = object.name
-
-        // var fragmentIDs = object.fragments.map((fragment, index) => {
-        //     var location = fragmentLocation(fragment)
-        //     return fragmentToID(location, index, object)
-        // })
-        // var categoryIDs = objectTocategoryIDs(object)
         
-        // var objectObj = {name: objectName, fragments: fragmentIDs, categories: categoryIDs}
-        // sourceData.objectData.set(objectID, objectObj)
+        peices.forEach(a => sourceData.fragmentData.set(a[0], a[1]))
     })
 
     //load categories
@@ -129,8 +128,8 @@ function objectToID(objectID) {
     return "object" + trimID(objectID) // this is lossy since there are +'s n stuff need to replace them with words?
 }
 
-function fragmentToID(fragID, objectID) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
-    return trimID(objectID + "f" + fragID);
+function pieceToID(id, objectID) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
+    return trimID(objectID + "f" + id);
 }
 
 
@@ -154,31 +153,6 @@ function parseLocs(locs, id) {
         }
     })
 }
-
-// var debug = false
-// function fragmentLocation(fragment) {
-//     var regex = /(?<letter>[A-Z])\s*(?<number>\d+)\s(?<specifierLetter>[A-Z]{1,2})\s*(?<specifierNumber>)*/ //N16 UL4 or N16 UL 4 or N16 UL
-//     var regex2 = /(?<letter1>[A-Z])(?<letter2>[A-Z])(?<number1>\d+)\/(?<number2>d+)/ //MN15/16
-//     var regex3 = /(?<letter1>[A-Z])(?<letter2>[A-Z])(?<number>\d+)/ //IJ10
-//     var regex4 = / /
-//     var parsed = fragment.location.match(regex)
-//     if (parsed == null) {
-//         if (debug) {
-//             console.log("Could not parse location of fragment " + fragment.name)
-//             console.log("Location: " + fragment.location)
-//         }
-//         return {x: -1, y: -1}
-//     } else {
-//         var x = parsed.groups.letter.charCodeAt(0)
-//         var y = parseInt(parsed.groups.number);
-        
-//         // console.log(loc[0][0], alphaToInt(loc[0][0]))
-//         // const x = loc[0][0].charCodeAt(0)
-//         // const y = parseInt(loc[0].slice(1));
-        
-//         return {x: x, y:y};
-//     }
-// }
 
 function getObjectData(id) {
     return sourceData.objectData.get(id)

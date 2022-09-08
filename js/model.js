@@ -1,5 +1,9 @@
 function loadNewModel(sourceData) {
-    var globalState = {showMap: false, showPithoi: false, showRocks: false, pos: {x: 0, y: 0, z: 100.0}}
+    var globalState = {showMap: false, 
+        showPithoi: false, 
+        showRocks: false, 
+        pos: {x: 0, y: 0, z: 100.0},
+        mergeOverlapingRegions: false}
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((value, key) =>{
