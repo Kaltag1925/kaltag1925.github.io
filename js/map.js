@@ -1,5 +1,3 @@
-const e = require("express")
-
 var width
 var height
 var k
@@ -11,8 +9,8 @@ function readDataFile() {
 }
 
 function startMap() {
-  width = w2ui['layout'].get('main').width
-  height = w2ui['layout'].get('main').height
+  width = document.getElementById("map").clientWidth
+  height = document.getElementById("map").clientHeight
 
   k = height / width
   regionsOnMap = new Map()
@@ -163,7 +161,8 @@ function grid(g, x, y) {
 
   function setUpCoordinateBox() {
     d3.select('#map').append("div").attr('id', 'coordinates')
-      .style("position", "absolute")
+      .style("height", "0px")
+      .style("position", "relative")
       .style("font-weight", "bold")
       .text("") //TODO: Hide when off map
 
@@ -431,62 +430,64 @@ function grid(g, x, y) {
 
     //plotFragment(fragID)
 
+    var boundingBox = fragmentBoundingBox(fragID)
 
-    var hull = {regions: [fragmentBoundingBox(fragID)], inverted: false}
-    
-    //TODO: this is gonna get really slow
-    var overlapingRegions = Array.from(regionsOnMap).filter(([id, region]) => {
+    if (boundingBox != null) { //fragment loc is still tbd
+      var hull = {regions: [fragmentBoundingBox(fragID)], inverted: false}
+      //TODO: this is gonna get really slow
+      var overlapingRegions = Array.from(regionsOnMap).filter(([id, region]) => {
 
-      //TODO: Does this work when one contains the other?
-      var intersection = PolyBool.intersect(region.polygon, hull)
-      return (intersection.regions.length != 0)
+        //TODO: Does this work when one contains the other?
+        var intersection = PolyBool.intersect(region.polygon, hull)
+        return (intersection.regions.length != 0)
 
 
-    })
-
-    //console.log(overlapingRegions)
-
-    if (overlapingRegions.length == 0) {
-      var region = {polygon: hull, fragments: [fragID]}
-      regionsOnMap.set(regionID(region), region)
-      plotRegion(region)
-      addFragmentLabel(region)
-    } else {
-      overlapingRegions.forEach(([id, r]) => {
-        regionsOnMap.delete(regionID(r))
-        removeRegion(r)
-        removeFragmentLabel(r)
       })
 
-      var polygonsToUnion = overlapingRegions.map(([id, r]) => r.polygon)
-      polygonsToUnion.push(hull)
-      var fragArray = overlapingRegions.map(([id, r]) => r.fragments).flat()
-      fragArray.push(fragID)
+      //console.log(overlapingRegions)
 
-      var newPolygon = polygonsToUnion.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polygonsToUnion[0])
-      var newRegion = {polygon: newPolygon, fragments: fragArray}
-      plotRegion(newRegion)
-      addFragmentLabel(newRegion)
-      regionsOnMap.set(regionID(newRegion, newRegion))
+      if (overlapingRegions.length == 0) {
+        var region = {polygon: hull, fragments: [fragID]}
+        regionsOnMap.set(regionID(region), region)
+        plotRegion(region)
+        addFragmentLabel(region)
+      } else {
+        overlapingRegions.forEach(([id, r]) => {
+          regionsOnMap.delete(regionID(r))
+          removeRegion(r)
+          removeFragmentLabel(r)
+        })
+
+        var polygonsToUnion = overlapingRegions.map(([id, r]) => r.polygon)
+        polygonsToUnion.push(hull)
+        var fragArray = overlapingRegions.map(([id, r]) => r.fragments).flat()
+        fragArray.push(fragID)
+
+        var newPolygon = polygonsToUnion.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polygonsToUnion[0])
+        var newRegion = {polygon: newPolygon, fragments: fragArray}
+        plotRegion(newRegion)
+        addFragmentLabel(newRegion)
+        regionsOnMap.set(regionID(newRegion), newRegion)
+      }
     }
-
   }
 
-  function processRemoveFragment(fragID) {
-    var region = Array.from(regionsOnMap).find(([id, r]) => r.fragments.includes(fragID))[1] // TODO: make this re call process fragments
-    removeRegion(region)
-    removeFragmentLabel(region)
-    regionsOnMap.delete(regionID(region))
+  function processRemoveFragment(fragID) { // TODO: make this re call process fragments
+    if (fragmentBoundingBox(fragID) != null) {
+      var region = Array.from(regionsOnMap).find(([id, r]) => r.fragments.includes(fragID))[1]
+      removeRegion(region)
+      removeFragmentLabel(region)
+      regionsOnMap.delete(regionID(region))
 
-    var newFragments = region.fragments.splice(region.fragments.indexOf(fragID), 1)
-    newFragments.forEach(f => processFragment)
-    
-    // if (newFragments.length > 0) {
-    //   var newPolygon = newFragments.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), [newFragments[0]])
-    //   var newRegion = {polygon: newPolygon, fragments: newFragments}
-    //   plotRegion(newRegion)
-    // }
-
+      region.fragments.splice(region.fragments.indexOf(fragID), 1)
+      region.fragments.forEach(f => processFragment(f))
+      
+      // if (newFragments.length > 0) {
+      //   var newPolygon = newFragments.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), [newFragments[0]])
+      //   var newRegion = {polygon: newPolygon, fragments: newFragments}
+      //   plotRegion(newRegion)
+      // }
+    }
   }
 
   function regionID(region) {
@@ -540,7 +541,6 @@ function grid(g, x, y) {
   }
 
   function unhighlightFragment(fragID) {
-    console.log("removing")
     d3.selectAll(`#${fragID}lines`).remove()
     d3.selectAll(`#${fragID}shading`).remove()
     d3.select(`#${fragID}text`).style("color", "black")
@@ -753,14 +753,16 @@ function grid(g, x, y) {
     var map = new Map()
     region.fragments.forEach(f => {
       var hull = fragmentBoundingBox(f)
-      hull.push(hull[0])
-      var c = polylabel([hull], 1.0)
-      var id = labelID(c)
-      if (map.has(id)) {
-        map.get(id).fragments.push(f)
-      } else {
-        map.set(id, {c: c, fragments: [f]})
-      }
+      if (hull != null) {
+        hull.push(hull[0])
+        var c = polylabel([hull], 1.0)
+        var id = labelID(c)
+        if (map.has(id)) {
+          map.get(id).fragments.push(f)
+        } else {
+          map.set(id, {c: c, fragments: [f]})
+        }
+     }
     })
 
     map.forEach(lr => {
@@ -791,13 +793,15 @@ function grid(g, x, y) {
     var map = new Map()
     region.fragments.forEach(f => {
       var hull = fragmentBoundingBox(f)
-      hull.push(hull[0])
-      var c = polylabel([hull], 1.0)
-      var id = labelID(c)
-      if (map.has(id)) {
-        map.get(id).fragments.push(f)
-      } else {
-        map.set(id, {c: c, fragments: [f]})
+      if (hull != null) {
+        hull.push(hull[0])
+        var c = polylabel([hull], 1.0)
+        var id = labelID(c)
+        if (map.has(id)) {
+          map.get(id).fragments.push(f)
+        } else {
+          map.set(id, {c: c, fragments: [f]})
+        }
       }
     })
 
@@ -823,11 +827,15 @@ function grid(g, x, y) {
 
   function fragmentBoundingBox(fragID) {
     var frag = getFragmentData(fragID)
-    var coords = frag.locs.map(l => fragmentLocBoundingBox(l)).flat(1)
-    
+    if (frag.locs.length == 0) {
+      return null
+    } else {
+      var coords = frag.locs.map(l => fragmentLocBoundingBox(l)).flat(1)
+      
 
-    var hull = convexHull(coords).map(i => coords[i])
-    return hull
+      var hull = convexHull(coords).map(i => coords[i])
+      return hull
+    }
   }
 
   function fragmentLocBoundingBox(loc) {

@@ -56,13 +56,116 @@
 <body>
 
 <!-- //<div id="layout" style="position: absolute; width: 100%; top: 0px; bottom: 0px;"></div> -->
-<div id="right"></div>
-<div id="left">
-  <div id="leftPane"></div>
-  <div id="navigationToolbar"></div>
-</div>>
+<!-- <div id="top"></div>
+<div id="middle"style="position: absolute; width: 100%; top: 0px; bottom: 0px;">
+  <div id="left">
+    <div id="leftPane"></div>
+    <div id="navigationToolbar"></div>
+  </div>
+    <div id="left" style="overflow: hidden; width: 20%; height: 100%;">
+      <div id="navigation"></div>
+    </div>
+    <div id="map" style="width: 60%; height:100px"></div>
+    <div id="right" style="overflow: hidden; width: 20%; height: 100%;">
+      <div id="objectInfo"></div>
+    </div>
+ <div id="right"></div>
+</div> -->
+
+<!-- <div class="box">
+  <div id="top" class="row header"></div>
+  <div id="map" class "row content"></div>
+  <div id="bottom" class "row footer"></div>
+</div> -->
+
+<div class="box">
+  <div class="row header">
+    <p><b>header</b>
+      <br />
+      <br />(sized to content)</p>
+  </div>
+  <div id="middle" class="row middle">
+    <div id="left" class="row sidepanel">
+      <div id="navigationToolbar"></div>
+      <div id="navigation" style="min-height: 70%;"></div>
+      <div id="mapOptions" class="" style="min-height:300px"></div>
+    </div>
+    <div id="map" class="row map"></div>
+    <div id="right" class="row sidepanel"></div>
+  </div>
+  </div>
+  <div class="row footer">
+    <p><b>footer</b> (fixed height)</p>
+  </div>
+</div>
 
 <style>
+html, body, #fullheight {
+  min-height: 100% !important;
+  height: 100%;
+  margin: 0px 0px 0px 0px;
+  overflow: hidden;
+}
+
+.option-grid {
+  display: flex;
+  flex-flow: wrap;
+}
+
+.color-grid {
+  display: flex;
+  flex-flow: wrap;
+}
+
+.box {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+
+.box .row {
+  border: 1px dotted grey;
+}
+
+.box .row.header {
+  flex: 0 1 10%;
+  /* The above is shorthand for:
+  flex-grow: 0,
+  flex-shrink: 1,
+  flex-basis: auto
+  */
+}
+
+.box .row.middle {
+  flex: 0 1 80%;
+  min-height: 80%;
+  height: 100%;
+  display: flex;
+  flex-flow: row;
+  padding: 0; 
+}
+
+.box .row.sidepanel {
+  flex: 0 1 0%;
+  min-width: 300px;
+  width: 100%;
+  margin: 0px 0px 0px 0px;
+  min-height: 100px;
+  height: 100%;
+}
+
+.box .row.map {
+  flex: 1 1 0%;
+  width: 70%;
+  min-height: 60%;
+  height: 100%;
+  gap: 0px;
+}
+
+.box .row.footer {
+  flex: 0 1 10%;
+}
+
 .w2ui-sidebar[name=navigation] .w2ui-node-handle > div{
     width: 11px;
     height: 11px;
@@ -144,21 +247,20 @@
 
   window.onresize = function() {
     waitForFinalEvent(function() {
-      console.log("resized")
       d3.select("#map").html("")
       startMap() // need to save zoom/pan
     })
   }
 
   function reset() {
-    d3.select("#layout").html("")
+    //d3.select("#layout").html("")
 
-    w2ui["layout"].destroy()
+    //w2ui["layout"].destroy()
     w2ui["mainToolbar"].destroy()
-    w2ui["leftPane"].destroy()
+    //w2ui["leftPane"].destroy()
     //w2ui["navigationToolbar"].destroy()
     w2ui["navigation"].destroy()
-    w2ui["filter"].destroy()
+    //w2ui["filter"].destroy()
 
     loadNewModel(sourceData)
     loadUI()
@@ -181,21 +283,20 @@
 
     toolbar.append("button")
       .html("Select All")
-      .on("click", (e, d) => console.log("ALERT"))
+      .on("click", selectAll)
 
     toolbar.append("button")
       .html("Deselect All")
-      //.on("click", deselectAll())
+      .on("click", deselectAll)
     
     //w2ui['leftPane'].el('top').insertAdjacentHTML("beforeend", `<div id="navigationToolbar"></div`)
         
     //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
     console.log("nav", document.getElementsByName("navigationToolbar")[0])
-    document.getElementsByName("navigationToolbar")[0].style.overflow = ''
+    //document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   })
   
   function loadUI() {
-    console.log("ran")
     $('#layout').w2layout({
         name: 'layout',
         panels: [
@@ -254,7 +355,6 @@
           console.log('change', event);
       })
       .ok((event) => {
-          console.log(event)
           loadFromCode(event);
       });}}
     ]
@@ -265,17 +365,7 @@
       
     }
 
-  function loadNavToolbar() {
-  }  
-  $("#leftPane").w2layout({
-    name: 'leftPane',
-    panels: [
-      { type: 'top', size: 50, style: pstyle},//, html: `<div id="navigationToolbar"></div>`},
-      { type: 'main', size: 500, style: pstyle },
-      { type: 'bottom', size: 200, style: pstyle }
-    ],
-  });
-
+  /*
   
   $().w2toolbar({
     name: 'navigationToolbar',
@@ -295,10 +385,10 @@
       },
       { type: 'menu-check', id: 'navigationFilter', text: 'Filter',
         selected: ['lot', 'kw'],
-        /* onRefresh(event){
+        onRefresh(event){
           console.log(event)
           event.item.count = event.item.selected.reduce((a,b) => a + event.item.items.find(i => i.id == b).count, 0);
-        },*/
+        },
         items: [
           { id: 'kw', text: 'KW', count: 100 },
           { id: 'lot', text: 'Lots', count: 400}
@@ -308,29 +398,25 @@
         }
       }
     ]
-  })
-  var bp = []
-	$().w2sidebar({
+  }) */
+
+	$("#navigation").w2sidebar({
 		name: 'navigation',
 		img: null,
 		handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
-        html: `<div onclick='w2ui.navigation.toggle(this, event)'
+        html: `<div name="toggle" onclick='w2ui.navigation.toggle(this, event)'
             ></div>`
 		},
     // https://blog.davidcassel.net/2010/01/why-is-it-flickering/ i love this man <3<3<3 TODO: tooltips?
     toggle(el) {
       var objectID = query(el).closest('.w2ui-node')[0].id.substring(5)
 
-      if (bp.indexOf(objectID) != -1) { // is visible
-          bp.splice(bp.indexOf(objectID), 1)
-          query(el).removeClass('toggle')
-          objectVisible(objectID, false)
+      if (getObjectState(objectID).visible) { 
+        objectVisible(objectID, false)   
       } else { // hidden
-          bp.push(objectID)
-          query(el).addClass('toggle')
-          objectVisible(objectID, true)
+        objectVisible(objectID, true)   
       }
       event.preventDefault()
       event.stopPropagation()
@@ -345,31 +431,45 @@
             }
         })
     }
-		/*
-    toggle(el) {
-            // shoulda probably have done this D3 style?
-			let node = $(el).closest('.w2ui-node');
-			//let nodeID = $(el).closest('.w2ui-node').attr('id')
-      let id = node[0].id.substring(5) //dangerous should use regex or smthn idk
-  
-      console.log("clicked")
-      // Show and Hide fragment groups
-      if (bp.indexOf(id) != -1) { // Is visible
-          bp.splice(bp.indexOf(id), 1)
-          $(el).removeClass('toggle')
-          objectVisible(id, false)
-
-      } else {    // Is hidden
-          bp.push(id)
-          $(el).addClass('toggle')
-          objectVisible(id, true)
-          
-      }
-      //event.preventDefault()
-      //event.stopPropagation()
-		}
-    */
 	});
+
+  var mapOptions = d3.select("#mapOptions")
+
+  mapOptions.append("input")
+    .attr("id", "mapToggle")
+    .attr("type", "checkbox")
+    .property("checked", true)
+
+  mapOptions.append("label")
+    .attr("for", "mapToggle")
+    .html("Toggle Map")
+
+
+  mapOptions.append("input")
+    .attr("id", "pithoiToggle")
+    .attr("type", "checkbox")
+
+  mapOptions.append("label")
+    .attr("for", "pithoiToggle")
+    .html("Toggle Pithoi")
+
+
+  mapOptions.append("input")
+    .attr("id", "rocksToggle")
+    .attr("type", "checkbox")
+
+  mapOptions.append("label")
+    .attr("for", "rocksToggle")
+    .html("Toggle Rocks")
+
+
+  mapOptions.append("input")
+    .attr("id", "mouseCoordinatesToggle")
+    .attr("type", "checkbox")
+
+  mapOptions.append("label")
+    .attr("for", "mouseCoordinatesToggle")
+    .html("Toggle Mouse Coordinantes")
     
 	$().w2form({
     name   : 'filter',
@@ -411,37 +511,41 @@
         }
     ],
     onChange(event) {
-      console.log(event)
       var field = this.fields.find(f => f.field == event.target)
       field.onChange(event.detail.value.current)
     }
 });
-console.log()
-
-  w2ui['layout'].html('top', w2ui['mainToolbar']);
-	
-  //w2ui['layout'].html('left', w2ui['leftPane']);
-  w2ui['leftPane'].html('top', w2ui['navigationToolbar']);
-  w2ui['leftPane'].html('main', w2ui['navigation']);
-	w2ui['leftPane'].html('bottom', w2ui['filter']);
 
   console.log("finished")
 }
 
 function selectAll() {
-
+  sourceData.objectData.forEach((object, id) => {
+    if (!getObjectState(id).visible) {
+      objectVisible(id, true)
+    }
+  })
 }
 
 function deselectAll() {
-  
+  sourceData.objectData.forEach((object, id) => {
+    if (getObjectState(id).visible) {
+      objectVisible(id, false)
+    }
+  })
 }
 
 </script>
 
 <script type="text/javascript">
   function objectVisible(objectID, isVisible) {
+    var toggle = document.getElementById(`node_${objectID}`).querySelector("div[name='toggle']")
+    if (isVisible) {
+      query(toggle).addClass("toggle")
+    } else {
+      query(toggle).removeClass("toggle")
+    }
     model.objectStates.get(objectID).visible = isVisible;
-    console.log(sourceData.objectData.get(objectID).fragments)
     sourceData.objectData.get(objectID).fragments.forEach(fID => model.fragmentStates.get(fID).visible = isVisible)
 
     /*
@@ -506,11 +610,16 @@ function deselectAll() {
       }
     })
 
-    currentHTML = w2ui['layout'].el('right').insertAdjacentHTML("beforeend", `
-      <button class="collapsible" id="${objectID}InfoCollapsible">${object.name}</button>
-      <div class="content" id="${objectID}InfoDiv">
-      </div>
-      `)
+    d3.select("#right")
+      .append("button")
+      .attr("class", "collapsible")
+      .attr("id", `${objectID}InfoCollapsible`)
+      .html(object.name)
+
+    d3.select("#right")
+      .append("div")
+      .attr("class", "content")
+      .attr("id", `${objectID}InfoDiv`)
 
     $(`#${objectID}InfoDiv`).w2layout({
       name: objectID + "info",
@@ -603,7 +712,7 @@ function deselectAll() {
           } 
       })
 
-    divs.append("div")
+    var infodiv = divs.append("div")
       .attr("class", "content")
       .attr("id", fID => `${fID}InfoDiv`)
       .html(fID => {
@@ -628,7 +737,52 @@ function deselectAll() {
         ${tentativeText}
         `
       })
+
+    infodiv.append("div")
+      .html("Fragment Color:")
+
+    var colorGrid = infodiv.append("div")
+      .attr("class", "color-grid")
+      
+    colorGrid.append("button")
+      .style("background-color", "red")
+      .style("width", "22px")
+      .style("height", "22px")
     
+    colorGrid.append("button")
+      .style("background-color", "blue")
+      .style("width", "22px")
+      .style("height", "22px")
+
+    colorGrid.append("button")
+      .style("background-color", "green")
+      .style("width", "22px")
+      .style("height", "22px")
+
+    colorGrid.append("button")
+      .style("background-color", "white")
+      .style("width", "22px")
+      .style("height", "22px")
+    
+    colorGrid.append("button")
+      .style("background-color", "yellow")
+      .style("width", "22px")
+      .style("height", "22px")
+      
+    colorGrid.append("button")
+      .style("background-color", "purple")
+      .style("width", "22px")
+      .style("height", "22px")
+    
+    colorGrid.append("button")
+      .style("background-color", "orange")
+      .style("width", "22px")
+      .style("height", "22px")
+      
+    colorGrid.append("button")
+      .style("background-color", "indigo")
+      .style("width", "22px")
+      .style("height", "22px")
   }
 </script>
 
