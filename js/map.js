@@ -307,6 +307,8 @@ function grid(g, x, y) {
     var realImage9 = image9 * ratio
     var realImageWidth = imageWidth * ratio
 
+    console.log(mapE, realImageE)
+
     image = chart.append("image")
     .attr("xlink:href", "./imgs/reallysmallsitemap.png")
     .style('visibility', 'hidden')
@@ -348,7 +350,6 @@ function grid(g, x, y) {
       .on("zoom", zoomed)
 
     function zoomed({transform}) {
-      console.log(transform)
       // x = transform.rescaleX(defaultX).interpolate(d3.interpolateRound);
       // y = transform.rescaleY(defaultY).interpolate(d3.interpolateRound);
       gridX = transform.rescaleX(x).interpolate(d3.interpolateRound);
@@ -387,10 +388,18 @@ function grid(g, x, y) {
     dotsOnMap = new Map()
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
-        console.log(id)
         processObject(id, true)
       }
+
+      if (obj.selected) {
+        processObjectSelected(getObjectData(id), true)
+      }
     })
+
+    var mrs = model.multiRegionSelected
+    if (mrs != null) {
+      multiRegionClicked(x(mrs.mx), y(mrs.my), mrs.region)
+    }
 
     toggleMap(model.globalState.showMap)
     togglePithoi(model.globalState.showPithoi)
@@ -430,9 +439,6 @@ function grid(g, x, y) {
 
       //TODO: Does this work when one contains the other?
       var intersection = PolyBool.intersect(region.polygon, hull)
-
-      console.log(region.fragments, intersection)
-      console.log((intersection.regions.length != 0))
       return (intersection.regions.length != 0)
 
 
@@ -440,7 +446,6 @@ function grid(g, x, y) {
 
     //console.log(overlapingRegions)
 
-    console.log(fragID, overlapingRegions)
     if (overlapingRegions.length == 0) {
       var region = {polygon: hull, fragments: [fragID]}
       regionsOnMap.set(regionID(region), region)
@@ -448,18 +453,14 @@ function grid(g, x, y) {
       addFragmentLabel(region)
     } else {
       overlapingRegions.forEach(([id, r]) => {
-        console.log(r)
         regionsOnMap.delete(regionID(r))
-        console.log("removing" + r)
         removeRegion(r)
         removeFragmentLabel(r)
       })
 
       var polygonsToUnion = overlapingRegions.map(([id, r]) => r.polygon)
-      console.log(polygonsToUnion)
       polygonsToUnion.push(hull)
       var fragArray = overlapingRegions.map(([id, r]) => r.fragments).flat()
-      console.log(fragArray)
       fragArray.push(fragID)
 
       var newPolygon = polygonsToUnion.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polygonsToUnion[0])
@@ -514,7 +515,6 @@ function grid(g, x, y) {
 
   function highlightFragment(fragID) {
     var hull = fragmentBoundingBox(fragID)
-    console.log("highlighti" + fragID)
     lines.append("g")
       .attr("stroke", "green")
       .attr("stroke-opacity", 0.6)
@@ -629,21 +629,20 @@ function grid(g, x, y) {
   // }
 
   function regionClicked(event, region) {
+    model.multiRegionSelected = null
     overlap.selectAll("*").remove();
     if (region.fragments.length > 1) {
-      multiRegionClicked(event, region)
+      multiRegionClicked(event.layerX, event.layerY, region)
     } else {
       objectSelected(region.fragments[0])
     }
   }
 
-  function multiRegionClicked(event, region) {
-    console.log(event)
+  function multiRegionClicked(mx, my, region) {
+    model.multiRegionSelected = {region: region, mx: x.invert(mx), my: y.invert(my)};
     var arr = JSON.parse(JSON.stringify(region.polygon.regions))
     var c = polylabel(arr, 1.0)
 
-    var mx = event.layerX
-    var my = event.layerY
     overlap.append("g")
       .selectAll("rect")
       .data(region.fragments)
@@ -672,6 +671,7 @@ function grid(g, x, y) {
           unhighlightFragment(d)
         })
         .on("click", (e, d) => {
+          model.multiRegionSelected = null
           objectSelected(d)
         }) 
 
@@ -703,6 +703,7 @@ function grid(g, x, y) {
           unhighlightFragment(f)
         })
         .on("click", (e, d) => {
+          model.multiRegionSelected = null
           objectSelected(d)
         }) 
     
@@ -715,19 +716,24 @@ function grid(g, x, y) {
     var object = sourceData.objectData.get(objectID)
     var state = getObjectState(objectID)
     if (!state.selected) {
-      object.fragments.forEach(f => highlightFragment(f))
-      
+      processObjectSelected(object, true)
       loadObjectInfoPanel(objectID)
       state.selected = true
     } else {
-      object.fragments.forEach(f => unhighlightFragment(f))
-      console.log(object.fragments)
-      
+      processObjectSelected(object, false)
       document.getElementById(`${objectID}InfoCollapsible`).remove()
       document.getElementById(`${objectID}InfoDiv`).remove()
       w2ui[`${objectID}visualizations`].destroy()
       w2ui[`${objectID}info`].destroy()
       state.selected = false
+    }
+  }
+
+  function processObjectSelected(object, selected) {
+    if (selected) {
+      object.fragments.forEach(f => highlightFragment(f))
+    } else {
+      object.fragments.forEach(f => unhighlightFragment(f))
     }
   }
 
@@ -777,7 +783,7 @@ function grid(g, x, y) {
         .attr("r", 1)
         .attr("id", labelID(lr.c) + "svg")
         .style("cursor", "pointer")
-        .on("click", mapIconClicked)
+        .on("click", e => regionClicked(e, region))
     })
   }
 
@@ -814,59 +820,6 @@ function grid(g, x, y) {
   //     }
   //   }
   // }
-
-  function fragmentLocToCoord(loc) {
-    var x = loc.x + 0.5
-    var y = loc.y + 0.5
-
-    var sl = loc.specLetter
-    if (sl != null) {
-      if (sl == "UL") {
-        x -= 0.25
-        y -= 0.25
-      }
-
-      if (sl == "LL") {
-        x -= 0.25
-        y += 0.25
-      }
-
-      if (sl == "UR") {
-        x += 0.25
-        y -= 0.25
-      }
-
-      if (sl == "LR") {
-        x += 0.25
-        y += 0.25
-      }
-    }
-
-    var sn = loc.specNumber
-    if (sn != null) {
-      if (sn == 1) {
-        x -= 0.125
-        y -= 0.125
-      }
-      
-      if (sn == 2) {
-        x -= 0.125
-        y += 0.125
-      }
-
-      if (sn == 3) {
-        x += 0.125
-        y -= 0.125
-      }
-
-      if (sn == 4) {
-        x += 0.125
-        y += 0.125
-      }
-    }
-
-    return {x: x, y: y}
-  }
 
   function fragmentBoundingBox(fragID) {
     var frag = getFragmentData(fragID)
@@ -942,121 +895,6 @@ function grid(g, x, y) {
   
   var lastSelectedPoint = null
 
-  function mapIconClicked(event) {
-    if (lastSelectedPoint != null) {
-      d3.select(`#${lastSelectedPoint}text`).attr("visibility", "visible")
-    }
-    
-    overlap.selectAll("*").remove();
-
-
-    // let fragmentsOnPoint = dotsOnMap.get(event.srcElement.id)
-    // if (fragmentsOnPoint.length > 1) {
-    //     multiobjectClicked(event, fragmentsOnPoint)
-    // } else {
-    //     objectClicked(getFragmentData(fragmentsOnPoint[0]).object)
-    // }
-  }
-
-  function multiobjectClicked(event, fragmentsOnPoint) {
-    var cx = event.srcElement.cx.baseVal.value
-    var cy = event.srcElement.cy.baseVal.value
-    var svgID = event.target.id
-    d3.select(`#${svgID}text`).attr("visibility", "hidden")
-    
-    overlap.append("g")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .selectAll("overlap")
-      .data(fragmentsOnPoint)
-      .join("circle")
-      .attr("cx", cx)
-      .attr("cy", cy)
-      .attr("r", 10)
-      .attr("id", d => d)
-      .attr("fill", d => {
-        var state = getObjectState(getFragmentData(d).object)
-        if (state.selected) {
-          return "greenyellow"
-        } else {
-          return "black"
-        }
-      })
-      .on("click", event => {
-        overlap.selectAll("*").remove()
-        d3.select(`#${pointID}text`).attr("visibility", "visible")
-        objectClicked(getFragmentData(event.target.id).object)
-      })
-      .style("cursor", "pointer")
-      .transition()
-      .duration(500)
-      .attr("cy", (d, i) => cy - i * 20)
-
-
-    // labels
-    overlap.append("g")
-      .attr("stroke", "black")
-      .attr("stroke-width", 0.5)
-      .selectAll("text")
-      .data(fragmentsOnPoint)
-      .join("text")
-      .attr("x", cx+15)
-      .attr("y", cy-10)
-      .attr("id", d => "multi" + d + "text")
-      .attr("transform", d => `rotate(-45,${cx + 15},${cy - 10})`)
-      .text(d => getFragmentData(d).name)
-      .transition()
-      .duration(500)
-      .attr("transform", (d, i) => `rotate(-45,${cx + 15},${cy - i * 20 - 10})`)
-      .attr("y", (d, i) => cy - i * 20 - 10)
-  }
-
-
-
-  function objectClicked(objectID) {
-    var objState = getObjectState(objectID)
-    console.log(objectID, objState)
-    if (!(objState.selected)) {
-      objState.selected = true
-
-      loadObjectInfoPanel(objectID)
-
-      if (model.objectStates.get(objectID).visualizations.lines) {
-        connectRegion(objectID)
-      }
-      console.log("shaded" + model.objectStates.get(objectID).visualizations.shaded)
-      if (model.objectStates.get(objectID).visualizations.shaded) {
-        shadeObjectRegion(objectID)
-      }
-
-      //highlight fragments
-      getObjectIDFragments(objectID).forEach(f => {
-        d3.select(`#point${f.x}-${f.y}`).attr("fill", "greenyellow")
-      })
-    } else {
-      objState.selected = false
-
-      removeLines(objectID)
-      removeShading(objectID)
-
-      document.getElementById(`${objectID}InfoCollapsible`).remove()
-      document.getElementById(`${objectID}InfoDiv`).remove()
-      w2ui[`${objectID}visualizations`].destroy()
-      w2ui[`${objectID}info`].destroy()
-
-      getObjectIDFragments(objectID).forEach(f => {
-        var pointID = `point${f.x}-${f.y}`
-        var someObjectSelected = dotsOnMap.get(pointID).some(f => {
-          return getObjectState(getFragmentData(f).object).selected
-        })
-        console.log(someObjectSelected)
-        if (!someObjectSelected) {
-          d3.select("#" + pointID).attr("fill", "black")
-        }
-      })
-    }
-  }
-
   function connectRegion(objectID) {
     var fragLocations = sourceData.objectData.get(objectID).fragments.map(fragID => {
       var frag = sourceData.fragmentData.get(fragID)
@@ -1096,7 +934,7 @@ function grid(g, x, y) {
       .enter().append('polygon')
       .attr("points", d => {
         return d.map(d => {
-            return [plotX(d[0]), plotY(d[1])].join(',')
+            return [x(d[0]), y(d[1])].join(',')
         }).join(' ')
       })
       .attr("fill", "blue")
@@ -1114,15 +952,14 @@ function grid(g, x, y) {
     }
   }
 
-  var pithosSVG = d3.xml('imgs/pithos.svg')
   function togglePithoi(toggle) {
     if (toggle) {
       points
       .selectAll("pithos")
       .data([[66, 13], [77,12], [69, 20], [70, 12]]) //TODO: Real Data
       .join("circle")
-        .attr("cx", d => plotX(d[0]))
-        .attr("cy", d => plotY(d[1]))
+        .attr("cx", d => x(d[0]))
+        .attr("cy", d => y(d[1]))
         .attr("stroke", "pink")
         //.attr("data", d => (d))
         .attr("r", 20)
@@ -1141,8 +978,8 @@ function grid(g, x, y) {
       .selectAll("rock")
       .data([[68,15], [72,12], [73, 20], [74, 10]]) //TODO: Real Data
       .join("circle")
-        .attr("cx", d => plotX(d[0]))
-        .attr("cy", d => plotY(d[1]))
+        .attr("cx", d => x(d[0]))
+        .attr("cy", d => y(d[1]))
         .attr("stroke", "grey")
         //.attr("data", d => (d))
         .attr("r", 20)

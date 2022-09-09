@@ -3,7 +3,14 @@ function loadNewModel(sourceData) {
         showPithoi: false, 
         showRocks: false, 
         pos: {x: 0, y: 0, z: 100.0},
-        mergeOverlapingRegions: false}
+        mergeOverlapingRegions: false,
+        multiRegionSelected: 
+            {
+                region: null,
+                mx: 0,
+                my: 0
+            }
+        }
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((value, key) =>{
@@ -52,7 +59,6 @@ function objectToNode(pair, sourceData) {
 }
 
 function fragmentToNode(fragmentID, sourceData) {
-    console.log(fragmentID)
     return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
         // find svg node based on position ID
         // make it beeeg

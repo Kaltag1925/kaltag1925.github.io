@@ -55,7 +55,12 @@
 </head>
 <body>
 
-<div id="layout" style="position: absolute; width: 100%; top: 0px; bottom: 0px;"></div>
+<!-- //<div id="layout" style="position: absolute; width: 100%; top: 0px; bottom: 0px;"></div> -->
+<div id="right"></div>
+<div id="left">
+  <div id="leftPane"></div>
+  <div id="navigationToolbar"></div>
+</div>>
 
 <style>
 .w2ui-sidebar[name=navigation] .w2ui-node-handle > div{
@@ -151,7 +156,7 @@
     w2ui["layout"].destroy()
     w2ui["mainToolbar"].destroy()
     w2ui["leftPane"].destroy()
-    w2ui["navigationToolbar"].destroy()
+    //w2ui["navigationToolbar"].destroy()
     w2ui["navigation"].destroy()
     w2ui["filter"].destroy()
 
@@ -159,14 +164,33 @@
     loadUI()
     setUpSidebarData(sourceData)
     startMap()
+
     //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
-    document.getElementsByName("navigationToolbar")[0].style.overflow = ''
+    //document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   }
 
   $(function () {
     loadUI()
     readWreckDataFile()
+
+    $("#layout").w2render("layout")
+    /*
+    var navToolbar = document.createElement("div");
+    navToolbar.setAttribute("id", "navigationToolbar")*/
+    var toolbar = d3.select("#navigationToolbar")
+
+    toolbar.append("button")
+      .html("Select All")
+      .on("click", (e, d) => console.log("ALERT"))
+
+    toolbar.append("button")
+      .html("Deselect All")
+      //.on("click", deselectAll())
+    
+    //w2ui['leftPane'].el('top').insertAdjacentHTML("beforeend", `<div id="navigationToolbar"></div`)
+        
     //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
+    console.log("nav", document.getElementsByName("navigationToolbar")[0])
     document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   })
   
@@ -241,15 +265,18 @@
       
     }
 
-  $().w2layout({
+  function loadNavToolbar() {
+  }  
+  $("#leftPane").w2layout({
     name: 'leftPane',
     panels: [
-      { type: 'top', size: 50, style: pstyle},
+      { type: 'top', size: 50, style: pstyle},//, html: `<div id="navigationToolbar"></div>`},
       { type: 'main', size: 500, style: pstyle },
       { type: 'bottom', size: 200, style: pstyle }
-    ]
+    ],
   });
 
+  
   $().w2toolbar({
     name: 'navigationToolbar',
     items: [
@@ -271,7 +298,7 @@
         /* onRefresh(event){
           console.log(event)
           event.item.count = event.item.selected.reduce((a,b) => a + event.item.items.find(i => i.id == b).count, 0);
-        }, */
+        },*/
         items: [
           { id: 'kw', text: 'KW', count: 100 },
           { id: 'lot', text: 'Lots', count: 400}
@@ -282,7 +309,6 @@
       }
     ]
   })
-
   var bp = []
 	$().w2sidebar({
 		name: 'navigation',
@@ -390,16 +416,24 @@
       field.onChange(event.detail.value.current)
     }
 });
+console.log()
 
-  
   w2ui['layout'].html('top', w2ui['mainToolbar']);
 	
-  w2ui['layout'].html('left', w2ui['leftPane']);
+  //w2ui['layout'].html('left', w2ui['leftPane']);
   w2ui['leftPane'].html('top', w2ui['navigationToolbar']);
   w2ui['leftPane'].html('main', w2ui['navigation']);
 	w2ui['leftPane'].html('bottom', w2ui['filter']);
 
   console.log("finished")
+}
+
+function selectAll() {
+
+}
+
+function deselectAll() {
+  
 }
 
 </script>
