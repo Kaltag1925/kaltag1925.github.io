@@ -516,8 +516,9 @@ function grid(g, x, y) {
 
   function highlightFragment(fragID) {
     var hull = fragmentBoundingBox(fragID)
+    var colors = colorCombos.get(getFragmentState(fragID).color)
     lines.append("g")
-      .attr("stroke", "green")
+      .attr("stroke", colors.border)
       .attr("stroke-opacity", 0.6)
       .attr("id", fragID + "lines")
       .selectAll("lines")
@@ -530,7 +531,7 @@ function grid(g, x, y) {
 
     shaded.append("g")
       .attr("id", fragID + "shading")
-      .attr("fill", "greenyellow")
+      .attr("fill", colors.fill)
       .attr("fill-opacity", 0.4)
       .append('polygon')
         .attr("points", hull.map(d => {
@@ -538,6 +539,25 @@ function grid(g, x, y) {
           }).join(' '))
 
     d3.select(`#${fragID}text`).style("color", "dodgerblue")
+  }
+
+  colorCombos = new Map()
+  colorCombos.set("red", {fill: "red", border: "darkred"})
+  colorCombos.set("blue", {fill: "blue", border: "darkblue"})
+  colorCombos.set("green", {fill: "green", border: "darkgreen"})
+  colorCombos.set("gold", {fill: "gold", border: "goldenrod"})
+  colorCombos.set("purple", {fill: "purple", border: "rebeccapurple"})
+  colorCombos.set("orange", {fill: "orange", border: "darkorange"})
+  colorCombos.set("grey", {fill: "grey", border: "darkslategrey"})
+
+  function changeFragmentColor(fragID, color) {
+    console.log(color)
+    var colors = colorCombos.get(color)
+    d3.select(`#${fragID}lines`)
+      .attr("stroke", colors.border)
+
+    d3.select(`#${fragID}shading`)
+      .attr("fill", colors.fill)
   }
 
   function unhighlightFragment(fragID) {

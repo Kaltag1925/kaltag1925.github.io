@@ -55,29 +55,6 @@
 </head>
 <body>
 
-<!-- //<div id="layout" style="position: absolute; width: 100%; top: 0px; bottom: 0px;"></div> -->
-<!-- <div id="top"></div>
-<div id="middle"style="position: absolute; width: 100%; top: 0px; bottom: 0px;">
-  <div id="left">
-    <div id="leftPane"></div>
-    <div id="navigationToolbar"></div>
-  </div>
-    <div id="left" style="overflow: hidden; width: 20%; height: 100%;">
-      <div id="navigation"></div>
-    </div>
-    <div id="map" style="width: 60%; height:100px"></div>
-    <div id="right" style="overflow: hidden; width: 20%; height: 100%;">
-      <div id="objectInfo"></div>
-    </div>
- <div id="right"></div>
-</div> -->
-
-<!-- <div class="box">
-  <div id="top" class="row header"></div>
-  <div id="map" class "row content"></div>
-  <div id="bottom" class "row footer"></div>
-</div> -->
-
 <div class="box">
   <div class="row header">
     <p><b>header</b>
@@ -91,7 +68,7 @@
       <div id="mapOptions" class="" style="min-height:300px"></div>
     </div>
     <div id="map" class="row map"></div>
-    <div id="right" class="row sidepanel"></div>
+    <div id="right" class="row sidepanel" style="overflow:scroll"></div>
   </div>
   </div>
   <div class="row footer">
@@ -115,6 +92,22 @@ html, body, #fullheight {
 .color-grid {
   display: flex;
   flex-flow: wrap;
+}
+
+.color-button {
+  width: 22px;
+  height: 22px;
+  border-style: solid;
+  border-width: 3px;
+  border-color: black;
+}
+
+.color-button-toggled {
+  width: 22px;
+  height: 22px;
+  border-style: solid;
+  border-width: 3px;
+  border-color: yellowgreen;
 }
 
 .box {
@@ -616,34 +609,25 @@ function deselectAll() {
       .attr("id", `${objectID}InfoCollapsible`)
       .html(object.name)
 
-    d3.select("#right")
+    var infoDiv = d3.select("#right")
       .append("div")
       .attr("class", "content")
       .attr("id", `${objectID}InfoDiv`)
+    
+    infoDiv.append("button")
+      .html("Info")
+      .on("click", () => {
+        d3.select(`${objectID}InfoHead`).remove("*")
+        displayObjectInfo(object)
+      })
 
-    $(`#${objectID}InfoDiv`).w2layout({
-      name: objectID + "info",
-      panels: [
-        {type: "main", style: pstyle, size: 400, html: `<div id="${objectID}InfoHead"></div>`,
-          tabs: {
-            active: 'infoTab',
-            tabs: [
-              { id: 'infoTab', text: 'Info',
-                onClick() {
-                  displayObjectInfo(object)
-                }       
-              },
-              { id: 'propertiesTab', text: 'Properties',
-                onClick() {
-                    w2ui[objectID + 'visualizations'].loadObject()
-                    w2ui[objectID + "info"].html('main', w2ui[objectID + 'visualizations'])  
-                }
-              }
-            ]
-          }
-        }
-      ]
-    })
+      /*
+    infoDiv.append("button")
+      .html("Properties")
+      .on("click", displayObjectProperties())*/
+
+    infoDiv.append("div")
+      .attr("id", `${objectID}InfoHead`)
 
     displayObjectInfo(objectID)
 
@@ -655,10 +639,10 @@ function deselectAll() {
       var content = this.nextElementSibling;
       if (content.style.maxHeight){
         content.style.maxHeight = null;
-        content.style.height = "0%"
+        //content.style.height = "0%"
       } else {
-        content.style.maxHeight = 800 + "px";
-        content.style.height = "100%"
+        content.style.maxHeight = "fit-content"
+        //content.style.height = "100%"
       } 
 
       var content = document.getElementById(objectID +"InfoDiv").children[0];
@@ -744,128 +728,31 @@ function deselectAll() {
     var colorGrid = infodiv.append("div")
       .attr("class", "color-grid")
       
-    colorGrid.append("button")
-      .style("background-color", "red")
-      .style("width", "22px")
-      .style("height", "22px")
-    
-    colorGrid.append("button")
-      .style("background-color", "blue")
-      .style("width", "22px")
-      .style("height", "22px")
+    var colors = [
+      "red",
+      "blue",
+      "green",
+      "gold",
+      "purple",
+      "orange",
+      "grey"
+    ]
+    colorGrid.selectAll("button")
+      .data(colors)
+      .join("button")
+      .attr("id", (c, i, n) => d3.select(n[i].parentNode).datum() + c + "button")
+      .style("background-color", c => c)
+      .attr("class", "color-button")
+      .on("click", (e, c) => {
+        var button = e.target
+        var fragID = d3.select(button.parentNode).datum()
+        d3.select(`#${fragID}${getFragmentState(fragID).color}button`).attr("class", "color-button")
+        d3.select(button).attr("class", "color-button-toggled")
+        getFragmentState(fragID).color = c
 
-    colorGrid.append("button")
-      .style("background-color", "green")
-      .style("width", "22px")
-      .style("height", "22px")
-
-    colorGrid.append("button")
-      .style("background-color", "white")
-      .style("width", "22px")
-      .style("height", "22px")
-    
-    colorGrid.append("button")
-      .style("background-color", "yellow")
-      .style("width", "22px")
-      .style("height", "22px")
-      
-    colorGrid.append("button")
-      .style("background-color", "purple")
-      .style("width", "22px")
-      .style("height", "22px")
-    
-    colorGrid.append("button")
-      .style("background-color", "orange")
-      .style("width", "22px")
-      .style("height", "22px")
-      
-    colorGrid.append("button")
-      .style("background-color", "indigo")
-      .style("width", "22px")
-      .style("height", "22px")
+        changeFragmentColor(fragID, c)
+      })
   }
-</script>
-
-<script type='text/javascript'>
- /* var state;
-
-  function loadState(loaded) {
-    if (loaded == null) {
-      var objectStates = data.map(o => ({id: o._name, 
-                                    hidden: true,
-                                    fragments: o.location.map((f, index) => ({id: getFragmentName(f.x, f.y, index), hidden: false}))
-                                  }));
-
-      state = {filters: {rocks: true, lines: true}, objectStates: objectStates};
-      loadState(state);
-    } else {
-      loaded.objectStates.forEach(o => {hideObject(o.id, o.hidden)});
-    } 
-  }
-
-  function hideObject(id, hide) {
-    state.objectStates.find(o => o.id == id).hidden = hide;
-
-    let object = data.find(o => o._name == id);
-    let locationsToUpdate = objectsByDots.filter(e => object.location.some(l => compareLocation(e.location, l)));
-
-    if (hide) {
-      locationsToUpdate.forEach(e => e.objects = e.objects.filter(o => o._name != object._name))
-      locationsToUpdate.forEach(svgloc => {
-          if (svgloc.objects.length == 0) {
-              svgloc.svgNode.setAttribute("visiblity", "hidden")
-              svgloc.textNode.setAttribute("visibility", "hidden")
-          } else {
-              if (svgloc.objects.length == 1) {
-                  svgloc.textNode.innerHTML = svgloc.objects[0]._name
-              } else {
-                  svgloc.textNode.innerHTML = svgloc.objects[0]._name + " +" + (svgloc.objects.length - 1)
-              }
-          }
-      });
-    } else {
-      locationsToUpdate.forEach(e => { e.objects.push(object)})
-      locationsToUpdate.forEach(svgloc => {
-          svgloc.svgNode.setAttribute("visibility", "visible")
-          svgloc.textNode.setAttribute("visibility", "visible")
-          if (svgloc.objects.length == 1) {
-              svgloc.textNode.innerHTML = svgloc.objects[0]._name
-          } else {
-              svgloc.textNode.innerHTML = svgloc.objects[0]._name + " +" + (svgloc.objects.length - 1)
-          }
-      });
-    }
-  }
-  
-
-  function hideFragment(id) {
-
-  }
-
-  function saveToCode() {
-    console.log("saving")
-    return JSON.stringify(state) 
-  }
-
-  function selectObject(object) { //add to save load
-    state.selectedObject = object
-    w2ui['layout'].panels.find(p => p.type == 'right').loadObject()
-  }
-
-  function loadFromCode(code) {
-    try {
-      // Probably need to regex
-      state = JSON.parse(code)
-      loadState(state)
-    } catch (e) {
-      if (e instanceof SyntaxError) {
-        w2alert('Invalid code')
-      } else {
-        w2alert('Something bad happened, please email kaltagkaasen@gmail.com with what you did, becuase frankly I did not expect anything to happen. :)')
-      }
-    }
-  }
-*/
 </script>
 
 </body>

@@ -41,6 +41,10 @@ function getObjectState(objectID) {
     return model.objectStates.get(objectID)
 }
 
+function getFragmentState(fragID) {
+    return model.fragmentStates.get(fragID)
+}
+
 function loadModel(sourceData, states) {
     
 }
