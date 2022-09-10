@@ -1,7 +1,8 @@
 function loadNewModel(sourceData) {
-    var globalState = {showMap: false, 
+    var globalState = {showMap: true, 
         showPithoi: false, 
-        showRocks: false, 
+        showRocks: false,
+        showMouseCoordinates: true,
         pos: {x: 0, y: 0, z: 100.0},
         mergeOverlapingRegions: false,
         multiRegionSelected: 
@@ -9,7 +10,8 @@ function loadNewModel(sourceData) {
                 region: null,
                 mx: 0,
                 my: 0
-            }
+            },
+        activeFilters: []
         }
 
     var fragmentStates = new Map()
@@ -58,7 +60,7 @@ function objectToNode(pair, sourceData) {
     var objectID = pair[0]
     var object = pair[1]
 
-    var mainNode = {id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(f => fragmentToNode(f, sourceData))};
+    var mainNode = {categories: object.categories, id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(f => fragmentToNode(f, sourceData))};
     return mainNode;
 }
 

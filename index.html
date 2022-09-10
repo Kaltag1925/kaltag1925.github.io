@@ -215,6 +215,53 @@ html, body, #fullheight {
   transition: max-height 0.2s ease-out;
   background-color: #f1f1f1;
 }
+
+/* Dropdown Button */
+.dropbtn {
+  background-color: #04AA6D;
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  position: relative;
+  display: inline-block;
+  z-index: 10;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content button {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content .selected button {
+  color: pink;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content button:hover {background-color: #ddd;}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {display: block;}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {background-color: #3e8e41;}
 </style>
 <div style="clear: both"/>
 
@@ -265,10 +312,9 @@ html, body, #fullheight {
   }
 
   $(function () {
-    loadUI()
     readWreckDataFile()
+    loadUI()
 
-    $("#layout").w2render("layout")
     /*
     var navToolbar = document.createElement("div");
     navToolbar.setAttribute("id", "navigationToolbar")*/
@@ -281,27 +327,203 @@ html, body, #fullheight {
     toolbar.append("button")
       .html("Deselect All")
       .on("click", deselectAll)
+
+    toolbar.append("label")
+      .attr("for", "sortBy")
+      .html("Sort By: ")
+
+    var sorts = [
+      {type: "None", sortFunc: function() {}},
+      {type: "Name", sortFunc: sortName},
+      {type: "ID Number", sortFunc: sortIDNumber}
+    ];
+
+    // #region
+    function sortIDNumber() {
+      var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
+      
+      var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
+        .datum((d, i, n) => {
+          var objectID = n[i].id.substring(5)
+          return getObjectData(objectID).name
+        })
+
+      var sorted = nodes.sort((a, b) => {
+        var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
+        var aParsed = a.match(regex);
+        var bParsed = b.match(regex);
+
+
+        if (aParsed == null) {
+          console.log("Could not parse name of " + a + " when sorting by name.");
+          return -1;
+        }
+
+        if (bParsed == null) {
+          console.log("Could not parse name of " + a + " when sorting by name.");
+          return 1;
+        }
+
+        var aNumber = parseInt(aParsed.groups.number);
+        var bNumber = parseInt(bParsed.groups.number);
+        
+        if (aNumber == bNumber) {
+          var aNumber2 = parseInt(aParsed.groups.number2);
+          var bNumber2 = parseInt(bParsed.groups.number2);
+
+          if (aNumber2 == NaN && bNumber2 != NaN) {
+            return -1;
+          };
+
+          if (bNumber2 == NaN && aNumber2 != NaN) {
+            return 1;
+          };
+
+          if (aNumber2 == NaN && bNumber2 == NaN) {
+            return 0;
+          }
+          
+          return aNumber2 - bNumber2;
+        } else {
+          return aNumber - bNumber;
+        };
+      });
+    }
+
+    function sortName() {
+      var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
+      
+      var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
+        .datum((d, i, n) => {
+          var objectID = n[i].id.substring(5)
+          return getObjectData(objectID).name
+        })
+
+      var sorted = nodes.sort((a, b) => {
+        var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
+        var aParsed = a.match(regex);
+        var bParsed = b.match(regex);
+        //console.log(a, aParsed);
+        //console.log(b, bParsed);
+
+        if (aParsed == null) {
+          console.log("Could not parse name of " + a + " when sorting by name.");
+          return 0;
+        }
+
+        if (bParsed == null) {
+          console.log("Could not parse name of " + a + " when sorting by name.");
+          return 0;
+        }
+
+        var compareType = aParsed.groups.type.localeCompare(bParsed.groups.type)
+        if (compareType == 0) {
+          var aNumber = parseInt(aParsed.groups.number);
+          var bNumber = parseInt(bParsed.groups.number);
+          
+          if (aNumber == bNumber) {
+            var aNumber2 = parseInt(aParsed.groups.number2);
+            var bNumber2 = parseInt(bParsed.groups.number2);
+
+            if (aNumber2 == NaN && bNumber2 != NaN) {
+              return -1;
+            };
+
+            if (bNumber2 == NaN && aNumber2 != NaN) {
+              return 1;
+            };
+
+            if (aNumber2 == NaN && bNumber2 == NaN) {
+              return 0;
+            }
+            
+            return aNumber2 - bNumber2;
+          } else {
+            return aNumber - bNumber;
+          };
+        } else {
+          return compareType;
+        };
+      });
+    }
+
+    var sortBy = toolbar.append("select")
+      .attr("name", "sorts")
+      .attr("id", "sorts")
+      .on("change", (e) => {
+        var option = d3.select(e.target.options[e.target.selectedIndex])
+        option.data()[0].sortFunc()
+      }) //toi tired rn but use event or params or smthn TODO
+
+    sortBy.selectAll("option")
+      .data(sorts)
+      .enter()
+      .append("option") 
+      .attr("value", d => d)
+      .html(d => d.type)
+    // #endRegion
+
+    var filters = [
+      {type: "KW", filterFunc: kwFilter},
+      {type: "L", filterFunc: lFilter}
+    ];
+
+    function kwFilter(hide) {
+      w2ui.navigation.nodes.forEach(n => {
+        if (n.categories.includes("KW")) {
+          n.hidden = hide;
+        };
+      });
+    };
+
+    function lFilter(hide) {
+      w2ui.navigation.nodes.forEach(n => {
+        if (n.categories.includes("L")) {
+          if (hide) {
+            w2ui.navigation.hide(n.id)
+          } else {
+            w2ui.navigation.show(n.id)
+          }
+        };
+      });
+
+      w2ui.navigation.refresh()
+    };
+
+    var filter = toolbar.append("div")
+      .attr("class", "dropdown")
     
+    filter.append("button")
+      .attr("class", "dropbtn")
+      .html("Filter");
+
+    filter.append("div")
+      .attr("class", "dropdown-content")
+      
+      .selectAll("button")
+      .data(filters)
+      .enter()
+      .append("button")
+      .html(f => f.type)
+      .on("click", (e, f) => {
+        if (model.globalState.activeFilters.includes(f.type)) {
+          f.filterFunc(false)
+          model.globalState.activeFilters.splice(model.globalState.activeFilters.indexOf(f.type), 1)
+        } else {
+          f.filterFunc(true)
+          model.globalState.activeFilters.push(f.type)
+        }
+
+        w2ui.navigation.refresh()
+      });
+
     //w2ui['leftPane'].el('top').insertAdjacentHTML("beforeend", `<div id="navigationToolbar"></div`)
         
     //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
-    console.log("nav", document.getElementsByName("navigationToolbar")[0])
     //document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   })
   
   function loadUI() {
-    $('#layout').w2layout({
-        name: 'layout',
-        panels: [
-            { type: 'top', style: pstyle, content: 'top' },
-            { type: 'left', size: 300, style: 'pstyle', content: 'left' },
-            { type: 'main', style: pstyle, html: `<div id='map'></div>` },
-			      { type: 'right', size: 300, style: pstyle, content: 'No objects selected.'}
-            //https://stackoverflow.com/questions/16510991/how-can-i-make-a-layout-widget-expand-to-full-height-in-w2ui
-        ]
-    });
-
-    var bp = []
 
   $().w2toolbar({
     name: 'mainToolbar',
@@ -358,44 +580,16 @@ html, body, #fullheight {
       
     }
 
-  /*
-  
-  $().w2toolbar({
-    name: 'navigationToolbar',
-    items: [
-      { type: 'menu-radio', id: 'navigationSortBy',
-          text(item) {
-            let text = item.selected;
-            let el = this.get('navigationSortBy:' + item.selected);
-            return 'Sort by: ' + el.text;
-          },
-          selected: 'sortby-name',
-          items: [
-            { id: 'sortby-name', text: 'Name' },
-            { id: 'sortby-type', text: 'Type' },
-            { id: 'sortby-id', text: 'ID'}
-          ]
-      },
-      { type: 'menu-check', id: 'navigationFilter', text: 'Filter',
-        selected: ['lot', 'kw'],
-        onRefresh(event){
-          console.log(event)
-          event.item.count = event.item.selected.reduce((a,b) => a + event.item.items.find(i => i.id == b).count, 0);
-        },
-        items: [
-          { id: 'kw', text: 'KW', count: 100 },
-          { id: 'lot', text: 'Lots', count: 400}
-        ],
-        onChnage(event) {
-          w2ui['navigation'].search('KW')
-        }
-      }
-    ]
-  }) */
-
+  bp = [] //TODO REMOVE
 	$("#navigation").w2sidebar({
 		name: 'navigation',
 		img: null,
+    topHTML: `
+            <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
+                <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
+                    onchange="search(this.value)">
+            </div>
+        `,
 		handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
@@ -414,15 +608,29 @@ html, body, #fullheight {
       event.preventDefault()
       event.stopPropagation()
     },
-    onRefresh(event) { // what does this do TODO
-        event.done(() => {
-            let node = query('#node_' + event.target + ' .w2ui-node-handle > div')
-            if (bp.indexOf(event.target) == -1) {
-                node.removeClass('toggle')
+    onRefresh(event) {
+      event.done(() => {
+        var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
+    
+        var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
+          .datum((d, i, n) => {
+            return d3.select(n[i]).attr("id").substring(5)
+          })
+        
+        if (!nodes.empty()) {
+          //TODO: is this gonna cause issues with the sort function since it uses the same method ie replacing the data bad?
+          nodes.selectAll("[name=toggle]")
+          .attr("class", (d, i, n) => {
+            var objectID = d3.select(n[i].parentNode.parentNode).datum()
+            if (getObjectState(objectID).visible) {
+              console.log("yes", n)
+              return d3.select(n[i]).attr("class") + " toggle"
             } else {
-                node.addClass('toggle')
+              return d3.select(n[i]).attr("class")
             }
-        })
+          })
+        }
+      })
     }
 	});
 
@@ -432,6 +640,15 @@ html, body, #fullheight {
     .attr("id", "mapToggle")
     .attr("type", "checkbox")
     .property("checked", true)
+    .on("click", (e) => {
+      if (e.target.checked) {
+        model.globalState.showMap = true
+        toggleMap(true)
+      } else {
+        model.globalState.showMap = false
+        toggleMap(false)
+      }
+    })
 
   mapOptions.append("label")
     .attr("for", "mapToggle")
@@ -441,6 +658,15 @@ html, body, #fullheight {
   mapOptions.append("input")
     .attr("id", "pithoiToggle")
     .attr("type", "checkbox")
+    .on("click", (e) => {
+      if (e.target.checked) {
+        model.globalState.showPithoi = true
+        togglePithoi(true)
+      } else {
+        model.globalState.showPithoi = false
+        togglePithoi(false)
+      }
+    })
 
   mapOptions.append("label")
     .attr("for", "pithoiToggle")
@@ -450,6 +676,15 @@ html, body, #fullheight {
   mapOptions.append("input")
     .attr("id", "rocksToggle")
     .attr("type", "checkbox")
+    .on("click", (e) => {
+      if (e.target.checked) {
+        model.globalState.showRocks = true
+        toggleRocks(true)
+      } else {
+        model.globalState.showRocks = false
+        toggleRocks(false)
+      }
+    })
 
   mapOptions.append("label")
     .attr("for", "rocksToggle")
@@ -459,57 +694,34 @@ html, body, #fullheight {
   mapOptions.append("input")
     .attr("id", "mouseCoordinatesToggle")
     .attr("type", "checkbox")
+    .on("click", (e) => {
+      if (e.target.checked) {
+        model.globalState.showMouseCoordinates = true
+        toggleMouseCoordinates(true)
+      } else {
+        model.globalState.showMouseCoordinates = false
+        toggleMouseCoordinates(false)
+      }
+    })
 
   mapOptions.append("label")
     .attr("for", "mouseCoordinatesToggle")
     .html("Toggle Mouse Coordinantes")
-    
-	$().w2form({
-    name   : 'filter',
-    fields : [
-        { field: 'mapToggle', type: 'toggle',
-          html: {
-            label: 'Map'
-          },
-          onChange(newValue) {
-            toggleMap(newValue)
-            model.globalState.showMap = newValue
-          }
-        },
-        { field: 'pithoiToggle', type: 'toggle',
-          html: {
-            label: 'Pithoi'
-          },
-          onChange(newValue) {
-            togglePithoi(newValue)
-            model.globalState.showPithoi = newValue
-          }
-        },
-        { field: 'rocksToggle', type: 'toggle',
-          html: {
-            label: 'Rocks'
-          },
-          onChange(newValue) {
-            toggleRocks(newValue)
-            model.globalState.showRocks = newValue
-          }
-        },
-        { field: 'mouseCoordinatesToggle', type: 'toggle',
-          html: {
-            label: 'Hide Mouse Coordinates'
-          },
-          onChange(newValue) {
-            toggleMouseCoordinates(newValue)
-          }
-        }
-    ],
-    onChange(event) {
-      var field = this.fields.find(f => f.field == event.target)
-      field.onChange(event.detail.value.current)
-    }
-});
 
   console.log("finished")
+}
+
+function search(value) {
+  let sb = w2ui.navigation
+  console.log(sb.last_search)
+  sb.last_search = value
+  let count = sb.search(value)
+  sb.expandAll()
+  query(sb.box).find('#empty-search').remove()
+  if (count == 0) {
+      query(sb.box)
+          .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
+  }
 }
 
 function selectAll() {

@@ -85,13 +85,20 @@ function loadSourceData(rawData) {
             locs: parseLocs(o.locs, o.id),
             origLoc: o.origLoc,
             fragmentsOrginal: o.fragments.map(f => pieceToID(f.id, o.id)),
-            fragments: peices.map(a => a[0]) //used to display fragments + whole object if its one peice
+            fragments: peices.map(a => a[0]),
+            categories: parseCategories(o) //used to display fragments + whole object if its one peice
             }
 
         sourceData.objectData.set(id, object)
         
         peices.forEach(a => sourceData.fragmentData.set(a[0], a[1]))
     })
+
+    function parseCategories(o) {
+        var letterRegex = /(?<letter>[A-Z]+).*/
+        var letterParsed = o.id.match(letterRegex)
+        return [letterParsed.groups.letter]
+    }
 
     //load categories
     sourceData.objectData.forEach(function(value, key) {

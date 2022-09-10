@@ -305,12 +305,13 @@ function grid(g, x, y) {
     var realImageE = imageE * ratio
     var realImage9 = image9 * ratio
     var realImageWidth = imageWidth * ratio
+    var realImageHeight = imageHeight * ratio
 
     console.log(mapE, realImageE)
 
     image = chart.append("image")
     .attr("xlink:href", "./imgs/reallysmallsitemap.png")
-    .style('visibility', 'hidden')
+    .style('visibility', 'visible')
     .attr('id', 'backgroundImage')
     .attr('width', realImageWidth + 'px')
     .attr('x', mapE - realImageE)
@@ -974,6 +975,7 @@ function grid(g, x, y) {
 
   function toggleMap(toggle) {
     if (toggle) {
+      console.log(toggle)
       image.style('visibility', 'visible')
     } else {
       image.style('visibility', 'hidden')
@@ -982,8 +984,9 @@ function grid(g, x, y) {
 
   function togglePithoi(toggle) {
     if (toggle) {
-      points
-      .selectAll("pithos")
+      points.append("g")
+      .attr("id", "pithoi")
+      .selectAll("pithoi")
       .data([[66, 13], [77,12], [69, 20], [70, 12]]) //TODO: Real Data
       .join("circle")
         .attr("cx", d => x(d[0]))
@@ -995,14 +998,15 @@ function grid(g, x, y) {
     // .style("cursor", "pointer")
     //     .on("click", mapIconClicked)
     } else {
-      points.selectAll("pithos").remove()
+      points.select("#pithoi").remove()
     }
   }
 
   var rockSVG = d3.xml('imgs/rock.svg')
   function toggleRocks(toggle) {
     if (toggle) {
-      points
+      points.append("g")
+      .attr("id", "rocks")
       .selectAll("rock")
       .data([[68,15], [72,12], [73, 20], [74, 10]]) //TODO: Real Data
       .join("circle")
@@ -1015,7 +1019,7 @@ function grid(g, x, y) {
     // .style("cursor", "pointer")
     //     .on("click", mapIconClicked)
     } else {
-      points.selectAll("rock").remove()
+      points.select("#rocks").remove("*")
     }
   }
 
