@@ -54,7 +54,7 @@ function loadSourceData(rawData) {
                     locs: parseLocs(f.locs, f.id)
                 }]})
                 arr.push([pieceToID(object.id + " Cluster", object.id, object.fragments.length), {name: object.id + " Cluster",
-                    object: objectToID(object.id + " Cluster"),
+                    object: objectToID(object.id),
                     origLoc: object.origLoc,
                     important: false,
                     tentative: false,
