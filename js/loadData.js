@@ -46,14 +46,14 @@ function loadSourceData(rawData) {
             }]]
         } else {
             if (object.locs.length != 0) {
-                var arr = object.fragments.map(f => { return [pieceToID(f.id, object.id), {name: f.id,
+                var arr = object.fragments.map((f, i) => { return [pieceToID(f.id, object.id, i), {name: f.id,
                     object: objectToID(object.id),
                     origLoc: f.origLoc,
                     important: f.important,
                     tentative: f.tentative,
                     locs: parseLocs(f.locs, f.id)
                 }]})
-                arr.push([pieceToID(object.id + " Cluster", object.id), {name: object.id + " Cluster",
+                arr.push([pieceToID(object.id + " Cluster", object.id, object.fragments.length), {name: object.id + " Cluster",
                     object: objectToID(object.id + " Cluster"),
                     origLoc: object.origLoc,
                     important: false,
@@ -62,7 +62,7 @@ function loadSourceData(rawData) {
                 }])
                 return arr
             } else {
-                return object.fragments.map(f => { return [pieceToID(f.id, object.id), {name: f.id,
+                return object.fragments.map((f, i) => { return [pieceToID(f.id, object.id, i), {name: f.id,
                     object: objectToID(object.id),
                     origLoc: f.origLoc,
                     important: f.important,
@@ -135,8 +135,8 @@ function objectToID(objectID) {
     return "object" + trimID(objectID) // this is lossy since there are +'s n stuff need to replace them with words?
 }
 
-function pieceToID(id, objectID) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
-    return trimID(objectID + "f" + id);
+function pieceToID(id, objectID, i) { // We (probably) wont need index when we have the real data, this is just cause I took out some info on the data to make it easier to plot
+    return trimID(objectID + "f" + id + "p" + i);
 }
 
 

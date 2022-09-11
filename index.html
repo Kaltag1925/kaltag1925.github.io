@@ -56,11 +56,7 @@
 <body>
 
 <div class="box">
-  <div class="row header">
-    <p><b>header</b>
-      <br />
-      <br />(sized to content)</p>
-  </div>
+  <div id="menuBar" class="row header"></div>
   <div id="middle" class="row middle">
     <div id="left" class="row sidepanel">
       <div id="navigationToolbar"></div>
@@ -69,7 +65,6 @@
     </div>
     <div id="map" class="row map"></div>
     <div id="right" class="row sidepanel" style="overflow:scroll"></div>
-  </div>
   </div>
   <div class="row footer">
     <p><b>footer</b> (fixed height)</p>
@@ -121,7 +116,7 @@ html, body, #fullheight {
 }
 
 .box .row.header {
-  flex: 0 1 10%;
+  flex: 1 1 auto;
   /* The above is shorthand for:
   flex-grow: 0,
   flex-shrink: 1,
@@ -130,7 +125,7 @@ html, body, #fullheight {
 }
 
 .box .row.middle {
-  flex: 0 1 80%;
+  flex: 1 1 auto;
   min-height: 80%;
   height: 100%;
   display: flex;
@@ -156,7 +151,7 @@ html, body, #fullheight {
 }
 
 .box .row.footer {
-  flex: 0 1 10%;
+  flex: 0 1 20px;
 }
 
 .w2ui-sidebar[name=navigation] .w2ui-node-handle > div{
@@ -293,10 +288,14 @@ html, body, #fullheight {
   }
 
   function reset() {
-    //d3.select("#layout").html("")
+    d3.select("#menuBar").html("")
+    d3.select("#map").html("")
+    d3.select("#navigationToolbar").html("")
+    d3.select("#navigation").html("")
+    d3.select("#mapOptions").html("")
+    d3.select("#right").html("")
 
     //w2ui["layout"].destroy()
-    w2ui["mainToolbar"].destroy()
     //w2ui["leftPane"].destroy()
     //w2ui["navigationToolbar"].destroy()
     w2ui["navigation"].destroy()
@@ -318,213 +317,40 @@ html, body, #fullheight {
     /*
     var navToolbar = document.createElement("div");
     navToolbar.setAttribute("id", "navigationToolbar")*/
-    var toolbar = d3.select("#navigationToolbar")
-
-    toolbar.append("button")
-      .html("Select All")
-      .on("click", selectAll)
-
-    toolbar.append("button")
-      .html("Deselect All")
-      .on("click", deselectAll)
-
-    toolbar.append("label")
-      .attr("for", "sortBy")
-      .html("Sort By: ")
-
-    var sorts = [
-      {type: "None", sortFunc: function() {}},
-      {type: "Name", sortFunc: sortName},
-      {type: "ID Number", sortFunc: sortIDNumber}
-    ];
-
-    // #region
-    function sortIDNumber() {
-      var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
-      
-      var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
-        .datum((d, i, n) => {
-          var objectID = n[i].id.substring(5)
-          return getObjectData(objectID).name
-        })
-
-      var sorted = nodes.sort((a, b) => {
-        var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
-        var aParsed = a.match(regex);
-        var bParsed = b.match(regex);
-
-
-        if (aParsed == null) {
-          console.log("Could not parse name of " + a + " when sorting by name.");
-          return -1;
-        }
-
-        if (bParsed == null) {
-          console.log("Could not parse name of " + a + " when sorting by name.");
-          return 1;
-        }
-
-        var aNumber = parseInt(aParsed.groups.number);
-        var bNumber = parseInt(bParsed.groups.number);
-        
-        if (aNumber == bNumber) {
-          var aNumber2 = parseInt(aParsed.groups.number2);
-          var bNumber2 = parseInt(bParsed.groups.number2);
-
-          if (aNumber2 == NaN && bNumber2 != NaN) {
-            return -1;
-          };
-
-          if (bNumber2 == NaN && aNumber2 != NaN) {
-            return 1;
-          };
-
-          if (aNumber2 == NaN && bNumber2 == NaN) {
-            return 0;
-          }
-          
-          return aNumber2 - bNumber2;
-        } else {
-          return aNumber - bNumber;
-        };
-      });
-    }
-
-    function sortName() {
-      var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
-      
-      var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
-        .datum((d, i, n) => {
-          var objectID = n[i].id.substring(5)
-          return getObjectData(objectID).name
-        })
-
-      var sorted = nodes.sort((a, b) => {
-        var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
-        var aParsed = a.match(regex);
-        var bParsed = b.match(regex);
-        //console.log(a, aParsed);
-        //console.log(b, bParsed);
-
-        if (aParsed == null) {
-          console.log("Could not parse name of " + a + " when sorting by name.");
-          return 0;
-        }
-
-        if (bParsed == null) {
-          console.log("Could not parse name of " + a + " when sorting by name.");
-          return 0;
-        }
-
-        var compareType = aParsed.groups.type.localeCompare(bParsed.groups.type)
-        if (compareType == 0) {
-          var aNumber = parseInt(aParsed.groups.number);
-          var bNumber = parseInt(bParsed.groups.number);
-          
-          if (aNumber == bNumber) {
-            var aNumber2 = parseInt(aParsed.groups.number2);
-            var bNumber2 = parseInt(bParsed.groups.number2);
-
-            if (aNumber2 == NaN && bNumber2 != NaN) {
-              return -1;
-            };
-
-            if (bNumber2 == NaN && aNumber2 != NaN) {
-              return 1;
-            };
-
-            if (aNumber2 == NaN && bNumber2 == NaN) {
-              return 0;
-            }
-            
-            return aNumber2 - bNumber2;
-          } else {
-            return aNumber - bNumber;
-          };
-        } else {
-          return compareType;
-        };
-      });
-    }
-
-    var sortBy = toolbar.append("select")
-      .attr("name", "sorts")
-      .attr("id", "sorts")
-      .on("change", (e) => {
-        var option = d3.select(e.target.options[e.target.selectedIndex])
-        option.data()[0].sortFunc()
-      }) //toi tired rn but use event or params or smthn TODO
-
-    sortBy.selectAll("option")
-      .data(sorts)
-      .enter()
-      .append("option") 
-      .attr("value", d => d)
-      .html(d => d.type)
-    // #endRegion
-
-    var filters = [
-      {type: "KW", filterFunc: kwFilter},
-      {type: "L", filterFunc: lFilter}
-    ];
-
-    function kwFilter(hide) {
-      w2ui.navigation.nodes.forEach(n => {
-        if (n.categories.includes("KW")) {
-          n.hidden = hide;
-        };
-      });
-    };
-
-    function lFilter(hide) {
-      w2ui.navigation.nodes.forEach(n => {
-        if (n.categories.includes("L")) {
-          if (hide) {
-            w2ui.navigation.hide(n.id)
-          } else {
-            w2ui.navigation.show(n.id)
-          }
-        };
-      });
-
-      w2ui.navigation.refresh()
-    };
-
-    var filter = toolbar.append("div")
-      .attr("class", "dropdown")
-    
-    filter.append("button")
-      .attr("class", "dropbtn")
-      .html("Filter");
-
-    filter.append("div")
-      .attr("class", "dropdown-content")
-      
-      .selectAll("button")
-      .data(filters)
-      .enter()
-      .append("button")
-      .html(f => f.type)
-      .on("click", (e, f) => {
-        if (model.globalState.activeFilters.includes(f.type)) {
-          f.filterFunc(false)
-          model.globalState.activeFilters.splice(model.globalState.activeFilters.indexOf(f.type), 1)
-        } else {
-          f.filterFunc(true)
-          model.globalState.activeFilters.push(f.type)
-        }
-
-        w2ui.navigation.refresh()
-      });
 
     //w2ui['leftPane'].el('top').insertAdjacentHTML("beforeend", `<div id="navigationToolbar"></div`)
         
     //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
     //document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   })
-  
   function loadUI() {
+  loadMenuBar();
+  loadNavigationToolbar();
+  loadNavigation();
+  loadMapOptions();
 
+  console.log("finished");
+}
+
+function loadMenuBar() {
+  var menuBar = d3.select("#menuBar")
+
+  menuBar.append("button")
+    .html("Reset")
+    .on("click", (e) => {
+      reset()
+    })
+
+  menuBar.append("button")
+    .html("Save")
+
+  menuBar.append("button")
+    .html("Load")
+  
+  menuBar.append("button")
+    .html("Export Screenshot")
+
+    /*
   $().w2toolbar({
     name: 'mainToolbar',
     items: [
@@ -574,28 +400,30 @@ html, body, #fullheight {
       });}}
     ]
   })
+  */
   
 
   function saveExport() {
       
     }
+}
 
-  bp = [] //TODO REMOVE
-	$("#navigation").w2sidebar({
-		name: 'navigation',
-		img: null,
+function loadNavigation() {
+  $("#navigation").w2sidebar({
+    name: 'navigation',
+    img: null,
     topHTML: `
             <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
                 <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
                     onchange="search(this.value)">
             </div>
         `,
-		handle: {
+    handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
         html: `<div name="toggle" onclick='w2ui.navigation.toggle(this, event)'
             ></div>`
-		},
+    },
     // https://blog.davidcassel.net/2010/01/why-is-it-flickering/ i love this man <3<3<3 TODO: tooltips?
     toggle(el) {
       var objectID = query(el).closest('.w2ui-node')[0].id.substring(5)
@@ -616,14 +444,14 @@ html, body, #fullheight {
           .datum((d, i, n) => {
             return d3.select(n[i]).attr("id").substring(5)
           })
+          //TODO: is this gonna cause issues with the sort function since it uses the same method ie replacing the data bad?
+          //maybe i dont need to do this just store it in the beginning?
         
         if (!nodes.empty()) {
-          //TODO: is this gonna cause issues with the sort function since it uses the same method ie replacing the data bad?
           nodes.selectAll("[name=toggle]")
           .attr("class", (d, i, n) => {
             var objectID = d3.select(n[i].parentNode.parentNode).datum()
             if (getObjectState(objectID).visible) {
-              console.log("yes", n)
               return d3.select(n[i]).attr("class") + " toggle"
             } else {
               return d3.select(n[i]).attr("class")
@@ -632,83 +460,299 @@ html, body, #fullheight {
         }
       })
     }
-	});
+  });
+}
 
+function loadMapOptions() {
   var mapOptions = d3.select("#mapOptions")
 
-  mapOptions.append("input")
-    .attr("id", "mapToggle")
-    .attr("type", "checkbox")
-    .property("checked", true)
-    .on("click", (e) => {
-      if (e.target.checked) {
-        model.globalState.showMap = true
-        toggleMap(true)
-      } else {
-        model.globalState.showMap = false
-        toggleMap(false)
+mapOptions.append("input")
+  .attr("id", "mapToggle")
+  .attr("type", "checkbox")
+  .property("checked", true)
+  .on("click", (e) => {
+    if (e.target.checked) {
+      model.globalState.showMap = true
+      toggleMap(true)
+    } else {
+      model.globalState.showMap = false
+      toggleMap(false)
+    }
+  })
+
+mapOptions.append("label")
+  .attr("for", "mapToggle")
+  .html("Toggle Map")
+
+
+mapOptions.append("input")
+  .attr("id", "pithoiToggle")
+  .attr("type", "checkbox")
+  .on("click", (e) => {
+    if (e.target.checked) {
+      model.globalState.showPithoi = true
+      togglePithoi(true)
+    } else {
+      model.globalState.showPithoi = false
+      togglePithoi(false)
+    }
+  })
+
+mapOptions.append("label")
+  .attr("for", "pithoiToggle")
+  .html("Toggle Pithoi")
+
+
+mapOptions.append("input")
+  .attr("id", "rocksToggle")
+  .attr("type", "checkbox")
+  .on("click", (e) => {
+    if (e.target.checked) {
+      model.globalState.showRocks = true
+      toggleRocks(true)
+    } else {
+      model.globalState.showRocks = false
+      toggleRocks(false)
+    }
+  })
+
+mapOptions.append("label")
+  .attr("for", "rocksToggle")
+  .html("Toggle Rocks")
+
+
+mapOptions.append("input")
+  .attr("id", "mouseCoordinatesToggle")
+  .attr("type", "checkbox")
+  .on("click", (e) => {
+    if (e.target.checked) {
+      model.globalState.showMouseCoordinates = true
+      toggleMouseCoordinates(true)
+    } else {
+      model.globalState.showMouseCoordinates = false
+      toggleMouseCoordinates(false)
+    }
+  })
+
+mapOptions.append("label")
+  .attr("for", "mouseCoordinatesToggle")
+  .html("Toggle Mouse Coordinantes")
+}
+
+function loadNavigationToolbar() {
+  var toolbar = d3.select("#navigationToolbar")
+
+  toolbar.append("button")
+    .html("Select All")
+    .on("click", selectAll)
+
+  toolbar.append("button")
+    .html("Deselect All")
+    .on("click", deselectAll)
+
+  toolbar.append("label")
+    .attr("for", "sortBy")
+    .html("Sort By: ")
+
+  var sorts = [
+    {type: "Spreadsheet Order", sortFunc: sortSpreadsheet},
+    {type: "Name", sortFunc: sortName},
+    {type: "ID Number", sortFunc: sortIDNumber}
+  ];
+
+  function sortIDNumber() {
+    var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
+    
+    var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
+      .datum((d, i, n) => {
+        var objectID = n[i].id.substring(5)
+        return getObjectData(objectID).name
+      })
+
+    var sorted = nodes.sort((a, b) => {
+      var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
+      var aParsed = a.match(regex);
+      var bParsed = b.match(regex);
+
+
+      if (aParsed == null) {
+        console.log("Could not parse name of " + a + " when sorting by name.");
+        return -1;
       }
-    })
 
-  mapOptions.append("label")
-    .attr("for", "mapToggle")
-    .html("Toggle Map")
-
-
-  mapOptions.append("input")
-    .attr("id", "pithoiToggle")
-    .attr("type", "checkbox")
-    .on("click", (e) => {
-      if (e.target.checked) {
-        model.globalState.showPithoi = true
-        togglePithoi(true)
-      } else {
-        model.globalState.showPithoi = false
-        togglePithoi(false)
+      if (bParsed == null) {
+        console.log("Could not parse name of " + a + " when sorting by name.");
+        return 1;
       }
-    })
 
-  mapOptions.append("label")
-    .attr("for", "pithoiToggle")
-    .html("Toggle Pithoi")
+      var aNumber = parseInt(aParsed.groups.number);
+      var bNumber = parseInt(bParsed.groups.number);
+      
+      if (aNumber == bNumber) {
+        var aNumber2 = parseInt(aParsed.groups.number2);
+        var bNumber2 = parseInt(bParsed.groups.number2);
 
+        if (aNumber2 == NaN && bNumber2 != NaN) {
+          return -1;
+        };
 
-  mapOptions.append("input")
-    .attr("id", "rocksToggle")
-    .attr("type", "checkbox")
-    .on("click", (e) => {
-      if (e.target.checked) {
-        model.globalState.showRocks = true
-        toggleRocks(true)
+        if (bNumber2 == NaN && aNumber2 != NaN) {
+          return 1;
+        };
+
+        if (aNumber2 == NaN && bNumber2 == NaN) {
+          return 0;
+        }
+        
+        return aNumber2 - bNumber2;
       } else {
-        model.globalState.showRocks = false
-        toggleRocks(false)
+        return aNumber - bNumber;
+      };
+    });
+  }
+
+  function sortName() {
+    var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
+    
+    var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
+      .datum((d, i, n) => {
+        var objectID = n[i].id.substring(5)
+        return getObjectData(objectID).name
+      })
+
+    var sorted = nodes.sort((a, b) => {
+      var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
+      var aParsed = a.match(regex);
+      var bParsed = b.match(regex);
+      //console.log(a, aParsed);
+      //console.log(b, bParsed);
+
+      if (aParsed == null) {
+        console.log("Could not parse name of " + a + " when sorting by name.");
+        return 0;
       }
-    })
 
-  mapOptions.append("label")
-    .attr("for", "rocksToggle")
-    .html("Toggle Rocks")
+      if (bParsed == null) {
+        console.log("Could not parse name of " + a + " when sorting by name.");
+        return 0;
+      }
 
+      var compareType = aParsed.groups.type.localeCompare(bParsed.groups.type)
+      if (compareType == 0) {
+        var aNumber = parseInt(aParsed.groups.number);
+        var bNumber = parseInt(bParsed.groups.number);
+        
+        if (aNumber == bNumber) {
+          var aNumber2 = parseInt(aParsed.groups.number2);
+          var bNumber2 = parseInt(bParsed.groups.number2);
 
-  mapOptions.append("input")
-    .attr("id", "mouseCoordinatesToggle")
-    .attr("type", "checkbox")
-    .on("click", (e) => {
-      if (e.target.checked) {
-        model.globalState.showMouseCoordinates = true
-        toggleMouseCoordinates(true)
+          if (aNumber2 == NaN && bNumber2 != NaN) {
+            return -1;
+          };
+
+          if (bNumber2 == NaN && aNumber2 != NaN) {
+            return 1;
+          };
+
+          if (aNumber2 == NaN && bNumber2 == NaN) {
+            return 0;
+          }
+          
+          return aNumber2 - bNumber2;
+        } else {
+          return aNumber - bNumber;
+        };
       } else {
-        model.globalState.showMouseCoordinates = false
-        toggleMouseCoordinates(false)
-      }
+        return compareType;
+      };
+    });
+  }
+
+  function sortSpreadsheet() {
+    var nodeParent = w2ui.navigation.box.querySelector(".w2ui-sidebar-body")
+    
+    var nodes = d3.select(nodeParent).selectAll(".w2ui-level-0")
+      .datum((d, i, n) => {
+        var objectID = n[i].id.substring(5)
+        return objectID
+      })
+
+    var objArray = Array.from(sourceData.objectData.keys())
+
+    var sorted = nodes.sort((a, b) => {
+      return objArray.indexOf(a) - objArray.indexOf(b)
     })
+  }
 
-  mapOptions.append("label")
-    .attr("for", "mouseCoordinatesToggle")
-    .html("Toggle Mouse Coordinantes")
+  var sortBy = toolbar.append("select")
+    .attr("name", "sorts")
+    .attr("id", "sorts")
+    .on("change", (e) => {
+      var option = d3.select(e.target.options[e.target.selectedIndex])
+      option.data()[0].sortFunc()
+    }) //toi tired rn but use event or params or smthn TODO
 
-  console.log("finished")
+  sortBy.selectAll("option")
+    .data(sorts)
+    .enter()
+    .append("option") 
+    .attr("value", d => d)
+    .html(d => d.type)
+  // #endRegion
+
+  var filters = [
+    {type: "KW", filterFunc: kwFilter},
+    {type: "L", filterFunc: lFilter}
+  ];
+
+  function kwFilter(hide) {
+    w2ui.navigation.nodes.forEach(n => {
+      if (n.categories.includes("KW")) {
+        n.hidden = hide;
+      };
+    });
+  };
+
+  function lFilter(hide) {
+    w2ui.navigation.nodes.forEach(n => {
+      if (n.categories.includes("L")) {
+        if (hide) {
+          w2ui.navigation.hide(n.id)
+        } else {
+          w2ui.navigation.show(n.id)
+        }
+      };
+    });
+
+    w2ui.navigation.refresh()
+  };
+
+  var filter = toolbar.append("div")
+    .attr("class", "dropdown")
+  
+  filter.append("button")
+    .attr("class", "dropbtn")
+    .html("Filter");
+
+  filter.append("div")
+    .attr("class", "dropdown-content")
+    
+    .selectAll("button")
+    .data(filters)
+    .enter()
+    .append("button")
+    .html(f => f.type)
+    .on("click", (e, f) => {
+      if (model.globalState.activeFilters.includes(f.type)) {
+        f.filterFunc(false)
+        model.globalState.activeFilters.splice(model.globalState.activeFilters.indexOf(f.type), 1)
+      } else {
+        f.filterFunc(true)
+        model.globalState.activeFilters.push(f.type)
+      }
+
+      w2ui.navigation.refresh()
+    });
 }
 
 function search(value) {
@@ -749,6 +793,12 @@ function deselectAll() {
       query(toggle).addClass("toggle")
     } else {
       query(toggle).removeClass("toggle")
+      var objectState = getObjectState(objectID)
+      if (objectState.selected) {
+        d3.select(`#${objectID}InfoCollapsible`).remove()
+        d3.select(`#${objectID}InfoDiv`).remove()
+        objectState.selected = false
+      }
     }
     model.objectStates.get(objectID).visible = isVisible;
     sourceData.objectData.get(objectID).fragments.forEach(fID => model.fragmentStates.get(fID).visible = isVisible)
@@ -768,6 +818,7 @@ function deselectAll() {
   function loadObjectInfoPanel(objectID) {
     object = sourceData.objectData.get(objectID)
 
+    /*
     $().w2form({
       name: objectID + 'visualizations',
       fields: [
@@ -813,7 +864,7 @@ function deselectAll() {
         this.setValue('linesToggle', objVisualizations.lines)
         this.setValue('shadeToggle', objVisualizations.shaded)
       }
-    })
+    })*/
 
     d3.select("#right")
       .append("button")
@@ -864,7 +915,7 @@ function deselectAll() {
       } else {
         content.style.height = 0 + "px"
       }
-      w2ui[objectID + "info"].resize()
+      //w2ui[objectID + "info"].resize()
     });
 }
 

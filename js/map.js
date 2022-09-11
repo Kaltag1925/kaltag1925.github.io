@@ -288,34 +288,35 @@ function grid(g, x, y) {
 
   // Upper left corner of the map that is E9, used as a reference point to make the map in the correct position
   // need a different method, maybe the distance inbetween the ticks on the map and then add the size of the tick
-  var imageE = 80
-  var image9 = 45
-  var image10 = 109.5 // top of the 10 row, used to get the cell size for scaling
-  var imageCellSize = image10 - image9
-  var imageWidth = 1004
-  var imageHeight = 1310
+
+  var imageE = 399
+  var imageY1 = 227
+  var imageY2 = 546 //38 = 9555
+  var y1 = 9
+  var y2 = 10
+  var yr = y2 - y1
+  var imageCellSize = (imageY2 - imageY1) / yr
+  var imageWidth = 5018
+  var imageHeight = 9892
 
   function setUpBackgroundImage() {
     var mapE = x('E'.charCodeAt(0))
-    var map9 = y(9)
-    var map10 = y(10)
-    var mapCellSize = map10 - map9
+    var mapY1 = y(y1)
+    var mapY2 = y(y2)
+    var mapCellSize = (mapY2 - mapY1) / yr
     var ratio = mapCellSize/imageCellSize
     //console.log(ratio, mapCellSize, imageCellSize)
     var realImageE = imageE * ratio
-    var realImage9 = image9 * ratio
+    var realImageY1 = imageY1 * ratio
     var realImageWidth = imageWidth * ratio
-    var realImageHeight = imageHeight * ratio
-
-    console.log(mapE, realImageE)
 
     image = chart.append("image")
-    .attr("xlink:href", "./imgs/reallysmallsitemap.png")
+    .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
     .style('visibility', 'visible')
     .attr('id', 'backgroundImage')
     .attr('width', realImageWidth + 'px')
     .attr('x', mapE - realImageE)
-    .attr('y', map9 - realImage9)
+    .attr('y', mapY1 - realImageY1)
   }
 
   function setUpMap() {
@@ -413,9 +414,10 @@ function grid(g, x, y) {
 
   function processObject(objectID, visible) {
     if (visible) {
-      sourceData.objectData.get(objectID).fragments.forEach(f => processFragment(f))
+      getObjectData(objectID).fragments.forEach(f => processFragment(f))
     } else {
-      sourceData.objectData.get(objectID).fragments.forEach(f => processRemoveFragment(f))
+      getObjectData(objectID).fragments.forEach(f => processRemoveFragment(f))
+      getObjectData(objectID).fragments.forEach(f => unhighlightFragment(f))
     }
   }
 
@@ -650,10 +652,11 @@ function grid(g, x, y) {
   // }
 
   function regionClicked(event, region) {
+    console.log(event)
     model.multiRegionSelected = null
     overlap.selectAll("*").remove();
     if (region.fragments.length > 1) {
-      multiRegionClicked(event.layerX, event.layerY, region)
+      multiRegionClicked(event.offsetX, event.offsetY, region)
     } else {
       objectSelected(region.fragments[0])
     }
@@ -742,10 +745,8 @@ function grid(g, x, y) {
       state.selected = true
     } else {
       processObjectSelected(object, false)
-      document.getElementById(`${objectID}InfoCollapsible`).remove()
-      document.getElementById(`${objectID}InfoDiv`).remove()
-      w2ui[`${objectID}visualizations`].destroy()
-      w2ui[`${objectID}info`].destroy()
+      d3.select(`#${objectID}InfoCollapsible`).remove()
+      d3.select(`#${objectID}InfoDiv`).remove()
       state.selected = false
     }
   }
