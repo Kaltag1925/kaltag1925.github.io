@@ -242,13 +242,13 @@ function grid(g, x, y) {
         numberCoord = "4"
       } else {
         // top right
-        numberCoord = "3"
+        numberCoord = "2"
       }
     } else {
       // left
       if (numberRelativeMouseY > cellSize / 4) {
         // bottom left
-        numberCoord = "2"
+        numberCoord = "3"
       } else {
         // top left
         numberCoord = "1"
@@ -673,6 +673,8 @@ function grid(g, x, y) {
       .join("rect")
         .attr("id", d => `${d}select`)
         .attr("fill", f => {
+          console.log("frag", f)
+          console.log("fragData", getFragmentData(f))
           if (getObjectState(getFragmentData(f).object).selected) {
             return "greenyellow"
           } else {
@@ -899,13 +901,13 @@ function grid(g, x, y) {
       }
       
       if (sn == 2) {
-        // x = no change
-        y += 0.25
+        x += 0.25
+        //y = no change
       }
 
       if (sn == 3) {
-        x += 0.25
-        // y = no change
+        // x = no change
+        y += 0.25
       }
 
       if (sn == 4) {
