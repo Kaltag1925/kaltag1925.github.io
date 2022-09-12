@@ -148,6 +148,7 @@ html, body, #fullheight {
   min-height: 60%;
   height: 100%;
   gap: 0px;
+  z-index: 10;
 }
 
 .box .row.footer {
@@ -342,13 +343,28 @@ function loadMenuBar() {
     })
 
   menuBar.append("button")
-    .html("Save")
+    .html("Save (Does Nothing)")
 
   menuBar.append("button")
-    .html("Load")
+    .html("Load (Does Nothing)")
   
   menuBar.append("button")
-    .html("Export Screenshot")
+    .html("Export Screenshot (Does Nothing)")
+
+  menuBar.append("button")
+    .html("Switch Grid To Average Image Cell Size")
+    .on("click", e => {
+      var button = d3.select(e.target)
+      d3.select("#map").html("")
+      if (model.globalState.averageCellSize) {
+        model.globalState.averageCellSize = false
+        button.html("Switch Grid To Average Image Cell Size")
+      } else {
+        model.globalState.averageCellSize = true
+        button.html("Switch Grid To Image First Cell Size")
+      }
+      startMap() // need to save zoom/pan
+    })
 
     /*
   $().w2toolbar({
@@ -471,12 +487,12 @@ mapOptions.append("input")
   .attr("type", "checkbox")
   .property("checked", true)
   .on("click", (e) => {
-    if (e.target.checked) {
-      model.globalState.showMap = true
-      toggleMap(true)
-    } else {
+    if (model.globalState.showMap) {
       model.globalState.showMap = false
       toggleMap(false)
+    } else {
+      model.globalState.showMap = true
+      toggleMap(true)
     }
   })
 
@@ -489,12 +505,12 @@ mapOptions.append("input")
   .attr("id", "pithoiToggle")
   .attr("type", "checkbox")
   .on("click", (e) => {
-    if (e.target.checked) {
-      model.globalState.showPithoi = true
-      togglePithoi(true)
-    } else {
+    if (model.globalState.showPithoi) {
       model.globalState.showPithoi = false
       togglePithoi(false)
+    } else {
+      model.globalState.showPithoi = true
+      togglePithoi(true)
     }
   })
 
@@ -507,12 +523,12 @@ mapOptions.append("input")
   .attr("id", "rocksToggle")
   .attr("type", "checkbox")
   .on("click", (e) => {
-    if (e.target.checked) {
-      model.globalState.showRocks = true
-      toggleRocks(true)
-    } else {
+    if (model.globalState.showRocks) {
       model.globalState.showRocks = false
       toggleRocks(false)
+    } else {
+      model.globalState.showRocks = true
+      toggleRocks(true)
     }
   })
 
@@ -524,13 +540,14 @@ mapOptions.append("label")
 mapOptions.append("input")
   .attr("id", "mouseCoordinatesToggle")
   .attr("type", "checkbox")
+  .property("checked", true)
   .on("click", (e) => {
-    if (e.target.checked) {
-      model.globalState.showMouseCoordinates = true
-      toggleMouseCoordinates(true)
-    } else {
+    if (model.globalState.showMouseCoordinates) {
       model.globalState.showMouseCoordinates = false
       toggleMouseCoordinates(false)
+    } else {
+      model.globalState.showMouseCoordinates = true
+      toggleMouseCoordinates(true)
     }
   })
 

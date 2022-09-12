@@ -3,6 +3,7 @@ function loadNewModel(sourceData) {
         showPithoi: false, 
         showRocks: false,
         showMouseCoordinates: true,
+        averageCellSize: false,
         pos: {x: 0, y: 0, z: 100.0},
         mergeOverlapingRegions: false,
         multiRegionSelected: 
@@ -11,7 +12,8 @@ function loadNewModel(sourceData) {
                 mx: 0,
                 my: 0
             },
-        activeFilters: []
+        activeFilters: [],
+        mouseInsideMap: false
         }
 
     var fragmentStates = new Map()
