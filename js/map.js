@@ -289,34 +289,62 @@ function grid(g, x, y) {
   // Upper left corner of the map that is E9, used as a reference point to make the map in the correct position
   // need a different method, maybe the distance inbetween the ticks on the map and then add the size of the tick
 
-  var imageE = 399
-  var imageY1 = 227
-  var imageY2 = 546 //38 = 9555
-  var y1 = 9
-  var y2 = 10
-  var yr = y2 - y1
-  var imageCellSize = (imageY2 - imageY1) / yr
-  var imageWidth = 5018
-  var imageHeight = 9892
-
   function setUpBackgroundImage() {
-    var mapE = x('E'.charCodeAt(0))
-    var mapY1 = y(y1)
-    var mapY2 = y(y2)
-    var mapCellSize = (mapY2 - mapY1) / yr
-    var ratio = mapCellSize/imageCellSize
-    //console.log(ratio, mapCellSize, imageCellSize)
-    var realImageE = imageE * ratio
-    var realImageY1 = imageY1 * ratio
-    var realImageWidth = imageWidth * ratio
+    if (model.globalState.averageCellSize) {
+      var imageE = 399
+      var imageY1 = 227
+      var imageY2 = 9555
+      var y1 = 9
+      var y2 = 38
+      var yr = y2 - y1
+      var imageCellSize = (imageY2 - imageY1) / yr
+      var imageWidth = 5018
+      var imageHeight = 9892
+      
+      var mapE = x('E'.charCodeAt(0))
+      var mapY1 = y(y1)
+      var mapY2 = y(y2)
+      var mapCellSize = (mapY2 - mapY1) / yr
+      var ratio = mapCellSize/imageCellSize
+      var realImageE = imageE * ratio
+      var realImageY1 = imageY1 * ratio
+      var realImageWidth = imageWidth * ratio
 
-    image = chart.append("image")
-    .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
-    .style('visibility', 'visible')
-    .attr('id', 'backgroundImage')
-    .attr('width', realImageWidth + 'px')
-    .attr('x', mapE - realImageE)
-    .attr('y', mapY1 - realImageY1)
+      image = chart.append("image")
+      .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
+      .style('visibility', 'visible')
+      .attr('id', 'backgroundImage')
+      .attr('width', realImageWidth + 'px')
+      .attr('x', mapE - realImageE)
+      .attr('y', mapY1 - realImageY1)
+    } else {
+      var imageE = 399
+      var imageY1 = 227
+      var imageY2 = 546 //38 = 9555
+      var y1 = 9
+      var y2 = 10
+      var yr = y2 - y1
+      var imageCellSize = (imageY2 - imageY1) / yr
+      var imageWidth = 5018
+      var imageHeight = 9892
+      
+      var mapE = x('E'.charCodeAt(0))
+      var mapY1 = y(y1)
+      var mapY2 = y(y2)
+      var mapCellSize = (mapY2 - mapY1) / yr
+      var ratio = mapCellSize/imageCellSize
+      var realImageE = imageE * ratio
+      var realImageY1 = imageY1 * ratio
+      var realImageWidth = imageWidth * ratio
+
+      image = chart.append("image")
+      .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
+      .style('visibility', 'visible')
+      .attr('id', 'backgroundImage')
+      .attr('width', realImageWidth + 'px')
+      .attr('x', mapE - realImageE)
+      .attr('y', mapY1 - realImageY1)
+    }
   }
 
   function setUpMap() {
@@ -324,6 +352,16 @@ function grid(g, x, y) {
       drawSpecificGrid(event)
       coordinateBoxMouseMove(event)
     }).attr("viewBox", [0, 0, width, height])
+      .on("mouseenter", () => {
+        model.globalState.mouseInsideMap = true
+        if (model.globalState.showMouseCoordinates) {
+          toggleMouseCoordinates(true)
+        }
+      })
+      .on("mouseleave", () => {
+        model.globalState.mouseInsideMap = false
+        toggleMouseCoordinates(false)
+      })
     
     
     chart2 = svg.append("g")
@@ -1026,12 +1064,12 @@ function grid(g, x, y) {
     }
   }
 
-  function toggleMouseCoordinates(toggle) {
+  function toggleMouseCoordinates(visible) {
     const coordinates = d3.select('#coordinates')
-    if (toggle) {
-      coordinates.style('color', 'transparent')
-    } else {
+    if (visible && model.globalState.mouseInsideMap) {
       coordinates.style('color', 'black')
+    } else {
+      coordinates.style('color', 'transparent')
     }
   }
   
