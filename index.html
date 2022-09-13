@@ -296,41 +296,26 @@ html, body, #fullheight {
     d3.select("#mapOptions").html("")
     d3.select("#right").html("")
 
-    //w2ui["layout"].destroy()
-    //w2ui["leftPane"].destroy()
-    //w2ui["navigationToolbar"].destroy()
     w2ui["navigation"].destroy()
-    //w2ui["filter"].destroy()
 
     loadNewModel(sourceData)
     loadUI()
-    setUpSidebarData(sourceData)
     startMap()
-
-    //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
-    //document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   }
 
-  $(function () {
+  $(document).ready(function () {
     readWreckDataFile()
-    loadUI()
-
-    /*
-    var navToolbar = document.createElement("div");
-    navToolbar.setAttribute("id", "navigationToolbar")*/
-
-    //w2ui['leftPane'].el('top').insertAdjacentHTML("beforeend", `<div id="navigationToolbar"></div`)
-        
-    //brute force stylin' | Fixes the navigation sidebar so it doesnt shift to the left
-    //document.getElementsByName("navigationToolbar")[0].style.overflow = ''
   })
-  function loadUI() {
+
+function loadUI() {
+  console.log("Started Loading UI")
+
   loadMenuBar();
-  loadNavigationToolbar();
   loadNavigation();
+  loadNavigationToolbar();
   loadMapOptions();
 
-  console.log("finished");
+  console.log("Finished Loading UI");
 }
 
 function loadMenuBar() {
@@ -343,7 +328,7 @@ function loadMenuBar() {
     })
 
   menuBar.append("button")
-    .html("Save (Does Nothing)")
+    .html("Export (Does Nothing)")
 
   menuBar.append("button")
     .html("Load (Does Nothing)")
@@ -351,74 +336,27 @@ function loadMenuBar() {
   menuBar.append("button")
     .html("Export Screenshot (Does Nothing)")
 
+  var gridMeasureText = ""
+  if (model.globalState.averageCellSize) {
+    gridMeasureText =  "Switch Grid To Image First Cell Size"
+  } else {
+    gridMeasureText = "Switch Grid To Average Image Cell Size"
+  }
   menuBar.append("button")
-    .html("Switch Grid To Average Image Cell Size")
+    .html(gridMeasureText)
     .on("click", e => {
       var button = d3.select(e.target)
       d3.select("#map").html("")
       if (model.globalState.averageCellSize) {
-        model.globalState.averageCellSize = false
+        updateModel(function() {model.globalState.averageCellSize = false})
         button.html("Switch Grid To Average Image Cell Size")
       } else {
-        model.globalState.averageCellSize = true
+        updateModel(function() {model.globalState.averageCellSize = true})
         button.html("Switch Grid To Image First Cell Size")
       }
       startMap() // need to save zoom/pan
     })
-
-    /*
-  $().w2toolbar({
-    name: 'mainToolbar',
-    items: [
-      { type: 'button', id: 'reset', text: 'Reset', onClick() {
-        reset()
-      } },
-      { type: 'button', id: 'saveExport', text: 'Save/Export', onClick() { w2confirm({
-        msg: saveToCode(),
-        title: 'Confirmation',
-        width: 450,        // width of the dialog
-        height: 220,       // height of the dialog
-        btn_yes: {
-            text  : 'Copy', // text for yes button (or yes_text)
-            class : '',    // class for yes button (or yes_class)
-            style : '',    // style for yes button (or yes_style)
-            click : console.log(JSON.stringify(state))   // callBack for yes button (or yes_callBack)
-            // Maybe see if we can copy it to the clickboard automatically with this
-        },
-        btn_no: {
-            text  : 'Close',  // text for no button (or no_text)
-            class : '',    // class for no button (or no_class)
-            style : '',    // style for no button (or no_style)
-            click : null   // callBack for no button (or no_callBack)
-        },
-        callBack: null,    // common callBack
-        onOpen: null,      // event when popup is opened
-        onClose: null      // event when popup is closed
-      })}},
-
-      { type: 'button', id: 'load', text: 'Load', onClick() { w2prompt({
-          label: 'Enter',
-          value: '2',
-          attrs: 'style="width: 200px"',
-          title: w2utils.lang('Notification'),
-          ok_text: w2utils.lang('Ok'),
-          ok_class: 'ok-class',
-          cancel_text: w2utils.lang('Cancel'),
-          cancel_class: 'cancel-class',
-          width: 400,
-          height: 200
-      })
-      .change((event) => {
-          console.log('change', event);
-      })
-      .ok((event) => {
-          loadFromCode(event);
-      });}}
-    ]
-  })
-  */
   
-
   function saveExport() {
       
     }
@@ -477,6 +415,27 @@ function loadNavigation() {
       })
     }
   });
+
+
+  var nodes = Array.from(sourceData.objectData, o => objectToNode(o));
+  w2ui['navigation'].add(nodes);
+
+  function objectToNode(pair) {
+      var objectID = pair[0]
+      var object = pair[1]
+
+      var mainNode = {categories: object.categories, id: objectID, text: object.name, count: object.fragments.length}//, nodes: object.fragments.map(f => fragmentToNode(f, sourceData))};
+      return mainNode;
+  }
+
+  /*
+  function fragmentToNode(fragmentID, sourceData) {
+      return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
+          // find svg node based on position ID
+          // make it beeeg
+      // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
+      }}
+  }*/
 }
 
 function loadMapOptions() {
@@ -485,14 +444,14 @@ function loadMapOptions() {
 mapOptions.append("input")
   .attr("id", "mapToggle")
   .attr("type", "checkbox")
-  .property("checked", true)
+  .property("checked", () => {return model.globalState.showMap})
   .on("click", (e) => {
-    if (model.globalState.showMap) {
-      model.globalState.showMap = false
-      toggleMap(false)
-    } else {
-      model.globalState.showMap = true
+    if (d3.select(e.target).property("checked")) {
+      updateModel(function() {model.globalState.showMap = true})
       toggleMap(true)
+    } else {
+      updateModel(function() {model.globalState.showMap = false})
+      toggleMap(false)
     }
   })
 
@@ -504,13 +463,14 @@ mapOptions.append("label")
 mapOptions.append("input")
   .attr("id", "pithoiToggle")
   .attr("type", "checkbox")
+  .property("checked", () => {return model.globalState.showPithoi})
   .on("click", (e) => {
-    if (model.globalState.showPithoi) {
-      model.globalState.showPithoi = false
-      togglePithoi(false)
-    } else {
-      model.globalState.showPithoi = true
+    if (d3.select(e.target).property("checked")) {
+      updateModel(function() {model.globalState.showPithoi = true})
       togglePithoi(true)
+    } else {
+      updateModel(function() {model.globalState.showPithoi = false})
+      togglePithoi(false)
     }
   })
 
@@ -522,13 +482,14 @@ mapOptions.append("label")
 mapOptions.append("input")
   .attr("id", "rocksToggle")
   .attr("type", "checkbox")
+  .property("checked", () => {return model.globalState.showRocks})
   .on("click", (e) => {
-    if (model.globalState.showRocks) {
-      model.globalState.showRocks = false
-      toggleRocks(false)
-    } else {
-      model.globalState.showRocks = true
+    if (d3.select(e.target).property("checked")) {
+      updateModel(function() {model.globalState.showRocks = true})
       toggleRocks(true)
+    } else {
+      updateModel(function() {model.globalState.showRocks = false})
+      toggleRocks(false)
     }
   })
 
@@ -540,14 +501,14 @@ mapOptions.append("label")
 mapOptions.append("input")
   .attr("id", "mouseCoordinatesToggle")
   .attr("type", "checkbox")
-  .property("checked", true)
+  .property("checked", () => {return model.globalState.showMouseCoordinates})
   .on("click", (e) => {
-    if (model.globalState.showMouseCoordinates) {
-      model.globalState.showMouseCoordinates = false
-      toggleMouseCoordinates(false)
-    } else {
-      model.globalState.showMouseCoordinates = true
+    if (d3.select(e.target).property("checked")) {
+      updateModel(function() {model.globalState.showMouseCoordinates = true})
       toggleMouseCoordinates(true)
+    } else {
+      updateModel(function() {model.globalState.showMouseCoordinates = false})
+      toggleMouseCoordinates(false)
     }
   })
 
@@ -641,8 +602,6 @@ function loadNavigationToolbar() {
       var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
       var aParsed = a.match(regex);
       var bParsed = b.match(regex);
-      //console.log(a, aParsed);
-      //console.log(b, bParsed);
 
       if (aParsed == null) {
         console.log("Could not parse name of " + a + " when sorting by name.");
@@ -706,8 +665,23 @@ function loadNavigationToolbar() {
     .attr("id", "sorts")
     .on("change", (e) => {
       var option = d3.select(e.target.options[e.target.selectedIndex])
-      option.data()[0].sortFunc()
+      var data = option.data()[0]
+      updateModel(function(){model.globalState.navigationSort = data.type})
+      data.sortFunc()
     }) //toi tired rn but use event or params or smthn TODO
+  
+  if (model.globalState.navigationSort != null) {
+    var i = sorts.findIndex(s => s.type == model.globalState.navigationSort)
+    if (i != -1) {
+      sorts[i].sortFunc()
+    } else {
+      updateModel(function() {model.globalState.navigationSort = sorts[0].type})
+    }
+  } else {
+    updateModel(function() {model.globalState.navigationSort = sorts[0].type})
+  }
+
+  sortBy.html(model.globalState.navigationSort)
 
   sortBy.selectAll("option")
     .data(sorts)
@@ -760,21 +734,30 @@ function loadNavigationToolbar() {
     .append("button")
     .html(f => f.type)
     .on("click", (e, f) => {
-      if (model.globalState.activeFilters.includes(f.type)) {
+      var index = model.globalState.activeFilters.indexOf(f.type)
+      if (index != -1) {
         f.filterFunc(false)
-        model.globalState.activeFilters.splice(model.globalState.activeFilters.indexOf(f.type), 1)
+        updateModel(function() {model.globalState.activeFilters.splice(index, 1)})
       } else {
         f.filterFunc(true)
-        model.globalState.activeFilters.push(f.type)
+        updateModel(function() {model.globalState.activeFilters.push(f.type)})
       }
 
       w2ui.navigation.refresh()
     });
+  
+  model.globalState.activeFilters.forEach(f => {
+    var i = filters.findIndex(e => e.type == f)
+    if (i != -1) {
+      filters[i].filterFunc(true)
+    } else {
+      console.log("No filter found for " + f)
+    }
+  })
 }
 
 function search(value) {
   let sb = w2ui.navigation
-  console.log(sb.last_search)
   sb.last_search = value
   let count = sb.search(value)
   sb.expandAll()
@@ -817,8 +800,8 @@ function deselectAll() {
         objectState.selected = false
       }
     }
-    model.objectStates.get(objectID).visible = isVisible;
-    sourceData.objectData.get(objectID).fragments.forEach(fID => model.fragmentStates.get(fID).visible = isVisible)
+    updateModel(function() {model.objectStates.get(objectID).visible = isVisible});
+    sourceData.objectData.get(objectID).fragments.forEach(fID => updateModel(function() {model.fragmentStates.get(fID).visible = isVisible}))
 
     /*
     if (isVisible) {
@@ -939,9 +922,19 @@ function deselectAll() {
   function displayObjectInfo(objectID) {
     var object = getObjectData(objectID)
     d3.select(`#${objectID}InfoHead`)
-      .html(`<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.<br>
+      .html(`<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.
+  
+      <br><br>
+
       It is a piece of Cypriot pottery.</b>.<br>
       It has <b>${object.fragments.length}</b> fragments.<br>
+
+      <br><br>
+
+      Type: ${object.type}<br>
+      Description: ${object.desc}<br>
+      Location Notes: ${object.locationNotes}<br>
+
       Fragments:<br>`)
       .append(displayObjectFragments(objectID))
   }
@@ -1028,7 +1021,7 @@ function deselectAll() {
         var fragID = d3.select(button.parentNode).datum()
         d3.select(`#${fragID}${getFragmentState(fragID).color}button`).attr("class", "color-button")
         d3.select(button).attr("class", "color-button-toggled")
-        getFragmentState(fragID).color = c
+        updateModel(function() {getFragmentState(fragID).color = c})
 
         changeFragmentColor(fragID, c)
       })
