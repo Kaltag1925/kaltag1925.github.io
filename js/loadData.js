@@ -80,7 +80,7 @@ function loadSourceData(rawData) {
         var id = objectToID(o.id)
 
         var object = {name: o.id,
-            type: o.objType,
+            type: o.objType.trim(),
             desc: o.desc,
             locationNotes: o.locationNotes,
             locs: parseLocs(o.locs, o.id),
@@ -98,7 +98,7 @@ function loadSourceData(rawData) {
     function parseCategories(o) {
         var letterRegex = /(?<letter>[A-Z]+).*/
         var letterParsed = o.id.match(letterRegex)
-        return [letterParsed.groups.letter]
+        return [letterParsed.groups.letter, o.objType.trim()]
     }
 
     //load categories

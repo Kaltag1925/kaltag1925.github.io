@@ -812,6 +812,8 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       object.fragments.forEach(f => unhighlightFragment(f))
       d3.select(`#${objectID}InfoCollapsible`).remove()
       d3.select(`#${objectID}InfoDiv`).remove()
+      updateModel(function(){getObjectState(objectID).ui.infoExpanded = false})
+      updateModel(function(){getObjectData(objectID).fragments.forEach(f => getFragmentState(f).ui.infoExpanded = false)})
     }
   }
 

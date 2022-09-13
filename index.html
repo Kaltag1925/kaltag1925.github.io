@@ -239,11 +239,21 @@ html, body, #fullheight {
 }
 
 /* Links inside the dropdown */
-.dropdown-content button {
+.dropdown-content .button-toggled {
   color: black;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
+  background-color: greenyellow;
+  width: 100%;
+}
+
+.dropdown-content .button {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  width: 100%;
 }
 
 .dropdown-content .selected button {
@@ -251,7 +261,8 @@ html, body, #fullheight {
 }
 
 /* Change color of dropdown links on hover */
-.dropdown-content button:hover {background-color: #ddd;}
+.dropdown-content .button-toggled:hover {background-color: green;}
+.dropdown-content .button:hover {background-color: #ddd;}
 
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {display: block;}
@@ -691,61 +702,65 @@ function loadNavigationToolbar() {
     .html(d => d.type)
   // #endRegion
 
-  var filters = [
-    {type: "KW", filterFunc: kwFilter},
-    {type: "L", filterFunc: lFilter}
-  ];
+  var categories = new Set()
+  Array.from(sourceData.objectData.values()).forEach(o => o.categories.forEach(c => categories.add(c)))
 
-  function kwFilter(hide) {
+  function filter(c, hide) {
     w2ui.navigation.nodes.forEach(n => {
-      if (n.categories.includes("KW")) {
-        n.hidden = hide;
-      };
-    });
-  };
-
-  function lFilter(hide) {
-    w2ui.navigation.nodes.forEach(n => {
-      if (n.categories.includes("L")) {
-        if (hide) {
-          w2ui.navigation.hide(n.id)
-        } else {
+      if (n.categories.includes(c) && hide) {
+        w2ui.navigation.hide(n.id)
+      } else {
+        if (n.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))) {
+          console.log("showing")
           w2ui.navigation.show(n.id)
         }
       };
     });
+    //w2ui.navigation.refresh()
+  }
 
-    w2ui.navigation.refresh()
-  };
-
-  var filter = toolbar.append("div")
+  var filterNode = toolbar.append("div")
     .attr("class", "dropdown")
   
-  filter.append("button")
+  filterNode.append("button")
     .attr("class", "dropbtn")
     .html("Filter");
 
-  filter.append("div")
+  filterNode.append("div")
     .attr("class", "dropdown-content")
     
     .selectAll("button")
-    .data(filters)
+    .data(categories)
     .enter()
     .append("button")
-    .html(f => f.type)
-    .on("click", (e, f) => {
-      var index = model.globalState.activeFilters.indexOf(f.type)
+    .attr("class", "button-toggled")
+    .attr("id", c => `${c}button`)
+    .html(c => c)
+    .on("click", (e, c) => {
+      var button = d3.select(e.target)
+      var index = model.globalState.activeFilters.indexOf(c)
       if (index != -1) {
-        f.filterFunc(false)
+        filter(c, false)
+        button.attr("class", "button-toggled")
         updateModel(function() {model.globalState.activeFilters.splice(index, 1)})
       } else {
-        f.filterFunc(true)
-        updateModel(function() {model.globalState.activeFilters.push(f.type)})
+        filter(c, true)
+        button.attr("class", "button")
+        updateModel(function() {model.globalState.activeFilters.push(c)})
       }
-
       w2ui.navigation.refresh()
-    });
-  
+    })
+    .each(c => {
+      // d3.select(this) is supposed to work but it just returns the window
+      var button = d3.select(`#${c}button`)
+      var index = model.globalState.activeFilters.indexOf(c)
+      if (index != -1) {
+        button.attr("class", "button")
+        filter(c, true)
+      }
+    })
+
+    /*
   model.globalState.activeFilters.forEach(f => {
     var i = filters.findIndex(e => e.type == f)
     if (i != -1) {
@@ -753,7 +768,7 @@ function loadNavigationToolbar() {
     } else {
       console.log("No filter found for " + f)
     }
-  })
+  })*/
 }
 
 function search(value) {
@@ -897,26 +912,27 @@ function deselectAll() {
 
     var collapsible = document.getElementById(objectID + "InfoCollapsible");
 
-    collapsible.addEventListener("click", function() {
-      this.classList.toggle("active");
-      var content = this.nextElementSibling;
-      if (content.style.maxHeight){
-        content.style.maxHeight = null;
-        //content.style.height = "0%"
-      } else {
-        content.style.maxHeight = "fit-content"
-        //content.style.height = "100%"
-      } 
+    if (getObjectState(objectID).ui.infoExpanded) {
+      toggleInfo(objectID, getObjectState(objectID))
+    }
 
-      var content = document.getElementById(objectID +"InfoDiv").children[0];
-      
-      if (content.style.height == 0 + "px") {
-        content.style.height = "fit-content"; //need to calculate / continully update or smthn
-      } else {
-        content.style.height = 0 + "px"
-      }
-      //w2ui[objectID + "info"].resize()
-    });
+    d3.select(`#${objectID}InfoCollapsible`)
+      .on("click", () => {toggleInfo(objectID, getObjectState(objectID))})
+}
+
+function toggleInfo(id, state) {
+  var collapsible = d3.select(`#${id}InfoCollapsible`)
+  
+  var toggled = collapsible.classed("active")
+  updateModel(function(){state.ui.infoExpanded = !toggled})
+  collapsible.classed("active", !toggled)
+  
+  var content = d3.select(`#${id}InfoDiv`)
+  if (!toggled) {
+    content.style("max-height", "fit-content")
+  } else {
+    content.style("max-height", null)// this should be a css class
+  }
 }
 
   function displayObjectInfo(objectID) {
@@ -958,15 +974,7 @@ function deselectAll() {
         return ` - ${f.name} @ ${f.origLoc}<br>`
       })
       .on("click", function(event,fID) {
-          this.classList.toggle("active");
-          var content = document.getElementById(`${fID}InfoDiv`);
-          if (content.style.maxHeight){
-            content.style.maxHeight = null;
-            content.style.height = "0%"
-          } else {
-            content.style.maxHeight = 800 + "px";
-            content.style.height =  "100%";
-          } 
+        toggleInfo(fID, getFragmentState(fID))
       })
 
     var infodiv = divs.append("div")
@@ -1025,6 +1033,15 @@ function deselectAll() {
 
         changeFragmentColor(fragID, c)
       })
+    
+      divs.each((fID, i) => {
+          if (getFragmentState(fID).ui.infoExpanded) {
+            console.log()
+            toggleInfo(fID, getFragmentState(fID))
+          }
+
+          d3.select(`#${fID}${getFragmentState(fID).color}button`).attr("class", "color-button-toggled")
+        })
   }
 </script>
 
