@@ -380,7 +380,7 @@ function loadNavigation() {
     topHTML: `
             <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
                 <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
-                    onchange="search(this.value)">
+                    onchange="search(this)">
             </div>
         `,
     handle: {
@@ -711,7 +711,7 @@ function loadNavigationToolbar() {
         w2ui.navigation.hide(n.id)
       } else {
         if (n.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))) {
-          console.log("showing")
+          console.log(n.id)
           w2ui.navigation.show(n.id)
         }
       };
@@ -740,13 +740,13 @@ function loadNavigationToolbar() {
       var button = d3.select(e.target)
       var index = model.globalState.activeFilters.indexOf(c)
       if (index != -1) {
-        filter(c, false)
         button.attr("class", "button-toggled")
         updateModel(function() {model.globalState.activeFilters.splice(index, 1)})
+        filter(c, false)
       } else {
-        filter(c, true)
         button.attr("class", "button")
         updateModel(function() {model.globalState.activeFilters.push(c)})
+        filter(c, true)
       }
       w2ui.navigation.refresh()
     })
@@ -771,10 +771,28 @@ function loadNavigationToolbar() {
   })*/
 }
 
-function search(value) {
+function search(searchBar) { // TODO Make it keep value?
+  var value = searchBar.value
+  //d3.select(searchBar).html(value)
+  console.log("searchd")
   let sb = w2ui.navigation
   sb.last_search = value
-  let count = sb.search(value)
+  var regex = new RegExp(value, "i")
+  var count = 0;
+  sb.nodes.forEach(n => {
+    var object = getObjectData(n.id)
+    var filtered = !object.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))
+    var notSearched = object.name.search(regex) == -1
+    if (filtered || notSearched) {
+      console.log("hide")
+      sb.hide(n.id)
+    } else {
+      sb.show(n.id)
+      count += 1
+    }
+  })
+  //sb.refresh()
+  //let count = sb.search(value)
   sb.expandAll()
   query(sb.box).find('#empty-search').remove()
   if (count == 0) {
