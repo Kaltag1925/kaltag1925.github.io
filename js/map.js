@@ -100,6 +100,7 @@ function grid(g, x, y) {
 
 function drawSpecificGrid(event) { // maybe add an if statement that detects if it needs to redraw ie in a new cell, if this causes performance issues
   var mouse = d3.pointer(event)
+  console.log(mouse)
   var mouseGridX = Math.floor(gridX.invert(mouse[0]))
   var mouseGridY = Math.floor(gridY.invert(mouse[1]))
   var leftGridX = gridX(mouseGridX)
@@ -455,8 +456,9 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       }
     })
 
-    var mrs = model.multiRegionSelected
-    if (mrs != null) {
+    var mrs = model.globalState.multiRegionSelected
+    console.log(mrs)
+    if (mrs != null && mrs.region != null) {
       multiRegionClicked(x(mrs.mx), y(mrs.my), mrs.region)
     }
 
@@ -707,18 +709,24 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   // }
 
   function regionClicked(event, region) {
-    updateModel(function(){model.multiRegionSelected = null})
+    updateModel(function(){model.globalState.multiRegionSelected = {
+      region: null,
+      mx: 0,
+      my: 0
+    }})
     overlap.selectAll("*").remove();
     if (region.fragments.length > 1) {
-      multiRegionClicked(event.offsetX, event.offsetY, region)
+      var mouse = d3.pointer(event)
+      multiRegionClicked(mouse[0], mouse[1], region)
     } else {
       objectSelected(region.fragments[0])
     }
   }
 
   function multiRegionClicked(mx, my, region) {
+    console.log(region)
     updateModel(function(){
-      model.multiRegionSelected = {region: region, mx: x.invert(mx), my: y.invert(my)}
+      model.globalState.multiRegionSelected = {region: region, mx: x.invert(mx), my: y.invert(my)}
     });
     var arr = JSON.parse(JSON.stringify(region.polygon.regions))
     var c = polylabel(arr, 1.0)
@@ -738,10 +746,10 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         .attr("fill-opacity", 0.7)
         .attr('stroke', 'black')
         .attr("stroke-width", 3)
-        .attr("width", 60)
-        .attr("height", 20)
+        .attr("width", 200)
+        .attr("height", 50)
         .attr("x", mx + 10)
-        .attr("y", (d, i) => my - 20*i)
+        .attr("y", (d, i) => my - 50*i)
         .on('mouseover', (e, d) => {
           d3.select(e.path[0]).attr("fill-opacity",  1)
           highlightFragment(d)
@@ -751,7 +759,11 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
           unhighlightFragment(d)
         })
         .on("click", (e, d) => {
-          updateModel(function() {model.multiRegionSelected = null})
+          updateModel(function() {model.globalState.multiRegionSelected = {
+            region: null,
+            mx: 0,
+            my: 0
+          }})
           objectSelected(d)
         }) 
 
@@ -760,7 +772,8 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       .data(region.fragments)
       .join("text")
         .attr("x", mx + 15)
-        .attr("y", (d, i) => my - 20*(i-1)-5)
+        .style("font-size", "40px")
+        .attr("y", (d, i) => my - 50*(i-1)-5)
         .text(d => getFragmentData(d).name)
         .on('mouseover', (e, f) => {
           d3.select(`#${f}select`).attr("fill-opacity",  1)
@@ -783,7 +796,11 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
           unhighlightFragment(f)
         })
         .on("click", (e, d) => {
-          updateModel(function() {model.multiRegionSelected = null})
+          updateModel(function() {model.globalState.multiRegionSelected = {
+              region: null,
+              mx: 0,
+              my: 0
+          }})
           objectSelected(d)
         }) 
     
