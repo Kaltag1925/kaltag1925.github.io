@@ -100,7 +100,6 @@ function grid(g, x, y) {
 
 function drawSpecificGrid(event) { // maybe add an if statement that detects if it needs to redraw ie in a new cell, if this causes performance issues
   var mouse = d3.pointer(event)
-  console.log(mouse)
   var mouseGridX = Math.floor(gridX.invert(mouse[0]))
   var mouseGridY = Math.floor(gridY.invert(mouse[1]))
   var leftGridX = gridX(mouseGridX)
@@ -457,7 +456,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     })
 
     var mrs = model.globalState.multiRegionSelected
-    console.log(mrs)
     if (mrs != null && mrs.region != null) {
       multiRegionClicked(x(mrs.mx), y(mrs.my), mrs.region)
     }
@@ -724,7 +722,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   }
 
   function multiRegionClicked(mx, my, region) {
-    console.log(region)
     updateModel(function(){
       model.globalState.multiRegionSelected = {region: region, mx: x.invert(mx), my: y.invert(my)}
     });
