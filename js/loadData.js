@@ -1,10 +1,11 @@
 function readWreckDataFile() {
-    console.log("read")
+    console.log("Start")
     d3.json("uluburun.json").then(data => {
-        sourceData = loadSourceData(data)
-        loadNewModel(sourceData)
+        sourceData = loadSourceData(data);
+        loadModel(sourceData)
         startMap()
-        setUpSidebarData(sourceData)
+        loadUI()
+        console.log("Finish")
     })
 }
 
@@ -37,7 +38,7 @@ function loadSourceData(rawData) {
 
     function getPieces(object) {
         if (object.fragments.length == 0) {
-            return [[pieceToID(object.id, object.id), {name: object.id,
+            return [[pieceToID(object.id, object.id, 0), {name: object.id,
                 object: objectToID(object.id),
                 origLoc: object.origLoc,
                 important: false,
@@ -79,7 +80,7 @@ function loadSourceData(rawData) {
         var id = objectToID(o.id)
 
         var object = {name: o.id,
-            type: o.objType,
+            type: o.objType.trim(),
             desc: o.desc,
             locationNotes: o.locationNotes,
             locs: parseLocs(o.locs, o.id),
@@ -97,7 +98,7 @@ function loadSourceData(rawData) {
     function parseCategories(o) {
         var letterRegex = /(?<letter>[A-Z]+).*/
         var letterParsed = o.id.match(letterRegex)
-        return [letterParsed.groups.letter]
+        return [letterParsed.groups.letter, o.objType.trim()]
     }
 
     //load categories
@@ -111,8 +112,6 @@ function loadSourceData(rawData) {
         }
 
     })
-
-    loadNewModel(sourceData) // remove later!!!
 
     return sourceData
 }

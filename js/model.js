@@ -1,10 +1,64 @@
+//https://stackoverflow.com/questions/1063813/listener-for-property-value-changes-in-a-javascript-object possibly this for detecting changes
+function updateModel(func) {
+    func()
+    saveModel()
+}
+// is there a better way?
+
+//document.addEventListener("beforeunload", saveModel)
+
+//$(window).bind('beforeunload', saveModel);
+
+
+function saveModel() {
+    window.localStorage.setItem("model", JSON.stringify(model, replacer))
+}
+
+function loadModel(sourceData) {
+    var modelStr = window.localStorage.getItem("model")
+    if (modelStr != null) {
+        modelObj = JSON.parse(window.localStorage.getItem("model"), reviver)
+        if (modelObj.isModel) {
+            model = modelObj
+        } else { //corrupt or smthn
+            loadNewModel(sourceData)
+        }
+    } else {
+        loadNewModel(sourceData)
+    }
+}
+
+//https://stackoverflow.com/questions/29085197/how-do-you-json-stringify-an-es6-map
+function replacer(key, value) {
+    if(value instanceof Map) {
+        return {
+        dataType: 'Map',
+        value: Array.from(value.entries()), // or with spread: value: [...value]
+        };
+    } else {
+        return value;
+    }
+}
+
+function reviver(key, value) {
+    if(typeof value === 'object' && value !== null) {
+        if (value.dataType === 'Map') {
+        return new Map(value.value);
+        }
+    }
+    return value;
+}
+
 function loadNewModel(sourceData) {
+    console.log("New Model Loaded")
+    console.trace()
     var globalState = {showMap: true, 
         showPithoi: false, 
         showRocks: false,
         showMouseCoordinates: true,
         averageCellSize: false,
-        pos: {x: 0, y: 0, z: 100.0},
+        transform: null,
+        mapStarting: false,
         mergeOverlapingRegions: false,
         multiRegionSelected: 
             {
@@ -13,21 +67,26 @@ function loadNewModel(sourceData) {
                 my: 0
             },
         activeFilters: [],
+        navigationSort: null,
         mouseInsideMap: false
         }
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((value, key) =>{
-        fragmentStates.set(key, {visible: false, color: "red", visualizations: true})
+        fragmentStates.set(key, {visible: false, color: "red", visualizations: true,
+            ui: {infoExpanded: false}
+        })
     })
 
     var objectStates = new Map()
     sourceData.objectData.forEach((value, key) => {
         objectStates.set(key, {visible: false, selected: false, color: "red", 
-        visualizations: {
-            lines: false,
-            shaded: false
-        }})
+            visualizations: {
+                lines: false,
+                shaded: false
+            },
+            ui: {infoExpanded: false}
+        })
     })
 
     var categoryStates = new Map()
@@ -35,10 +94,12 @@ function loadNewModel(sourceData) {
         categoryStates.set(key, {visible: false, color: "red", visualizations: true})
     })
 
-    model = {globalState: globalState, 
+    model = {isModel: true, globalState: globalState, 
         fragmentStates: fragmentStates, 
         objectStates: objectStates, 
         categoryStates: categoryStates}
+
+    saveModel()
 }
 
 function getObjectState(objectID) {
@@ -47,29 +108,4 @@ function getObjectState(objectID) {
 
 function getFragmentState(fragID) {
     return model.fragmentStates.get(fragID)
-}
-
-function loadModel(sourceData, states) {
-    
-}
-
-function setUpSidebarData(sourceData) {
-    var nodes = Array.from(sourceData.objectData, o => objectToNode(o, sourceData));
-    w2ui['navigation'].add(nodes);
-}
-
-function objectToNode(pair, sourceData) {
-    var objectID = pair[0]
-    var object = pair[1]
-
-    var mainNode = {categories: object.categories, id: objectID, text: object.name, count: object.fragments.length, nodes: object.fragments.map(f => fragmentToNode(f, sourceData))};
-    return mainNode;
-}
-
-function fragmentToNode(fragmentID, sourceData) {
-    return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
-        // find svg node based on position ID
-        // make it beeeg
-    // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
-    }}
 }

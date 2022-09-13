@@ -15,10 +15,12 @@ function startMap() {
   k = height / width
   regionsOnMap = new Map()
 
-  setUpMapHelpers()
-  setUpCoordinateBox()
-  setUpMap()
-  readModel()
+  model.globalState.mapStarting = true;
+  setUpMapHelpers();
+  setUpCoordinateBox();
+  setUpMap();
+  model.globalState.mapStarting = false;
+  readModel();
 }
 
 //#region Set Up Map
@@ -35,16 +37,17 @@ var gridY;
 var dimension
 function setUpMapHelpers() {
 
-  if (height > width) {
-    dimension = height
-  } else {
-    dimension = width
-  }
+  // if (height > width) {
+  //   dimension = height
+  // } else {
+  //   dimension = width
+  // }
 
+  dimension = 4000
   
 
   x = d3.scaleLinear()
-    .domain(["E".charCodeAt(0), "E".charCodeAt(0) + (27-9)]).nice() //hOW TO MAKE EQUAL SIZED TICKS?
+    .domain(["E".charCodeAt(0), "E".charCodeAt(0) + (27-9)]).nice()
     .range([0, dimension])
 
   gridX = x.copy()
@@ -93,71 +96,71 @@ function grid(g, x, y) {
     )
     .attr("y1", d => 0.5 + y(d))
     .attr("y2", d => 0.5 + y(d)));
+}
+
+function drawSpecificGrid(event) { // maybe add an if statement that detects if it needs to redraw ie in a new cell, if this causes performance issues
+  var mouse = d3.pointer(event)
+  var mouseGridX = Math.floor(gridX.invert(mouse[0]))
+  var mouseGridY = Math.floor(gridY.invert(mouse[1]))
+  var leftGridX = gridX(mouseGridX)
+  var upGridY = gridY(mouseGridY)
+  var xCellSize = (gridX("F".charCodeAt(0)) - gridX("E".charCodeAt(0)))
+  var yCellSize = (gridY(10)-gridY(9))
+
+  // up right down left
+
+  d3.select('#specificGrid').remove()
+  var specificGrid = gGrid.append('g')
+    .attr('id', 'specificGrid')
+    .attr("stroke-opacity", .3)
+  
+  // up down line
+  specificGrid.append("line")
+    .attr("x1", leftGridX + xCellSize/2)
+    .attr("y1", upGridY)
+    .attr("x2", leftGridX + xCellSize/2)
+    .attr("y2", upGridY + yCellSize)
+
+  // left right line
+  specificGrid.append("line")
+    .attr("x1", leftGridX)
+    .attr("y1", upGridY + yCellSize/2)
+    .attr("x2", leftGridX + xCellSize)
+    .attr("y2", upGridY + yCellSize/2)
+
+  var numberGridX
+  if (mouse[0] < leftGridX + xCellSize/2) {
+    numberGridX = leftGridX
+  } else {
+    numberGridX = leftGridX + xCellSize/2
   }
 
-  function drawSpecificGrid(event) { // maybe add an if statement that detects if it needs to redraw ie in a new cell, if this causes performance issues
-    var mouse = d3.pointer(event)
-    var mouseGridX = Math.floor(gridX.invert(mouse[0]))
-    var mouseGridY = Math.floor(gridY.invert(mouse[1]))
-    var leftGridX = gridX(mouseGridX)
-    var upGridY = gridY(mouseGridY)
-    var xCellSize = (gridX("F".charCodeAt(0)) - gridX("E".charCodeAt(0)))
-    var yCellSize = (gridY(10)-gridY(9))
-
-    // up right down left
-
-    d3.select('#specificGrid').remove()
-    var specificGrid = gGrid.append('g')
-      .attr('id', 'specificGrid')
-      .attr("stroke-opacity", .3)
-    
-    // up down line
-    specificGrid.append("line")
-      .attr("x1", leftGridX + xCellSize/2)
-      .attr("y1", upGridY)
-      .attr("x2", leftGridX + xCellSize/2)
-      .attr("y2", upGridY + yCellSize)
-
-    // left right line
-    specificGrid.append("line")
-      .attr("x1", leftGridX)
-      .attr("y1", upGridY + yCellSize/2)
-      .attr("x2", leftGridX + xCellSize)
-      .attr("y2", upGridY + yCellSize/2)
-
-    var numberGridX
-    if (mouse[0] < leftGridX + xCellSize/2) {
-      numberGridX = leftGridX
-    } else {
-      numberGridX = leftGridX + xCellSize/2
-    }
-
-    var numberGridY
-    if (mouse[1] < upGridY + yCellSize/2) {
-      numberGridY = upGridY
-    } else {
-      numberGridY = upGridY + yCellSize/2
-    }
-
-    // up down line
-    specificGrid.append("line")
-      .attr("x1", numberGridX + xCellSize/4)
-      .attr("y1", numberGridY)
-      .attr("x2", numberGridX + xCellSize/4)
-      .attr("y2", numberGridY + yCellSize/2)
-
-    // left right line
-    specificGrid.append("line")
-      .attr("x1", numberGridX)
-      .attr("y1", numberGridY + yCellSize/4)
-      .attr("x2", numberGridX + xCellSize/2)
-      .attr("y2", numberGridY + yCellSize/4)
-
-      // Add text labels?
-
-
-    // tooltip
+  var numberGridY
+  if (mouse[1] < upGridY + yCellSize/2) {
+    numberGridY = upGridY
+  } else {
+    numberGridY = upGridY + yCellSize/2
   }
+
+  // up down line
+  specificGrid.append("line")
+    .attr("x1", numberGridX + xCellSize/4)
+    .attr("y1", numberGridY)
+    .attr("x2", numberGridX + xCellSize/4)
+    .attr("y2", numberGridY + yCellSize/2)
+
+  // left right line
+  specificGrid.append("line")
+    .attr("x1", numberGridX)
+    .attr("y1", numberGridY + yCellSize/4)
+    .attr("x2", numberGridX + xCellSize/2)
+    .attr("y2", numberGridY + yCellSize/4)
+
+    // Add text labels?
+
+
+  // tooltip
+}
 
   function setUpCoordinateBox() {
     d3.select('#map').append("div").attr('id', 'coordinates')
@@ -282,9 +285,9 @@ function grid(g, x, y) {
   var image;
   var mapIconSelection;
 
-  // has to be this way because for some reason  d3.select("#chart").attr('transform')  gives an error >:[
-  var transformX = 0;
-  var transformY = 0;
+  // has to be this way because for some reason  d3.select("#chart").attr('transform')  gives an error >:[ ??? DO I NEED THIS ?? TODO
+  // var transformX = 0;
+  // var transformY = 0;
 
   // Upper left corner of the map that is E9, used as a reference point to make the map in the correct position
   // need a different method, maybe the distance inbetween the ticks on the map and then add the size of the tick
@@ -388,25 +391,15 @@ function grid(g, x, y) {
     const zoom = d3.zoom().scaleExtent([0.5, 32])
       .on("zoom", zoomed)
 
-    function zoomed({transform}) {
-      // x = transform.rescaleX(defaultX).interpolate(d3.interpolateRound);
-      // y = transform.rescaleY(defaultY).interpolate(d3.interpolateRound);
-      gridX = transform.rescaleX(x).interpolate(d3.interpolateRound);
-      gridY = transform.rescaleY(y).interpolate(d3.interpolateRound);
-      gx.call(xAxis, gridX);
-      gy.call(yAxis, gridY);
-      
-      chart.attr("transform", transform).attr("stroke-width", 5 / transform.k);
-      // k = transform.k
-      // transformX = transform.x
-      // transformY = transform.y
-
-      chart.style("stroke-width", 3 / Math.sqrt(transform.k));
-      points.attr("r", 10 / Math.sqrt(transform.k));
-      gGrid.call(grid, gridX, gridY)
-      // add draw specific grid here somehow, need an event or mouse location
-      // maybe need to store mouse coordinates or something
-    };
+    //https://stackoverflow.com/questions/51741861/d3-v5-zoom-limit-pan
+    const graphBox = svg.node().getBBox();
+    const margin = 200;
+    const worldTopLeft = [graphBox.x - margin, graphBox.y - margin];
+    const worldBottomRight = [
+      graphBox.x + graphBox.width + margin,
+      graphBox.y + graphBox.height + margin
+    ];
+    zoom.translateExtent([worldTopLeft, worldBottomRight]);
             
     svg.call(zoom)
       .call(zoom.transform, d3.zoomIdentity)
@@ -420,18 +413,45 @@ function grid(g, x, y) {
     });
   }
 
+  function zoomed({transform}) {
+    processZoomed(transform)
+  };
 
-  let transform;
+  function processZoomed(transform) {
+    gridX = transform.rescaleX(x).interpolate(d3.interpolateRound);
+    gridY = transform.rescaleY(y).interpolate(d3.interpolateRound);
+    gx.call(xAxis, gridX);
+    gy.call(yAxis, gridY);
+    
+    chart.attr("transform", transform).attr("stroke-width", 5 / transform.k);
+
+    chart.style("stroke-width", 3 / Math.sqrt(transform.k));
+    points.attr("r", 10 / Math.sqrt(transform.k));
+    gGrid.call(grid, gridX, gridY)
+
+    if (!model.globalState.mapStarting) {
+      model.globalState.transform = transform
+    }
+    // TODO add draw specific grid here somehow, need an event or mouse location
+    // maybe need to store mouse coordinates or something
+  }
+
+
 
   function readModel() {
-    dotsOnMap = new Map()
+    dotsOnMap = new Map() // TODO REPLACE WITH regionsOnMap???
+
+    // if (model.globalState.transform != null) {
+    //   processZoomed(model.globalState.transform)
+    // }
+
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
         processObject(id, true)
       }
 
       if (obj.selected) {
-        processObjectSelected(getObjectData(id), true)
+        processObjectSelected(id, true)
       }
     })
 
@@ -484,8 +504,6 @@ function grid(g, x, y) {
 
 
       })
-
-      //console.log(overlapingRegions)
 
       if (overlapingRegions.length == 0) {
         var region = {polygon: hull, fragments: [fragID]}
@@ -592,7 +610,6 @@ function grid(g, x, y) {
   colorCombos.set("grey", {fill: "grey", border: "darkslategrey"})
 
   function changeFragmentColor(fragID, color) {
-    console.log(color)
     var colors = colorCombos.get(color)
     d3.select(`#${fragID}lines`)
       .attr("stroke", colors.border)
@@ -690,8 +707,7 @@ function grid(g, x, y) {
   // }
 
   function regionClicked(event, region) {
-    console.log(event)
-    model.multiRegionSelected = null
+    updateModel(function(){model.multiRegionSelected = null})
     overlap.selectAll("*").remove();
     if (region.fragments.length > 1) {
       multiRegionClicked(event.offsetX, event.offsetY, region)
@@ -701,7 +717,9 @@ function grid(g, x, y) {
   }
 
   function multiRegionClicked(mx, my, region) {
-    model.multiRegionSelected = {region: region, mx: x.invert(mx), my: y.invert(my)};
+    updateModel(function(){
+      model.multiRegionSelected = {region: region, mx: x.invert(mx), my: y.invert(my)}
+    });
     var arr = JSON.parse(JSON.stringify(region.polygon.regions))
     var c = polylabel(arr, 1.0)
 
@@ -711,8 +729,6 @@ function grid(g, x, y) {
       .join("rect")
         .attr("id", d => `${d}select`)
         .attr("fill", f => {
-          console.log("frag", f)
-          console.log("fragData", getFragmentData(f))
           if (getObjectState(getFragmentData(f).object).selected) {
             return "greenyellow"
           } else {
@@ -735,7 +751,7 @@ function grid(g, x, y) {
           unhighlightFragment(d)
         })
         .on("click", (e, d) => {
-          model.multiRegionSelected = null
+          updateModel(function() {model.multiRegionSelected = null})
           objectSelected(d)
         }) 
 
@@ -767,7 +783,7 @@ function grid(g, x, y) {
           unhighlightFragment(f)
         })
         .on("click", (e, d) => {
-          model.multiRegionSelected = null
+          updateModel(function() {model.multiRegionSelected = null})
           objectSelected(d)
         }) 
     
@@ -777,25 +793,27 @@ function grid(g, x, y) {
     overlap.selectAll("*").remove();
 
     var objectID = sourceData.fragmentData.get(fragID).object
-    var object = sourceData.objectData.get(objectID)
     var state = getObjectState(objectID)
     if (!state.selected) {
-      processObjectSelected(object, true)
-      loadObjectInfoPanel(objectID)
-      state.selected = true
+      processObjectSelected(objectID, true)
+      updateModel(function() {state.selected = true})
     } else {
-      processObjectSelected(object, false)
-      d3.select(`#${objectID}InfoCollapsible`).remove()
-      d3.select(`#${objectID}InfoDiv`).remove()
-      state.selected = false
+      processObjectSelected(objectID, false)
+      updateModel(function() {state.selected = false})
     }
   }
 
-  function processObjectSelected(object, selected) {
+  function processObjectSelected(objectID, selected) {
+    var object = sourceData.objectData.get(objectID)
     if (selected) {
       object.fragments.forEach(f => highlightFragment(f))
+      loadObjectInfoPanel(objectID)
     } else {
       object.fragments.forEach(f => unhighlightFragment(f))
+      d3.select(`#${objectID}InfoCollapsible`).remove()
+      d3.select(`#${objectID}InfoDiv`).remove()
+      updateModel(function(){getObjectState(objectID).ui.infoExpanded = false})
+      updateModel(function(){getObjectData(objectID).fragments.forEach(f => getFragmentState(f).ui.infoExpanded = false)})
     }
   }
 
@@ -837,6 +855,7 @@ function grid(g, x, y) {
         .attr("x", x(lr.c[0])+10)
         .attr("y", y(lr.c[1])+5)
         .attr("id", labelID(lr.c) + "text")
+        .style("font-size", "40px")
         //.attr("transform", d => `rotate(-45,${x(locs[0].x) + 10},${y(locs[0].y) - 10})`)
         .text(getFragmentData(lr.fragments[0]).name + extraFrags)
 
@@ -1016,7 +1035,6 @@ function grid(g, x, y) {
 
   function toggleMap(toggle) {
     if (toggle) {
-      console.log(toggle)
       image.style('visibility', 'visible')
     } else {
       image.style('visibility', 'hidden')
