@@ -690,22 +690,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         }) 
   }
 
-  // function plotFragment(fragID) {
-
-  //   var hull = fragmentBoundingBox(fragID)
-  //   hull.push(hull[0])
-  //   var c = polylabel([hull], 1.0)
-
-  //   points.append("circle")
-  //       .attr("cx", x(c[0]))
-  //       .attr("cy", y(c[1]))
-  //       .attr("stroke", "black")
-  //       .attr("r", 1)
-  //       .attr("id", fragID + "svg")
-  //   .style("cursor", "pointer")
-  //       .on("click", mapIconClicked)
-  // }
-
   function regionClicked(event, region) {
     updateModel(function(){model.globalState.multiRegionSelected = {
       region: null,

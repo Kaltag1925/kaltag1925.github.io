@@ -73,19 +73,19 @@ function loadNewModel(sourceData) {
 
     var fragmentStates = new Map()
     sourceData.fragmentData.forEach((value, key) =>{
-        fragmentStates.set(key, {visible: false, color: "red", visualizations: true,
-            ui: {infoExpanded: false}
+        fragmentStates.set(key, {visible: false, color: "red", visualizations: true, opacity: 1,
+            ui: {infoExpanded: false, tab: "info"}
         })
     })
 
     var objectStates = new Map()
     sourceData.objectData.forEach((value, key) => {
-        objectStates.set(key, {visible: false, selected: false, color: "red", 
+        objectStates.set(key, {visible: false, selected: false, color: "red",  opacity: 1,
             visualizations: {
                 lines: false,
                 shaded: false
             },
-            ui: {infoExpanded: false}
+            ui: {infoExpanded: false, tab: "info"}
         })
     })
 
