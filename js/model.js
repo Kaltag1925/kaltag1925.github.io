@@ -52,7 +52,9 @@ function reviver(key, value) {
 function loadNewModel(sourceData) {
     console.log("New Model Loaded")
     console.trace()
-    var globalState = {showMap: true, 
+    var globalState = {
+        selectedObject: null,
+        showMap: true, 
         showPithoi: false, 
         showRocks: false,
         showMouseCoordinates: true,
@@ -60,12 +62,7 @@ function loadNewModel(sourceData) {
         transform: null,
         mapStarting: false,
         mergeOverlapingRegions: false,
-        multiRegionSelected: 
-            {
-                region: null,
-                mx: 0,
-                my: 0
-            },
+        multiRegionSelected: false,
         activeFilters: [],
         navigationSort: null,
         mouseInsideMap: false
@@ -80,7 +77,7 @@ function loadNewModel(sourceData) {
 
     var objectStates = new Map()
     sourceData.objectData.forEach((value, key) => {
-        objectStates.set(key, {visible: false, selected: false, color: "red",  opacity: 1,
+        objectStates.set(key, {visible: false, color: "red",  opacity: 1,
             visualizations: {
                 lines: false,
                 shaded: false

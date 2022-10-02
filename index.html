@@ -53,7 +53,7 @@
 </head>
 <body>
 
-<div class="box">
+<div class="box" id="main">
   <div id="menuBar" class="row header"></div>
   <div id="middle" class="row middle">
     <div id="left" class="row sidepanel">
@@ -62,7 +62,7 @@
       <div id="mapOptions" class="" style="min-height:300px"></div>
     </div>
     <div id="map" class="row map"></div>
-    <div id="right" class="row sidepanel" style="overflow:scroll"></div>
+    <div id="right" class="row sidepanel" style="overflow:scroll">No Object Selected</div>
   </div>
   <div class="row footer">
     <p><b>footer</b> (fixed height)</p>
@@ -314,6 +314,14 @@ html, body, #fullheight {
 
   $(document).ready(function () {
     readWreckDataFile()
+    
+    d3.select("#main").on("click", e => {
+      console.log(e.path)
+      console.log(e.path.includes(el => el.id == "overlap"))
+      if (model.globalState.multiRegionSelected && !e.path.includes(el => el.id == "overlap")) {
+        removeOverlap()
+      }
+    })
   })
 
 function loadUI() {
@@ -424,8 +432,6 @@ function loadNavigation() {
       })
     }
   });
-
-
   var nodes = Array.from(sourceData.objectData, o => objectToNode(o));
   w2ui['navigation'].add(nodes);
 
@@ -445,6 +451,34 @@ function loadNavigation() {
       // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
       }}
   }*/
+}
+
+function objectVisible(objectID, isVisible) {
+  var toggle = document.getElementById(`node_${objectID}`).querySelector("div[name='toggle']")
+  if (isVisible) {
+    query(toggle).addClass("toggle")
+    if (model.globalState.selectedObject != null) {
+      console.log("removing")
+      removeObjectInfoPanel(model.globalState.selectedObject)
+      unhighlightObject(model.globalState.selectedObject)
+    }
+
+    loadObjectInfoPanel(objectID)
+    updateModel(function() {model.globalState.selectedObject = objectID})
+    highlightObject(objectID)
+  } else {
+    query(toggle).removeClass("toggle")
+    console.log(model.globalState.selectedObject, objectID)
+    if (model.globalState.selectedObject == objectID) {
+      removeObjectInfoPanel(objectID)
+      updateModel(function() {model.globalState.selectedObject = null})
+      unhighlightObject(objectID)
+    }
+  }
+  updateModel(function() {getObjectState(objectID).visible = isVisible});
+  sourceData.objectData.get(objectID).fragments.forEach(fID => updateModel(function() {getFragmentState(fID).visible = isVisible}))
+
+  processObject(objectID, isVisible)
 }
 
 function loadMapOptions() {
@@ -533,9 +567,10 @@ function loadNavigationToolbar() {
     .html("Select All")
     .on("click", selectAll)
 
+    /*
   toolbar.append("button")
     .html("Deselect All")
-    .on("click", deselectAll)
+    .on("click", deselectAll)*/
 
   toolbar.append("label")
     .attr("for", "sortBy")
