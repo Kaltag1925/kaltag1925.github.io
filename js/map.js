@@ -19,6 +19,7 @@ function startMap() {
   setUpMapHelpers();
   setUpCoordinateBox();
   setUpMap();
+  addColorKey();
 
   // d3.selectAll(".tick")
   //   .attr("transform", "translate(0,0)")
@@ -180,24 +181,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       .style("height", "0px")
       .style("position", "relative")
       .style("font-weight", "bold")
-      .text("") //TODO: Hide when off map
-
-
-    // var svg = d3.select('#map').append('svg')
-    //   .on('mousemove', coordinateBoxMouseMove)
-    
-    // var g = svg.append('g').attr('id', 'coordinateBox').attr('transform', 'tranlateX(10) translate(100)')
-
-    // g.append('rect')
-    //   .attr("x", 0)
-    //   .attr("y", 0)
-    //   .attr("width", coordinateBoxWidth)
-    //   .attr("height", coordinateBoxHeight);
-
-    // g.append('text')
-    //   .attr("x", 0)
-    //   .attr("y", 0)
-    //   .attr("id", 'coordinateText')
+      .text("")
   }
 
   function coordinateBoxMouseMove(event) {//doesnt work with zoom
@@ -309,50 +293,78 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   // need a different method, maybe the distance inbetween the ticks on the map and then add the size of the tick
 
   function setUpBackgroundImage() {
-    if (model.globalState.averageCellSize) {
-      var imageE = 399
-      var imageY1 = 227
-      var imageY2 = 9555
-      var y1 = 9
-      var y2 = 38
-      var yr = y2 - y1
-      var imageCellSize = (imageY2 - imageY1) / yr
-      var imageWidth = 5018
-      var imageHeight = 9892
+    // if (model.globalState.averageCellSize) {
+    //   var imageE = 399
+    //   var imageY1 = 227
+    //   var imageY2 = 9555
+    //   var y1 = 9
+    //   var y2 = 38
+    //   var yr = y2 - y1
+    //   var imageCellSize = (imageY2 - imageY1) / yr
+    //   var imageWidth = 5018
+    //   var imageHeight = 9892
       
-      var mapE = x('E'.charCodeAt(0))
-      var mapY1 = y(y1)
-      var mapY2 = y(y2)
-      var mapCellSize = (mapY2 - mapY1) / yr
-      var ratio = mapCellSize/imageCellSize
-      var realImageE = imageE * ratio
-      var realImageY1 = imageY1 * ratio
-      var realImageWidth = imageWidth * ratio
+    //   var mapE = x('E'.charCodeAt(0))
+    //   var mapY1 = y(y1)
+    //   var mapY2 = y(y2)
+    //   var mapCellSize = (mapY2 - mapY1) / yr
+    //   var ratio = mapCellSize/imageCellSize
+    //   var realImageE = imageE * ratio
+    //   var realImageY1 = imageY1 * ratio
+    //   var realImageWidth = imageWidth * ratio
 
-      image = chart.append("image")
-      .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
-      .style('visibility', 'visible')
-      .attr('id', 'backgroundImage')
-      .attr('width', realImageWidth + 'px')
-      .attr('x', mapE - realImageE)
-      .attr('y', mapY1 - realImageY1)
-    } else {
-      var imageE = 399
-      var imageY1 = 227
-      var imageY2 = 546 //38 = 9555
+    //   image = chart.append("image")
+    //   .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
+    //   .style('visibility', 'visible')
+    //   .attr('id', 'backgroundImage')
+    //   .attr('width', realImageWidth + 'px')
+    //   .attr('x', mapE - realImageE)
+    //   .attr('y', mapY1 - realImageY1)
+    // } else {
+    //   var imageE = 399
+    //   var imageY1 = 227
+    //   var imageY2 = 546 //38 = 9555
+    //   var y1 = 9
+    //   var y2 = 10
+    //   var yr = y2 - y1
+    //   var imageCellSize = (imageY2 - imageY1) / yr
+    //   var imageWidth = 5018
+    //   var imageHeight = 9892
+      
+    //   var mapE = x('E'.charCodeAt(0))
+    //   var mapY1 = y(y1)
+    //   var mapY2 = y(y2)
+    //   var mapCellSize = (mapY2 - mapY1) / yr
+    //   var ratio = mapCellSize/imageCellSize
+    //   var realImageE = imageE * ratio
+    //   var realImageY1 = imageY1 * ratio
+    //   var realImageWidth = imageWidth * ratio
+
+    //   image = chart.append("image")
+    //   .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
+    //   .style('visibility', 'visible')
+    //   .attr('id', 'backgroundImage')
+    //   .attr('width', realImageWidth + 'px')
+    //   .attr('x', mapE - realImageE)
+    //   .attr('y', mapY1 - realImageY1)
+    // }
+      var imageX1 = 205
+      var imageY1 = 179
+      var imageY2 = 501
+      var x1 = "B"
       var y1 = 9
       var y2 = 10
       var yr = y2 - y1
       var imageCellSize = (imageY2 - imageY1) / yr
-      var imageWidth = 5018
-      var imageHeight = 9892
+      var imageWidth = 5567
+      var imageHeight = 10370
       
-      var mapE = x('E'.charCodeAt(0))
+      var mapX1 = x(x1.charCodeAt(0))
       var mapY1 = y(y1)
       var mapY2 = y(y2)
       var mapCellSize = (mapY2 - mapY1) / yr
       var ratio = mapCellSize/imageCellSize
-      var realImageE = imageE * ratio
+      var realImageX1 = imageX1 * ratio
       var realImageY1 = imageY1 * ratio
       var realImageWidth = imageWidth * ratio
 
@@ -361,9 +373,71 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       .style('visibility', 'visible')
       .attr('id', 'backgroundImage')
       .attr('width', realImageWidth + 'px')
-      .attr('x', mapE - realImageE)
+      .attr('x', mapX1 - realImageX1)
       .attr('y', mapY1 - realImageY1)
-    }
+    // var imageX1 = 153
+    // var imageY1 = 210
+    // var imageY2 = 11168
+    // var y1 = 9
+    // var y2 = 40
+    // var x1 = 'B'
+    // var yr = y2 - y1
+    // var imageCellSize = (imageY2 - imageY1) / yr
+    // var imageWidth = 6296
+    // var imageHeight = 11255
+    
+    // var mapE = x(x1.charCodeAt(0))
+    // var mapY1 = y(y1)
+    // var mapY2 = y(y2)
+    // var mapCellSize = (mapY2 - mapY1) / yr
+    // var ratio = mapCellSize/imageCellSize
+    // var realImageE = imageX1 * ratio
+    // var realImageY1 = imageY1 * ratio
+    // var realImageWidth = imageWidth * ratio
+
+    // image = chart.append("image")
+    // .attr("xlink:href", "./imgs/full map expanded.jpg")
+    // .style('visibility', 'visible')
+    // .attr('id', 'backgroundImage')
+    // .attr('width', realImageWidth + 'px')
+    // .attr('x', mapE - realImageE)
+    // .attr('y', mapY1 - realImageY1)
+  }
+
+  function addColorKey() {
+    var div = d3.select("#map").append("div")
+      .html("Color Key")
+      .style("border", "4px solid rgb(100, 100, 100)")
+      .style("background", "rgb(200, 200, 200)")
+      .style("position", "absolute")
+      .style("top", "60%")
+      .style("left", "90%")
+
+    sourceData.colorData.forEach((c, t)=> {
+      addColorKeyRow(div, t, c)
+    })
+    
+    // var g = svg.append("g")
+    // g.append("rect")
+    //   .attr("x", 100)
+    //   .attr("y", 100)
+    //   .attr("height", 1000)
+  }
+
+  function addColorKeyRow(div, type, colors) {
+    var p = div.append("p")
+      .html(type)
+      .style("margin-left", "5px")
+
+    p.append("span")
+      .style("width", "15px")
+      .style("height", "15px")
+      .style("margin", "auto")
+      .style("margin-left", "10px")
+      .style("display", "inline-block")
+      .style("border", `2px solid ${colors.border}`)
+      .style("vertical-align", "middle")
+      .style("background", colors.shaded)
   }
 
   function setUpMap() {
@@ -381,7 +455,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         model.globalState.mouseInsideMap = false
         toggleMouseCoordinates(false)
       })
-    
     
     chart2 = svg.append("g")
     chart = chart2.append("g").attr('id', '#chart').attr('width', width).attr('height', height)
@@ -444,11 +517,16 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     points.attr("r", 10 / Math.sqrt(transform.k));
     gGrid.call(grid, gridX, gridY)
 
+    console.log({transform})
+
+    if (event) {
+      drawSpecificGrid(event)
+      coordinateBoxMouseMove(event) // depreciated but... :)
+    }
+
     if (!model.globalState.mapStarting) {
       updateModel(function() {model.globalState.transform = transform})
     }
-    // TODO add draw specific grid here somehow, need an event or mouse location
-    // maybe need to store mouse coordinates or something
   };
 
 
@@ -513,12 +591,8 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       var hull = {regions: [fragmentBoundingBox(fragID)], inverted: false}
       //TODO: this is gonna get really slow
       var overlapingRegions = Array.from(regionsOnMap).filter(([id, region]) => {
-
-        //TODO: Does this work when one contains the other?
         var intersection = PolyBool.intersect(region.polygon, hull)
         return (intersection.regions.length != 0)
-
-
       })
 
       if (overlapingRegions.length == 0) {
@@ -537,7 +611,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         polygonsToUnion.push(hull)
         var fragArray = overlapingRegions.map(([id, r]) => r.fragments).flat()
         fragArray.push(fragID)
-
         var newPolygon = polygonsToUnion.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polygonsToUnion[0])
         var newRegion = {polygon: newPolygon, fragments: fragArray}
         plotRegion(newRegion)
@@ -547,21 +620,14 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     }
   }
 
-  function processRemoveFragment(fragID) { // TODO: make this re call process fragments
+  function processRemoveFragment(fragID) {
     if (fragmentBoundingBox(fragID) != null) {
       var region = Array.from(regionsOnMap).find(([id, r]) => r.fragments.includes(fragID))[1]
       removeRegion(region)
-      //removeFragmentLabel(region)
       regionsOnMap.delete(regionID(region))
 
       region.fragments.splice(region.fragments.indexOf(fragID), 1)
       region.fragments.forEach(f => processFragment(f))
-      
-      // if (newFragments.length > 0) {
-      //   var newPolygon = newFragments.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), [newFragments[0]])
-      //   var newRegion = {polygon: newPolygon, fragments: newFragments}
-      //   plotRegion(newRegion)
-      // }
     }
   }
 
@@ -569,13 +635,27 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     return "region" + (region.fragments.join().split('').filter(char => /[a-zA-Z0-9]/.test(char)).join(''))
   }
 
+  function regionType(region) {
+    var type = "mixed"
+    var firstObjType = getObjectData(getFragmentData(region.fragments[0]).object).type
+    if (region.fragments.every(fID => 
+      getObjectData(getFragmentData(fID).object).type == firstObjType
+    )) {
+      type = firstObjType
+    }
+    
+    return type
+  }
+
   function highlightRegion(region) {
     var poly = d3.select(`#${regionID(region)}shading`)
     var lines = d3.select(`#${regionID(region)}lines`)
     var labels = region.fragments.map(fradID => d3.select(`#${fradID}text`))
 
-    lines.attr("stroke", "green")
-    poly.attr("fill", "greenyellow")
+    var colors = getColorData(regionType(region))
+
+    lines.attr("stroke", colors.border)
+    poly.attr("fill", colors.shaded)
     labels.forEach(l => l.style("fill", "dodgerblue"))
   }
 
@@ -584,21 +664,23 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     var lines = d3.select(`#${regionID(region)}lines`)
     var labels = region.fragments.map(fradID => d3.select(`#${fradID}text`))
 
-    lines.attr("stroke", "red")
-    poly.attr("fill", "blue")
+    var colors = getColorData(regionType(region))
+
+    lines.attr("stroke", colors.border)
+    poly.attr("fill", colors.shaded)
     labels.forEach(l => l.style("fill", "black"))
   }
 
   function highlightFragment(fragID) {
     unhighlightFragment(fragID)
+
+    var colors = getColorData(getObjectData(getFragmentData(fragID).object).type)
     var hull = fragmentBoundingBox(fragID)
     if (hull != null) {
-
-      console.log(hull)
       selectedObject.append("g")
         .attr("id", fragID + "shading")
-        .attr("stroke", "darkgreen")
-        .attr("fill", "greenyellow")
+        .attr("stroke", colors.border)
+        .attr("fill", colors.shaded)
         .attr("fill-opacity", 1)
         .append('polygon')
           .attr("points", hull.map(d => {
@@ -607,24 +689,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     }
 
     //d3.select(`#${fragID}text`).style("color", "dodgerblue")
-  }
-
-  colorCombos = new Map()
-  colorCombos.set("red", {fill: "red", border: "darkred"})
-  colorCombos.set("blue", {fill: "blue", border: "darkblue"})
-  colorCombos.set("green", {fill: "green", border: "darkgreen"})
-  colorCombos.set("gold", {fill: "gold", border: "goldenrod"})
-  colorCombos.set("purple", {fill: "purple", border: "rebeccapurple"})
-  colorCombos.set("orange", {fill: "orange", border: "darkorange"})
-  colorCombos.set("grey", {fill: "grey", border: "darkslategrey"})
-
-  function changeFragmentColor(fragID, color) {
-    var colors = colorCombos.get(color)
-    d3.select(`#${fragID}lines`)
-      .attr("stroke", colors.border)
-
-    d3.select(`#${fragID}shading`)
-      .attr("fill", colors.fill)
   }
 
   function unhighlightFragment(fragID) {
@@ -636,8 +700,10 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   function plotRegion(region) {
     var coords = region.polygon.regions[0]
 
+    var colors = getColorData(regionType(region))
+
     lines.append("g")
-      .attr("stroke", "red")
+      .attr("stroke", colors.border)
       .attr("stroke-opacity", 0.6)
       .attr("id", regionID(region) + "lines")
       .selectAll("lines")
@@ -650,8 +716,8 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     
     shaded.append("g")
       .attr("id", regionID(region) + "shading")
-      .attr("fill", "blue")
-      .attr("fill-opacity", 0.4)
+      .attr("fill", colors.shaded)
+      .attr("fill-opacity", 0.5)
       .append('polygon')
         .attr("points", coords.map(d => {
               return [x(d[0]), y(d[1])].join(',')
@@ -659,8 +725,9 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
     //selection
     
+    ///???
     mapIconSelection.append("g")
-      .attr("stroke", "red")
+      .attr("stroke", colors.border)
       .attr("stroke-opacity", 0)
       .attr("id", regionID(region) + "selectionlines")
       .selectAll("lines")
@@ -683,7 +750,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     
     mapIconSelection.append("g")
       .attr("id", regionID(region) + "selectionshading")
-      .attr("fill", "blue")
+      .attr("fill", colors.shaded)
       .attr("fill-opacity", 0)
       .append('polygon')
         .attr("points", coords.map(d => {
@@ -755,13 +822,13 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
           highlightSelection(objectID)
         })
         .on('mouseout', (e, objectID) => {
-          unhighlightSelection()
+          unhighlightSelection(objectID)
         })
         .style("cursor", "pointer")
-        .on("click", (e, d) => {
+        .on("click", (e, objectID) => {
           e.stopPropagation()
           removeOverlap()
-          objectSelected(d)
+          objectSelected(objectID)
         }) 
 
     overlap.append("g")
@@ -776,7 +843,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
           highlightSelection(objectID)
         })
         .on('mouseout', (e, objectID) => {
-          unhighlightSelection()
+          unhighlightSelection(objectID)
         })
         .style("cursor", "pointer")
         .on("click", (e, objectID) => {
@@ -785,16 +852,16 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
           objectSelected(objectID)
         }) 
 
-    overlap.on('mouseout', (e) =>{
-      unhighlightSelection()
+    overlap.on('mouseout', (e, objectID) =>{
+      unhighlightSelection(objectID)
     })
     
   }
 
+  //TODO: CLEANUP: Should this and highlightObject be the same?
   function highlightSelection(objectID) {
     multiSelectionHighlight.selectAll("*").remove();
     var frags = getObjectData(objectID).fragments
-    //var colors = colorCombos.get(getFragmentState(fragID).color)
 
     var fragPolygons = frags.map(f => {
       var hull = fragmentBoundingBox(f)
@@ -803,19 +870,24 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       }).join(' ')
     })
 
+    var colors = getColorData(getObjectData(objectID).type)
 
+    //TODO: CLEANUP: make polygons like this
     multiSelectionHighlight.append("g")
-      .attr("fill", "blue")
-      .attr("stroke", "red")
+      .attr("fill", colors.shaded)
+      .attr("stroke", colors.border)
       .selectAll("polygon")
       .data(fragPolygons)
       .join('polygon')
         .attr("points", points => points)
 
+    addHighlightLabels(objectID)
+
   }
 
-  function unhighlightSelection() {
+  function unhighlightSelection(objectID) {
     multiSelectionHighlight.selectAll("*").remove();
+    removeHighlightLabels(objectID)
   }
 
   function removeOverlap() {
@@ -827,6 +899,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   function objectSelected(objectID) {
     removeOverlap()
 
+    console.log("selected", model.globalState.selectedObject)
     if (model.globalState.selectedObject != objectID) {
       if (model.globalState.selectedObject != null) {
         processObjectDeselected(model.globalState.selectedObject)
@@ -841,14 +914,84 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     loadObjectInfoPanel(objectID)
   }
 
+
+  function addHighlightLabels(objectID) {
+    var mappedFrags = getObjectData(objectID).fragments.filter(f => fragmentBoundingBox(f) != null)
+    var fragmentPolys = mappedFrags.map(f => {
+      var hull = fragmentBoundingBox(f)
+      return {regions: [hull], inverted: false}
+    })
+
+    var unionedPolys = fragmentPolys.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), fragmentPolys[0])
+    var centers = fragmentPolys.map(p => {
+      return polylabel(p.regions, 1.0)
+    })
+
+    var labelsHead = pointsLabels.append("g")
+      .attr("id", `${objectID}HighlightLabels`)
+      .style("paint-order", "stroke")
+      .style("stroke", "black")
+      .style("stroke-width", 8)
+      .attr("fill", "lightgreen")
+    
+    labelsHead
+        .selectAll("text")
+        .data(centers)
+        .join("text")
+        .attr("x", p => x(p[0])+10)
+        .attr("y", p => y(p[1])+5)
+        .style("font-size", "40px")
+        .text(getObjectData(objectID).name)
+        // .style("cursor", "pointer")
+        // .on("click", e => regionClicked(e, region))
+
+    labelsHead
+        .selectAll("circle")
+        .data(centers)
+        .join("circle")
+        .attr("cx", p => x(p[0]))
+        .attr("cy", p => y(p[1]))
+        .attr("stroke", "black")
+        .attr("r", 1)
+        // .style("cursor", "pointer")
+        // .on("click", e => regionClicked(e, region))
+
+
+  }
+
+  function removeHighlightLabels(objectID) {
+    console.log("Removing Highlight Labels", objectID, pointsLabels.select(`#${objectID}HighlightLabels`))
+    pointsLabels.select(`#${objectID}HighlightLabels`).remove()
+  }
+
   function highlightObject(objectID) {
     var object = getObjectData(objectID)
-    object.fragments.forEach(f => highlightFragment(f))
+    var polys = object.fragments.map(fragmentBoundingBox).filter(p => p != null).map(p => { return {regions: [p], inverted: false}})
+
+   // theres a faster way to do this on the github but this is easier to read and doesnt have much performance impact anyway 
+    var polygon = polys.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polys[0])
+    var colors = getColorData(object.type)
+    selectedObject.append("g")
+        .attr("id", objectID + "shading")
+        .attr("stroke", colors.border)
+        .attr("fill", colors.shaded)
+        .attr("fill-opacity", 1)
+        .selectAll("polygon")
+        .data(polygon.regions)
+        .join('polygon')
+          .attr("points", p => {
+            return p.map(d => {
+                return [x(d[0]), y(d[1])].join(',')
+            }).join(' ')
+          })
+    removeHighlightLabels(objectID) // If its come from a multi selection, there will already be a highlight label, and if not there will be none 
+    addHighlightLabels(objectID)
   }
 
   function unhighlightObject(objectID) {
-    var object = sourceData.objectData.get(objectID)
-    object.fragments.forEach(f => unhighlightFragment(f))
+    console.log("Unhighlighting", objectID)
+    selectedObject.html("")
+    removeHighlightLabels(objectID)
   }
 
   function processObjectDeselected(objectID) {
@@ -864,13 +1007,12 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     d3.select("#" + regionID(region) + "selectionshading").remove()
   }
 
-  
+  //TODO: remove
   function labelID(c) {
     return (`l${c[0]},${c[1]}`).split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
   }
 
   function addObjectLabels(objectID) {
-    console.log("adding labels")
     var mappedFrags = getObjectData(objectID).fragments.filter(f => fragmentBoundingBox(f) != null)
     var fragmentPolys = mappedFrags.map(f => {
       var hull = fragmentBoundingBox(f)
@@ -878,14 +1020,18 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     })
 
     var unionedPolys = fragmentPolys.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), fragmentPolys[0])
-    
+    var centers = fragmentPolys.map(p => {
+      //console.log(p.regions)
+      return polylabel(p.regions, 1.0)
+    })
+
     var labelsHead = pointsLabels.append("g")
       .attr("id", `${objectID}Labels`)
-      .data(unionedPolys.regions.map(p => polylabel([p], 1.0)))
-      //.enter()
     
     labelsHead
-        .append("text")
+        .selectAll("text")
+        .data(centers)
+        .join("text")
         .attr("x", p => x(p[0])+10)
         .attr("y", p => y(p[1])+5)
         .style("font-size", "40px")
@@ -894,7 +1040,9 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         // .on("click", e => regionClicked(e, region))
 
     labelsHead
-        .append("circle")
+        .selectAll("circle")
+        .data(centers)
+        .join("circle")
         .attr("cx", p => x(p[0]))
         .attr("cy", p => y(p[1]))
         .attr("stroke", "black")
@@ -906,69 +1054,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
   function removeObjectLabels(objectID) {
     d3.select(`#${objectID}Labels`).remove()
-  }
-
-  function addFragmentLabel(region) {
-    var map = new Map()
-    region.fragments.forEach(f => {
-      var hull = fragmentBoundingBox(f)
-      if (hull != null) {
-        hull.push(hull[0])
-        var c = polylabel([hull], 1.0)
-        var id = labelID(c)
-        if (map.has(id)) {
-          map.get(id).fragments.push(f)
-        } else {
-          map.set(id, {c: c, fragments: [f]})
-        }
-     }
-    })
-
-    map.forEach(lr => {
-      var extraFrags = ""
-      if ((lr.fragments.length - 1) > 0) {
-        extraFrags = ` + ${(lr.fragments.length - 1)}`
-      }
-
-      pointsLabels.append("text")
-        .attr("x", x(lr.c[0])+10)
-        .attr("y", y(lr.c[1])+5)
-        .attr("id", labelID(lr.c) + "text")
-        .style("font-size", "40px")
-        //.attr("transform", d => `rotate(-45,${x(locs[0].x) + 10},${y(locs[0].y) - 10})`)
-        .text(getFragmentData(lr.fragments[0]).name + extraFrags)
-
-      points.append("circle")
-        .attr("cx", x(lr.c[0]))
-        .attr("cy", y(lr.c[1]))
-        .attr("stroke", "black")
-        .attr("r", 1)
-        .attr("id", labelID(lr.c) + "svg")
-        .style("cursor", "pointer")
-        .on("click", e => regionClicked(e, region))
-    })
-  }
-
-  function removeFragmentLabel(region) {
-    var map = new Map()
-    region.fragments.forEach(f => {
-      var hull = fragmentBoundingBox(f)
-      if (hull != null) {
-        hull.push(hull[0])
-        var c = polylabel([hull], 1.0)
-        var id = labelID(c)
-        if (map.has(id)) {
-          map.get(id).fragments.push(f)
-        } else {
-          map.set(id, {c: c, fragments: [f]})
-        }
-      }
-    })
-
-    map.forEach(lr => {
-      d3.select("#" + labelID(lr.c) + "text").remove()
-      d3.select("#" + labelID(lr.c) + "svg").remove()
-    })
   }
 
   function fragmentBoundingBox(fragID) {
@@ -1045,34 +1130,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
     return coords
   }
-  
-  
-  var lastSelectedPoint = null
 
-  function connectRegion(objectID) {
-    var fragLocations = sourceData.objectData.get(objectID).fragments.map(fragID => {
-      var frag = sourceData.fragmentData.get(fragID)
-      return [frag.x, frag.y]
-    })
-    var hull = convexHull(fragLocations).map(i => fragLocations[i])
-
-    lines.append("g")
-      .attr("stroke", "red")
-      .attr("stroke-opacity", 0.6)
-      .attr("id", objectID + "lines")
-      .selectAll("lines")
-      .data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat()) //.data(hull.map((l, index, array) => ({x: l[0], y: l[1], xNext: array[(index + 1) % array.length][0], yNext: array[(index + 1) % array.length][1]})).flat())
-      .join("line")
-        .attr("x1", d => plotX(d.x))
-        .attr("y1", d => plotY(d.y))
-        .attr("x2", d => plotX(d.xNext))
-        .attr("y2", d => plotY(d.yNext))
-
-  }
-
-  function removeLines(objectID) {
-    d3.select("#" + objectID + "lines").remove()
-  }
 
   function shadeObjectRegion(objectID) {
     var fragLocations = sourceData.objectData.get(objectID).fragments.map(fragID => {

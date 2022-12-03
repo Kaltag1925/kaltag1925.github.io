@@ -27,8 +27,6 @@
 
     var convexHull;
 
-    var shadeObjectRegion;
-
     var model;
 
     function compareLocation(loc1, loc2) {
@@ -58,10 +56,14 @@
   <div id="middle" class="row middle">
     <div id="left" class="row sidepanel">
       <div id="navigationToolbar"></div>
+      <div style="height: 36px; padding: 3px 2px 3px 2px; border-bottom: 1px solid silver;">
+        <input id="search" style="width: 60%;" class="w2ui-input" placeholder="Search nodes..."></input>
+        <button id="searchButton" type="button" style="width: 30%; cursor:pointer">Search</button>
+      </div>
       <div id="navigation" style="min-height: 70%;"></div>
       <div id="mapOptions" class="" style="min-height:300px"></div>
     </div>
-    <div id="map" class="row map"></div>
+    <div id="map" class="row map" style="position:relative"></div>
     <div id="right" class="row sidepanel" style="overflow:scroll">No Object Selected</div>
   </div>
   <div class="row footer">
@@ -301,6 +303,7 @@ html, body, #fullheight {
     d3.select("#menuBar").html("")
     d3.select("#map").html("")
     d3.select("#navigationToolbar").html("")
+    d3.select("#navigationSearch").html("")
     d3.select("#navigation").html("")
     d3.select("#mapOptions").html("")
     d3.select("#right").html("")
@@ -353,6 +356,7 @@ function loadMenuBar() {
   menuBar.append("button")
     .html("Export Screenshot (Does Nothing)")
 
+    /*
   var gridMeasureText = ""
   if (model.globalState.averageCellSize) {
     gridMeasureText =  "Switch Grid To Image First Cell Size"
@@ -374,6 +378,7 @@ function loadMenuBar() {
       startMap() // need to save zoom/pan
     })
   
+    */
   function saveExport() {
       
     }
@@ -383,12 +388,6 @@ function loadNavigation() {
   $("#navigation").w2sidebar({
     name: 'navigation',
     img: null,
-    topHTML: `
-            <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
-                <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
-                    onchange="search(this)">
-            </div>
-        `,
     handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
@@ -443,14 +442,46 @@ function loadNavigation() {
       return mainNode;
   }
 
-  /*
-  function fragmentToNode(fragmentID, sourceData) {
-      return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
-          // find svg node based on position ID
-          // make it beeeg
-      // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
-      }}
-  }*/
+  d3.select("#search").on("keyup", function(event) { 
+      if(event.code == "Enter") {
+        search(event.target)
+      };
+    })
+
+  d3.select("#searchButton").on("click", function(event) { 
+      search(document.getElementById("search"))
+    })
+
+}
+
+function search(searchBar) {
+  var value = searchBar.value
+  let sb = w2ui.navigation
+  sb.last_search = value
+
+  var regex = new RegExp(value, "i")
+  var count = 0;
+  sb.nodes.forEach(n => {
+    var object = getObjectData(n.id)
+    var filtered = !object.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))
+    var notSearched = object.name.search(regex) == -1
+    if (filtered || notSearched) {
+      sb.hide(n.id)
+    } else {
+      sb.show(n.id)
+      count += 1
+    }
+  })
+
+  //sb.refresh()
+  //let count = sb.search(value)
+  sb.expandAll()
+  query(sb.box).find('#empty-search').remove()
+  if (count == 0) {
+      query(sb.box)
+          .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
+  }
+
 }
 
 function objectVisible(objectID, isVisible) {
@@ -748,7 +779,6 @@ function loadNavigationToolbar() {
         }
       };
     });
-    //w2ui.navigation.refresh()
   }
 
   var filterNode = toolbar.append("div")
@@ -758,10 +788,10 @@ function loadNavigationToolbar() {
     .attr("class", "dropbtn")
     .html("Filter");
 
-  filterNode.append("div")
+  var div = filterNode.append("div")
     .attr("class", "dropdown-content")
     
-    .selectAll("button")
+  div.selectAll("button")
     .data(categories)
     .enter()
     .append("button")
@@ -792,6 +822,20 @@ function loadNavigationToolbar() {
       }
     })
 
+    div.append("button")
+      .attr("class", "button-toggled")
+      .attr("id", "showAll")
+      .html("Show All")
+      .on("click", (e) => {
+        var filtered = model.globalState.activeFilters
+        updateModel(function() {model.globalState.activeFilters = []})
+        filtered.forEach(c => {
+          filter(c, false)
+          d3.select(`#${c}button`).attr("class", "button-toggled")
+        })
+      })
+
+
     /*
   model.globalState.activeFilters.forEach(f => {
     var i = filters.findIndex(e => e.type == f)
@@ -801,34 +845,6 @@ function loadNavigationToolbar() {
       console.log("No filter found for " + f)
     }
   })*/
-}
-
-function search(searchBar) { // TODO Make it keep value?
-  var value = searchBar.value
-  //d3.select(searchBar).html(value)
-  let sb = w2ui.navigation
-  sb.last_search = value
-  var regex = new RegExp(value, "i")
-  var count = 0;
-  sb.nodes.forEach(n => {
-    var object = getObjectData(n.id)
-    var filtered = !object.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))
-    var notSearched = object.name.search(regex) == -1
-    if (filtered || notSearched) {
-      sb.hide(n.id)
-    } else {
-      sb.show(n.id)
-      count += 1
-    }
-  })
-  //sb.refresh()
-  //let count = sb.search(value)
-  sb.expandAll()
-  query(sb.box).find('#empty-search').remove()
-  if (count == 0) {
-      query(sb.box)
-          .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
-  }
 }
 
 function selectAll() {

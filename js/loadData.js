@@ -9,32 +9,63 @@ function readWreckDataFile() {
     })
 }
 
-// function readObjects(rawData) {
-//     objects = new Array()
-//     rawData.forEach(o => {
-//         var fragments = o.fragments.map(f => f.id)
-//         var object = {name: o.id,
-//             type: o.objType,
-//             desc: o.desc,
-//             locationNotes: o.locationNotes,
-//             locs: o.locs,
-//             origLoc: o.origLoc,
-//             fragments: fragments,
-//             }
-
-//         objects.push(object)
-//     })
-
-//     return objects
-// }
-
 function createFragment(fragID, fragLoc) {
     return {name: fragID, location: fragLoc}
 }
 
 function loadSourceData(rawData) {
     console.log("load")
-    var sourceData = {categoryData: new Map(), objectData: new Map(), fragmentData: new Map()}
+    var sourceData = {colorData: new Map(), categoryData: new Map(), objectData: new Map(), fragmentData: new Map()}
+
+    // https://html-color.codes/
+    var colorData = new Map()
+    colorData.set("lamp", {
+        shaded: "Red",
+        border: "DarkRed",
+        selected: "Red"
+    })
+    colorData.set("BR bowl", {
+        shaded: "Green",
+        border: "DarkGreen",
+        selected: "Lime"
+    })
+    colorData.set("BR juglet", {
+        shaded: "Yellow",
+        border: "#999900",
+        selected: "Yellow"
+    })
+    colorData.set("WS bowl", {
+        shaded: "LightBlue",
+        border: "DarkBlue",
+        selected: "Blue"
+    })
+    colorData.set("Bucchero jug", {
+        shaded: "Plum",
+        border: "Indigo",
+        selected: "Purple"
+    })
+    colorData.set("lug-handled bowl", {
+        shaded: "Salmon",
+        border: "DarkOrange",
+        selected: "Orange"
+    })
+    colorData.set("wall bracket", {
+        shaded: "Cyan",
+        border: "DarkCyan",
+        selected: "Cyan"
+    })
+    colorData.set("WhSh juglet", {
+        shaded: "Pink",
+        border: "PaleVioletRed",
+        selected: "DeepPink"
+    })
+    colorData.set("mixed", {
+        shaded: "DimGrey",
+        border: "Grey",
+        selected: "DimGrey"
+    })
+
+    sourceData.colorData = colorData
 
     function getPieces(object) {
         if (object.fragments.length == 0) {
@@ -86,9 +117,10 @@ function loadSourceData(rawData) {
             locs: parseLocs(o.locs, o.id),
             origLoc: o.origLoc,
             fragmentsOrginal: o.fragments.map(f => pieceToID(f.id, o.id)),
-            fragments: peices.map(a => a[0]),
-            categories: parseCategories(o) //used to display fragments + whole object if its one peice
-            }
+            fragments: peices.map(a => a[0]),  //used to display fragments + whole object if its one peice
+            categories: parseCategories(o)
+
+        }
 
         sourceData.objectData.set(id, object)
         
@@ -174,4 +206,8 @@ function getObjectIDFragments(id) {
 
 function getFragmentData(id) {
     return sourceData.fragmentData.get(id)
+}
+
+function getColorData(type) {
+    return sourceData.colorData.get(type)
 }
