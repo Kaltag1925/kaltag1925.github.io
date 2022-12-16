@@ -19,7 +19,7 @@ function loadObjectInfoPanel(objectID) {
     .html("Info")
     .on("click", () => {
       d3.select(`#${objectID}TabHead`).html("")
-      updateModel(function(){getObjectState(objectID).ui.tab = "info"})
+      // updateModel(function(){getObjectState(objectID).ui.tab = "info"})
       displayObjectInfo(objectID)
     })
   
@@ -27,7 +27,7 @@ function loadObjectInfoPanel(objectID) {
     .html("Properties")
     .on("click", () => {
       d3.select(`#${objectID}TabHead`).html("")
-      updateModel(function(){getObjectState(objectID).ui.tab = "properties"})
+      // updateModel(function(){getObjectState(objectID).ui.tab = "properties"})
       displayObjectProperties(objectID)
     })
 
@@ -40,25 +40,17 @@ function loadObjectInfoPanel(objectID) {
   displayObjectInfo(objectID)  
 
   infoDiv.append(displayObjectFragments(objectID))
-
-  if (getObjectState(objectID).ui.tab == "info") {
-    displayObjectInfo(objectID)
-  }
-
-  if (getObjectState(objectID).ui.tab == "properties") {
-    displayObjectProperties(objectID)
-  }
 }
 
 function removeObjectInfoPanel(objectID) {
   d3.select(`#${objectID}InfoDiv`).remove()
-  updateModel(function(){
-    getObjectState(objectID).ui.tab = "info"
-  })
-  updateModel(function(){getObjectData(objectID).fragments.forEach(f => {
-    getFragmentState(f).ui.infoExpanded = false
-    getFragmentState(f).ui.tab = "info"
-  })})
+  // updateModel(function(){
+  //   getObjectState(objectID).ui.tab = "info"
+  // })
+  // updateModel(function(){getObjectData(objectID).fragments.forEach(f => {
+  //   getFragmentState(f).ui.infoExpanded = false
+  //   getFragmentState(f).ui.tab = "info"
+  // })})
 
   d3.select("#right").html("No Object Selected")
 }
@@ -67,7 +59,7 @@ function toggleInfo(id, state) {
   var collapsible  = d3.select(`#${id}InfoCollapsible`)
   
   var toggled = collapsible.classed("active")
-  updateModel(function(){state.ui.infoExpanded = !toggled})
+  // updateModel(function(){state.ui.infoExpanded = !toggled})
   collapsible.classed("active", !toggled)
   
   var content = d3.select(`#${id}InfoDiv`)
@@ -89,7 +81,13 @@ var colors = [
 
 function displayObjectInfo(objectID) {
   var object = getObjectData(objectID)
-  d3.select(`#${objectID}TabHead`)
+  d3.select(`#${objectID}TabHead`).append("button")
+    .html("Hide Object")
+    .on("click", e => {
+      objectVisible(objectID, false)
+    })
+  
+  d3.select(`#${objectID}TabHead`).append("div")
     .html(`<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.
 
     <br><br>
@@ -138,19 +136,19 @@ function displayObjectFragments(objectID) {
     
   infoDiv.append("button")
     .html("Info")
-    .on("click", (e, fID) => {
-      d3.select(`#${fID}TabHead`).html("")
-      updateModel(function(){getFragmentState(fID).ui.tab = "info"})
-      displayFragmentInfo(fID)
-    })
+    // .on("click", (e, fID) => {
+    //   d3.select(`#${fID}TabHead`).html("")
+    //   updateModel(function(){getFragmentState(fID).ui.tab = "info"})
+    //   displayFragmentInfo(fID)
+    // })
   
-  infoDiv.append("button")
-    .html("Properties")
-    .on("click", (e, fID) => {
-      d3.select(`#${fID}TabHead`).html("")
-      updateModel(function(){getFragmentState(fID).ui.tab = "properties"})
-      displayFragmentProperties(fID)
-    })
+  // infoDiv.append("button")
+  //   .html("Properties")
+  //   .on("click", (e, fID) => {
+  //     d3.select(`#${fID}TabHead`).html("")
+  //     updateModel(function(){getFragmentState(fID).ui.tab = "properties"})
+  //     displayFragmentProperties(fID)
+  //   })
 
   infoDiv.append("div")
     .attr("id", fID => `${fID}InfoHead`)
@@ -160,22 +158,22 @@ function displayObjectFragments(objectID) {
 
   infoDiv.each(fID => displayFragmentInfo(fID))
 
-  divs.each((fID, i) => {
-    if (getFragmentState(fID).ui.infoExpanded) {
-      toggleInfo(fID, getFragmentState(fID))
-    }
+  // divs.each((fID, i) => {
+  //   if (getFragmentState(fID).ui.infoExpanded) {
+  //     toggleInfo(fID, getFragmentState(fID))
+  //   }
 
-    d3.select(`#${fID}${getFragmentState(fID).color}button`).attr("class", "color-button-toggled")
+  //   d3.select(`#${fID}${getFragmentState(fID).color}button`).attr("class", "color-button-toggled")
 
-    if (getFragmentState(fID).ui.tab == "info") {
-      displayFragmentInfo(fID)
-    }
+  //   if (getFragmentState(fID).ui.tab == "info") {
+  //     displayFragmentInfo(fID)
+  //   }
 
-    if (getFragmentState(fID).ui.tab == "properties") {
-      displayFragmentProperties(fID)
-    }
+  //   if (getFragmentState(fID).ui.tab == "properties") {
+  //     displayFragmentProperties(fID)
+  //   }
 
-  })
+  // })
 }
 
 function displayFragmentInfo(fragID) {
@@ -240,6 +238,29 @@ function displayObjectProperties(objectID) {
   var objectState = getObjectState(objectID)
   var tabHead = d3.select(`#${objectID}TabHead`)
 
+  var showLabel = tabHead.append("div")
+  
+  var showLabelButton = showLabel.append("input")
+    .attr("type", "checkbox")
+    .attr("id", "showLabel")
+    .attr("name", "showLabel")
+    .on("click", e => {
+      var button = e.target
+      if (objectState.visualizations.showLabel) {
+        updateModel(function() {objectState.visualizations.showLabel = false})
+      } else {
+        updateModel(function() {objectState.visualizations.showLabel = true})
+      }
+    })
+
+  if (objectState.visualizations.showLabel) {
+    showLabelButton.property("checked", true)
+  }
+
+  showLabel.append("label")
+    .html("Show Labels")
+    .attr("for", "showLabel")
+    
   // var colorGrid = tabHead.append("div")
   //   .attr("class", "color-grid")
 

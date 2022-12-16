@@ -19,7 +19,13 @@ function startMap() {
   setUpMapHelpers();
   setUpCoordinateBox();
   setUpMap();
+  setUpSpecificGrid();
   addColorKey();
+
+  if (!(model.globalState.mouseInsideMap)) {
+    toggleMouseCoordinates(false)
+    toggleSpecificGrid(false)
+  }
 
   // d3.selectAll(".tick")
   //   .attr("transform", "translate(0,0)")
@@ -112,10 +118,19 @@ function grid(g, x, y) {
     .attr("y2", d => 0.5 + y(d)));
 }
 
+function setUpSpecificGrid() {
+  gGrid.append('g')
+    .attr('id', 'specificGrid')
+    .attr("stroke-opacity", .3)
+}
+
 function drawSpecificGrid(event) { // maybe add an if statement that detects if it needs to redraw ie in a new cell, if this causes performance issues
   var mouse = d3.pointer(event)
-  var mouseGridX = Math.floor(gridX.invert(mouse[0]))
-  var mouseGridY = Math.floor(gridY.invert(mouse[1]))
+  var mouseX = event.layerX
+  var mouseY = event.layerY
+
+  var mouseGridX = Math.floor(gridX.invert(mouseX))
+  var mouseGridY = Math.floor(gridY.invert(mouseY))
   var leftGridX = gridX(mouseGridX)
   var upGridY = gridY(mouseGridY)
   var xCellSize = (gridX("F".charCodeAt(0)) - gridX("E".charCodeAt(0)))
@@ -123,10 +138,8 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
   // up right down left
 
-  d3.select('#specificGrid').remove()
-  var specificGrid = gGrid.append('g')
-    .attr('id', 'specificGrid')
-    .attr("stroke-opacity", .3)
+  var specificGrid = d3.select("#specificGrid")
+  specificGrid.html("")
   
   // up down line
   specificGrid.append("line")
@@ -186,17 +199,20 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
   function coordinateBoxMouseMove(event) {//doesnt work with zoom
     var mouse = d3.pointer(event)
+    var mouseX = event.layerX
+    var mouseY = event.layerY
+
     var cellSize = (gridX("F".charCodeAt(0)) - gridX("E".charCodeAt(0)))
 
-    var xChar = Math.floor(gridX.invert(mouse[0]))
-    var yNumber = Math.floor(gridY.invert(mouse[1]))
+    var xChar = Math.floor(gridX.invert(mouseX))
+    var yNumber = Math.floor(gridY.invert(mouseY))
 
     var xCoord = gridX(xChar)
     var yCoord = gridY(yNumber)
 
     // sometimes these are negative not sure why, probably doesnt matter???
-    var relativeMouseX = mouse[0] - xCoord
-    var relativeMouseY = mouse[1] - yCoord
+    var relativeMouseX = mouseX - xCoord
+    var relativeMouseY = mouseY - yCoord
     
     var numberCellX = 0
     var numberCellY = 0
@@ -232,8 +248,8 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
     var numberCoord = ""
 
-    var numberRelativeMouseX = mouse[0] - numberCellX
-    var numberRelativeMouseY = mouse[1] - numberCellY
+    var numberRelativeMouseX = mouseX - numberCellX
+    var numberRelativeMouseY = mouseY - numberCellY
 
     if (numberRelativeMouseX > cellSize / 4) {
       // right
@@ -255,7 +271,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       }
     }
 
-    d3.select('#coordinates').style("top", (mouse[1]-20)+"px").style("left",(mouse[0]+20)+"px")
+    d3.select('#coordinates').style("top", (mouseY-20)+"px").style("left",(mouseX+20)+"px")
       .text(`${String.fromCharCode(xChar)}${yNumber} ${directionCoord}${numberCoord}`)
 
     
@@ -263,6 +279,111 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     // console.log(transform)
     // d3.select('#coordinateBox')
     //   .attr("transform", 'tranlate(' + mouse[0] + ',' + mouse[1] + ')') //'tranlateX(' + mouse[0] + ') translateY(' + mouse[1] + ')')
+  }
+
+  function alternativeClickMethod(event) {
+    function mouseOver(event, objectID) {
+      highlightSelection(objectID)
+    }
+
+    function mouseOut(event, objectID) {
+      unhighlightSelection(objectID)
+    }
+
+    function click(event, objectID) {
+      event.stopPropagation()
+      removeOverlap()
+      if (!(getObjectState(objectID).visible)) {
+        objectVisible(objectID, true)
+      }
+      objectSelected(objectID)
+    }
+
+    if (model.globalState.clickMethod) {
+      console.log("ran")
+      removeOverlap()
+      event.stopPropagation()
+      var mouse = d3.pointer(event)
+      var mx = mouse[0]
+      var my = mouse[1]
+      var gridX = Math.floor(x.invert(mouse[0]))
+      var gridY = Math.floor(y.invert(mouse[1]))
+
+      var testPoly = {regions: [[
+        [gridX, gridY],
+        [gridX + 1, gridY],
+        [gridX + 1, gridY + 1],
+        [gridX, gridY + 1]
+      ]], inverted: false}
+      
+      overlapShading.append("g")
+        .attr("id", "alternativeClickShading")
+        .attr("stroke", "green")
+        //.attr("fill", "")
+        .attr("fill-opacity", 0)
+        .append('polygon')
+          .attr("points", testPoly.regions[0].map(d => {
+                return [x(d[0]), y(d[1])].join(',')
+            }).join(' '))
+
+      var objects = new Set()
+
+      //TODO: CLEANUP: Change to filter idk too tired rn 11:00pm DX
+      sourceData.fragmentData.forEach((fragment, id)=> {
+        hull = fragmentBoundingBox(id)
+        if (hull != null) {
+          var poly = {regions: [hull], inverted: false}
+          if (PolyBool.intersect(poly, testPoly).regions.length != 0) {
+            objects.add(fragment.object)
+          }
+        }
+      })
+
+      displayOverlapBox(mx, my, objects, mouseOver, mouseOut, click)
+
+      // overlap.append("g")
+      //   .selectAll("rect")
+      //   .data(objects)
+      //   .join("rect")
+      //     .attr("id", objectID => `${objectID}select`)
+      //     .attr("fill", objectID => {
+      //       if (getObjectState(objectID).selected) {
+      //         return "greenyellow"
+      //       } else {
+      //         return "white"
+      //       }
+      //     })
+      //     .attr("fill-opacity", 0.7)
+      //     .attr('stroke', 'black')
+      //     .attr("stroke-width", 3)
+      //     .attr("width", 200)
+      //     .attr("height", 50)
+      //     .attr("x", (d,i) => mx + 10*(i % 10 + 1))
+      //     .attr("y", (d, i) => my - 50*i)
+      //     .on('mouseover', mouseOver)
+      //     .on('mouseout', mouseOut)
+      //     .style("cursor", "pointer")
+      //     .on("click", click) 
+
+      // overlap.append("g")
+      //   .selectAll("text")
+      //   .data(objects)
+      //   .join("text")
+      //     .attr("x", (d, i) => {
+      //       console.log(i)
+      //       mx + 15*(i % 10 + 1)
+      //     })
+      //     .style("font-size", "40px")
+      //     .attr("y", (d, i) => my - 50*(i-1)-5)
+      //     .text(objectID => getObjectData(objectID).name)
+      //     .on('mouseover', mouseOver)
+      //     .on('mouseout', mouseOut)
+      //     .style("cursor", "pointer")
+      //     .on("click", click) 
+
+      
+      //todo make selected/visible on left
+    }
   }
         
   var margin = ({top: 25, right: 20, bottom: 35, left: 40})
@@ -284,6 +405,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   var selectedObject;
   var multiSelectionHighlight;
   var zoom;
+  var overlapShading;
 
   // has to be this way because for some reason  d3.select("#chart").attr('transform')  gives an error >:[ ??? DO I NEED THIS ?? TODO
   // var transformX = 0;
@@ -293,61 +415,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   // need a different method, maybe the distance inbetween the ticks on the map and then add the size of the tick
 
   function setUpBackgroundImage() {
-    // if (model.globalState.averageCellSize) {
-    //   var imageE = 399
-    //   var imageY1 = 227
-    //   var imageY2 = 9555
-    //   var y1 = 9
-    //   var y2 = 38
-    //   var yr = y2 - y1
-    //   var imageCellSize = (imageY2 - imageY1) / yr
-    //   var imageWidth = 5018
-    //   var imageHeight = 9892
-      
-    //   var mapE = x('E'.charCodeAt(0))
-    //   var mapY1 = y(y1)
-    //   var mapY2 = y(y2)
-    //   var mapCellSize = (mapY2 - mapY1) / yr
-    //   var ratio = mapCellSize/imageCellSize
-    //   var realImageE = imageE * ratio
-    //   var realImageY1 = imageY1 * ratio
-    //   var realImageWidth = imageWidth * ratio
-
-    //   image = chart.append("image")
-    //   .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
-    //   .style('visibility', 'visible')
-    //   .attr('id', 'backgroundImage')
-    //   .attr('width', realImageWidth + 'px')
-    //   .attr('x', mapE - realImageE)
-    //   .attr('y', mapY1 - realImageY1)
-    // } else {
-    //   var imageE = 399
-    //   var imageY1 = 227
-    //   var imageY2 = 546 //38 = 9555
-    //   var y1 = 9
-    //   var y2 = 10
-    //   var yr = y2 - y1
-    //   var imageCellSize = (imageY2 - imageY1) / yr
-    //   var imageWidth = 5018
-    //   var imageHeight = 9892
-      
-    //   var mapE = x('E'.charCodeAt(0))
-    //   var mapY1 = y(y1)
-    //   var mapY2 = y(y2)
-    //   var mapCellSize = (mapY2 - mapY1) / yr
-    //   var ratio = mapCellSize/imageCellSize
-    //   var realImageE = imageE * ratio
-    //   var realImageY1 = imageY1 * ratio
-    //   var realImageWidth = imageWidth * ratio
-
-    //   image = chart.append("image")
-    //   .attr("xlink:href", "./imgs/1992mainsitepiecedfromjpg.png")
-    //   .style('visibility', 'visible')
-    //   .attr('id', 'backgroundImage')
-    //   .attr('width', realImageWidth + 'px')
-    //   .attr('x', mapE - realImageE)
-    //   .attr('y', mapY1 - realImageY1)
-    // }
       var imageX1 = 205
       var imageY1 = 179
       var imageY2 = 501
@@ -405,39 +472,42 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   }
 
   function addColorKey() {
-    var div = d3.select("#map").append("div")
-      .html("Color Key")
+    var div = d3.select("#map").append("div").attr("id", "colorKey")
       .style("border", "4px solid rgb(100, 100, 100)")
       .style("background", "rgb(200, 200, 200)")
       .style("position", "absolute")
-      .style("top", "60%")
-      .style("left", "90%")
+      .style("right", "40px")
+      .style("bottom", "40px")
+      .style("dsiplay", "grid")
+    div.append("p").html("Color Key").style("margin", "5px 10px").style("text-align", "center")
+     
+      //.style("display", "inline-block")
 
-    sourceData.colorData.forEach((c, t)=> {
-      addColorKeyRow(div, t, c)
+    sourceData.categoryColorData.forEach(category => {
+      if (category.colors) {
+        addColorKeyRow(div, category.name, category.colors)
+      }
     })
-    
-    // var g = svg.append("g")
-    // g.append("rect")
-    //   .attr("x", 100)
-    //   .attr("y", 100)
-    //   .attr("height", 1000)
   }
 
   function addColorKeyRow(div, type, colors) {
-    var p = div.append("p")
+    var textDiv = div.append("div").append("div")//.style("display", "inline-block")
+    
+    textDiv.append("span")
+    .style("width", "15px")
+    .style("height", "15px")
+    .style("margin", "5px 5px")
+    .style("border", `2px solid ${colors.border}`)
+    .style("vertical-align", "middle")
+    .style("background", colors.shaded)
+    .style("display", "inline-block")
+    
+    textDiv.append("p")
       .html(type)
-      .style("margin-left", "5px")
-
-    p.append("span")
-      .style("width", "15px")
-      .style("height", "15px")
-      .style("margin", "auto")
-      .style("margin-left", "10px")
+      .style("font-size", "medium")
+      .style("margin", "5px 5px")
       .style("display", "inline-block")
-      .style("border", `2px solid ${colors.border}`)
-      .style("vertical-align", "middle")
-      .style("background", colors.shaded)
+      
   }
 
   function setUpMap() {
@@ -447,17 +517,18 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     }).attr("viewBox", [0, 0, width, height])
       .on("mouseenter", () => {
         model.globalState.mouseInsideMap = true
-        if (model.globalState.showMouseCoordinates) {
-          toggleMouseCoordinates(true)
-        }
+        toggleMouseCoordinates(true)
+        toggleSpecificGrid(true)
       })
       .on("mouseleave", () => {
         model.globalState.mouseInsideMap = false
         toggleMouseCoordinates(false)
+        toggleSpecificGrid(false)
       })
     
     chart2 = svg.append("g")
     chart = chart2.append("g").attr('id', '#chart').attr('width', width).attr('height', height)
+    .on("click", alternativeClickMethod)
     setUpBackgroundImage()
     polygons = chart.append("g")
 
@@ -473,6 +544,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     shaded = chart.append("g")
     lines = chart.append("g")
     selectedObject = chart.append("g")
+    overlapShading = chart.append("g")
     multiSelectionHighlight = chart.append("g")
 
     points = chart.append("g")
@@ -517,8 +589,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     points.attr("r", 10 / Math.sqrt(transform.k));
     gGrid.call(grid, gridX, gridY)
 
-    console.log({transform})
-
     if (event) {
       drawSpecificGrid(event)
       coordinateBoxMouseMove(event) // depreciated but... :)
@@ -557,6 +627,10 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     toggleMap(model.globalState.showMap)
     togglePithoi(model.globalState.showPithoi)
     toggleRocks(model.globalState.showRocks)
+
+    if (model.globalState.hideKey) {
+      toggleKey(false)
+    }
   }
 
   //#endregion
@@ -564,10 +638,14 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   function processObject(objectID, visible) {
     if (visible) {
       getObjectData(objectID).fragments.forEach(f => processFragment(f))
-      addObjectLabels(objectID)
+      addObjectDots(objectID)
+      if (getObjectState(objectID).visualizations.showLabel) {
+        addObjectLabels(objectID)
+      }
     } else {
       getObjectData(objectID).fragments.forEach(f => processRemoveFragment(f))
       getObjectData(objectID).fragments.forEach(f => unhighlightFragment(f))
+      removeObjectDots(objectID)
       removeObjectLabels(objectID)
     }
   }
@@ -769,20 +847,22 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   }
 
   function regionClicked(event, region) {
-    event.stopPropagation()
-    removeOverlap()
-    var regionObjects = []
-    region.fragments.forEach(f => {
-      var objectID = getFragmentData(f).object
-      if (!regionObjects.includes(objectID)) {
-        regionObjects.push(objectID)
+    if (!(model.globalState.clickMethod)) {
+      event.stopPropagation()
+      removeOverlap()
+      var regionObjects = []
+      region.fragments.forEach(f => {
+        var objectID = getFragmentData(f).object
+        if (!regionObjects.includes(objectID)) {
+          regionObjects.push(objectID)
+        }
+      })
+      if (regionObjects.length > 1) {
+        var mouse = d3.pointer(event)
+        multiRegionClicked(mouse[0], mouse[1], region)
+      } else {
+        objectSelected(getFragmentData(region.fragments[0]).object)
       }
-    })
-    if (regionObjects.length > 1) {
-      var mouse = d3.pointer(event)
-      multiRegionClicked(mouse[0], mouse[1], region)
-    } else {
-      objectSelected(getFragmentData(region.fragments[0]).object)
     }
   }
 
@@ -799,9 +879,32 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       }
     })
 
+    function mouseOver(event, objectID) {
+      highlightSelection(objectID)
+    }
+
+    function mouseOut(event, objectID) {
+      unhighlightSelection(objectID)
+    }
+
+    function click(event, objectID) {
+      event.stopPropagation()
+      removeOverlap()
+      objectSelected(objectID)
+    }
+
+    displayOverlapBox(mx, my, objectsInRegion, mouseOver, mouseOut, click)
+    
+  }
+  function displayOverlapBox(mx, my, objects, mouseOver, mouseOut, click) {
+    const itemsPerColumn = 15
+
+    objects = Array.from(objects)
+    objects.sort(sortObjectsByName)
+
     overlap.append("g")
       .selectAll("rect")
-      .data(objectsInRegion)
+      .data(objects)
       .join("rect")
         .attr("id", objectID => `${objectID}select`)
         .attr("fill", objectID => {
@@ -816,58 +919,38 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         .attr("stroke-width", 3)
         .attr("width", 200)
         .attr("height", 50)
-        .attr("x", mx + 10)
-        .attr("y", (d, i) => my - 50*i)
-        .on('mouseover', (e, objectID) => {
-          highlightSelection(objectID)
-        })
-        .on('mouseout', (e, objectID) => {
-          unhighlightSelection(objectID)
-        })
+        .attr("x", (d, i) => mx + 10 + 200*(Math.floor(i / itemsPerColumn)))
+        .attr("y", (d, i) => my - 50*(i % itemsPerColumn + 1))
+        .on('mouseover', mouseOver)
+        .on('mouseout', mouseOut)
         .style("cursor", "pointer")
-        .on("click", (e, objectID) => {
-          e.stopPropagation()
-          removeOverlap()
-          objectSelected(objectID)
-        }) 
+        .on("click", click) 
 
     overlap.append("g")
       .selectAll("text")
-      .data(objectsInRegion)
+      .data(objects)
       .join("text")
-        .attr("x", mx + 15)
+        .attr("x", (d, i) => mx + 15 + 200*(Math.floor(i / itemsPerColumn)))
         .style("font-size", "40px")
-        .attr("y", (d, i) => my - 50*(i-1)-5)
+        .attr("y", (d, i) => my - 50*(i % itemsPerColumn)-5)
         .text(objectID => getObjectData(objectID).name)
-        .on('mouseover', (e, objectID) => {
-          highlightSelection(objectID)
-        })
-        .on('mouseout', (e, objectID) => {
-          unhighlightSelection(objectID)
-        })
+        .on('mouseover', mouseOver)
+        .on('mouseout', mouseOut)
         .style("cursor", "pointer")
-        .on("click", (e, objectID) => {
-          e.stopPropagation()
-          removeOverlap()
-          objectSelected(objectID)
-        }) 
-
-    overlap.on('mouseout', (e, objectID) =>{
-      unhighlightSelection(objectID)
-    })
-    
+        .on("click", click) 
   }
 
   //TODO: CLEANUP: Should this and highlightObject be the same?
-  function highlightSelection(objectID) {
+  function  highlightSelection(objectID) {
     multiSelectionHighlight.selectAll("*").remove();
     var frags = getObjectData(objectID).fragments
-
     var fragPolygons = frags.map(f => {
       var hull = fragmentBoundingBox(f)
-      return hull.map(d => {
-        return [x(d[0]), y(d[1])].join(',')
-      }).join(' ')
+      if (hull != null) {
+        return hull.map(d => {
+          return [x(d[0]), y(d[1])].join(',')
+        }).join(' ')
+      }
     })
 
     var colors = getColorData(getObjectData(objectID).type)
@@ -893,13 +976,13 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   function removeOverlap() {
     overlap.selectAll("*").remove();
     multiSelectionHighlight.selectAll("*").remove();
+    overlapShading.selectAll("*").remove();
     updateModel(function(){ model.globalState.multiRegionSelected = false});
   }
 
   function objectSelected(objectID) {
     removeOverlap()
 
-    console.log("selected", model.globalState.selectedObject)
     if (model.globalState.selectedObject != objectID) {
       if (model.globalState.selectedObject != null) {
         processObjectDeselected(model.globalState.selectedObject)
@@ -916,74 +999,58 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
 
   function addHighlightLabels(objectID) {
-    var mappedFrags = getObjectData(objectID).fragments.filter(f => fragmentBoundingBox(f) != null)
-    var fragmentPolys = mappedFrags.map(f => {
-      var hull = fragmentBoundingBox(f)
-      return {regions: [hull], inverted: false}
-    })
-
-    var unionedPolys = fragmentPolys.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), fragmentPolys[0])
-    var centers = fragmentPolys.map(p => {
-      return polylabel(p.regions, 1.0)
-    })
-
-    var labelsHead = pointsLabels.append("g")
-      .attr("id", `${objectID}HighlightLabels`)
+    if (!(getObjectState(objectID).visualizations.showLabel)) {
+      addObjectLabels(objectID)
+    }
+    d3.select(`#${objectID}Labels`)
+      .selectAll("text")
       .style("paint-order", "stroke")
       .style("stroke", "black")
       .style("stroke-width", 8)
-      .attr("fill", "lightgreen")
-    
-    labelsHead
-        .selectAll("text")
-        .data(centers)
-        .join("text")
-        .attr("x", p => x(p[0])+10)
-        .attr("y", p => y(p[1])+5)
-        .style("font-size", "40px")
-        .text(getObjectData(objectID).name)
-        // .style("cursor", "pointer")
-        // .on("click", e => regionClicked(e, region))
+      .attr("fill", "lime")
 
-    labelsHead
-        .selectAll("circle")
-        .data(centers)
-        .join("circle")
-        .attr("cx", p => x(p[0]))
-        .attr("cy", p => y(p[1]))
-        .attr("stroke", "black")
-        .attr("r", 1)
-        // .style("cursor", "pointer")
-        // .on("click", e => regionClicked(e, region))
-
-
+    d3.select(`#${objectID}Dots`)
+      .selectAll("circle")
+      .attr("fill", "lime")
   }
 
   function removeHighlightLabels(objectID) {
-    console.log("Removing Highlight Labels", objectID, pointsLabels.select(`#${objectID}HighlightLabels`))
-    pointsLabels.select(`#${objectID}HighlightLabels`).remove()
+    if (!(getObjectState(objectID).visualizations.showLabel)) {
+      removeObjectLabels(objectID)
+    } else {
+      d3.select(`#${objectID}Labels`)
+      .style("paint-order", "")
+      .style("stroke", "")
+      .style("stroke-width", 8)
+      .attr("fill", "black")
+    }
+
+    d3.select(`#${objectID}Dots`)
+      .selectAll("circle")
+      .attr("fill", "white")
   }
 
   function highlightObject(objectID) {
     var object = getObjectData(objectID)
     var polys = object.fragments.map(fragmentBoundingBox).filter(p => p != null).map(p => { return {regions: [p], inverted: false}})
-
    // theres a faster way to do this on the github but this is easier to read and doesnt have much performance impact anyway 
-    var polygon = polys.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polys[0])
-    var colors = getColorData(object.type)
-    selectedObject.append("g")
-        .attr("id", objectID + "shading")
-        .attr("stroke", colors.border)
-        .attr("fill", colors.shaded)
-        .attr("fill-opacity", 1)
-        .selectAll("polygon")
-        .data(polygon.regions)
-        .join('polygon')
-          .attr("points", p => {
-            return p.map(d => {
-                return [x(d[0]), y(d[1])].join(',')
-            }).join(' ')
-          })
+    if (polys.length != 0) {
+      var polygon = polys.reduce((previousPoly, currentPoly) => PolyBool.union(previousPoly, currentPoly), polys[0])
+      var colors = getColorData(object.type)
+      selectedObject.append("g")
+          .attr("id", objectID + "shading")
+          .attr("stroke", colors.border)
+          .attr("fill", colors.shaded)
+          .attr("fill-opacity", 1)
+          .selectAll("polygon")
+          .data(polygon.regions)
+          .join('polygon')
+            .attr("points", p => {
+              return p.map(d => {
+                  return [x(d[0]), y(d[1])].join(',')
+              }).join(' ')
+            })
+    }
     removeHighlightLabels(objectID) // If its come from a multi selection, there will already be a highlight label, and if not there will be none 
     addHighlightLabels(objectID)
   }
@@ -1012,7 +1079,7 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     return (`l${c[0]},${c[1]}`).split('').filter(char => /[a-zA-Z0-9]/.test(char)).join('')
   }
 
-  function addObjectLabels(objectID) {
+  function findObjectLocations(objectID) {
     var mappedFrags = getObjectData(objectID).fragments.filter(f => fragmentBoundingBox(f) != null)
     var fragmentPolys = mappedFrags.map(f => {
       var hull = fragmentBoundingBox(f)
@@ -1025,6 +1092,33 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       return polylabel(p.regions, 1.0)
     })
 
+    return centers
+  }
+
+  function addObjectDots(objectID) {
+    var centers = findObjectLocations(objectID)
+
+    var dotsHead = pointsLabels.append("g")
+      .attr("id", `${objectID}Dots`)
+
+    dotsHead
+      .selectAll("circle")
+      .data(centers)
+      .join("circle")
+      .attr("cx", p => x(p[0]))
+      .attr("cy", p => y(p[1]))
+      .attr("stroke", "black")
+      .attr("fill", "white")
+      .attr("r", 5)
+  }
+
+  function removeObjectDots(objectID) {
+    d3.select(`#${objectID}Dots`).remove()
+  }
+
+  function addObjectLabels(objectID) {
+    var centers = findObjectLocations(objectID)
+
     var labelsHead = pointsLabels.append("g")
       .attr("id", `${objectID}Labels`)
     
@@ -1032,24 +1126,14 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
         .selectAll("text")
         .data(centers)
         .join("text")
+        .style("paint-order", "stroke")
+        .style("stroke", "black")
+        .style("stroke-width", 8)
+        .attr("fill", "white")
         .attr("x", p => x(p[0])+10)
         .attr("y", p => y(p[1])+5)
         .style("font-size", "40px")
         .text(getObjectData(objectID).name)
-        // .style("cursor", "pointer")
-        // .on("click", e => regionClicked(e, region))
-
-    labelsHead
-        .selectAll("circle")
-        .data(centers)
-        .join("circle")
-        .attr("cx", p => x(p[0]))
-        .attr("cy", p => y(p[1]))
-        .attr("stroke", "black")
-        .attr("r", 1)
-        // .style("cursor", "pointer")
-        // .on("click", e => regionClicked(e, region))
-
   }
 
   function removeObjectLabels(objectID) {
@@ -1207,9 +1291,27 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
   function toggleMouseCoordinates(visible) {
     const coordinates = d3.select('#coordinates')
-    if (visible && model.globalState.mouseInsideMap) {
+    if (visible && model.globalState.mouseInsideMap && model.globalState.showMouseCoordinates) {
       coordinates.style('color', 'black')
     } else {
       coordinates.style('color', 'transparent')
+    }
+  }
+
+  function toggleSpecificGrid(visible) {
+    const grid = d3.select('#specificGrid')
+    if (visible && model.globalState.mouseInsideMap && model.globalState.showSpecificGrid) {
+      grid.style('color', 'black')
+    } else {
+      grid.style('color', 'transparent')
+    }
+  }
+
+  function toggleKey(visible) {
+    const key = d3.select("#colorKey")
+    if (visible) {
+      key.property("hidden", false)
+    } else {
+      key.property("hidden", true)
     }
   }
