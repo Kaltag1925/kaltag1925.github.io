@@ -3,30 +3,12 @@ function readWreckDataFile() {
     d3.json("uluburun.json").then(data => {
         sourceData = loadSourceData(data);
         loadModel(sourceData)
-        startMap()
+        //loadSaveStateModel()
         loadUI()
+        startMap()
         console.log("Finish")
     })
 }
-
-// function readObjects(rawData) {
-//     objects = new Array()
-//     rawData.forEach(o => {
-//         var fragments = o.fragments.map(f => f.id)
-//         var object = {name: o.id,
-//             type: o.objType,
-//             desc: o.desc,
-//             locationNotes: o.locationNotes,
-//             locs: o.locs,
-//             origLoc: o.origLoc,
-//             fragments: fragments,
-//             }
-
-//         objects.push(object)
-//     })
-
-//     return objects
-// }
 
 function createFragment(fragID, fragLoc) {
     return {name: fragID, location: fragLoc}
@@ -34,7 +16,7 @@ function createFragment(fragID, fragLoc) {
 
 function loadSourceData(rawData) {
     console.log("load")
-    var sourceData = {categoryData: new Map(), objectData: new Map(), fragmentData: new Map()}
+    var sourceData = {categoryData: new Map(), objectData: new Map(), fragmentData: new Map(), categoryColorData: new Map()}
 
     function getPieces(object) {
         if (object.fragments.length == 0) {
@@ -80,15 +62,17 @@ function loadSourceData(rawData) {
         var id = objectToID(o.id)
 
         var object = {name: o.id,
-            type: o.objType.trim(),
+            typeName: o.objType.trim(),
+            type: trimID(o.objType.trim()),
             desc: o.desc,
             locationNotes: o.locationNotes,
             locs: parseLocs(o.locs, o.id),
             origLoc: o.origLoc,
             fragmentsOrginal: o.fragments.map(f => pieceToID(f.id, o.id)),
-            fragments: peices.map(a => a[0]),
-            categories: parseCategories(o) //used to display fragments + whole object if its one peice
-            }
+            fragments: peices.map(a => a[0]),  //used to display fragments + whole object if its one peice
+            categories: parseCategories(o)
+
+        }
 
         sourceData.objectData.set(id, object)
         
@@ -101,16 +85,116 @@ function loadSourceData(rawData) {
         return [letterParsed.groups.letter, o.objType.trim()]
     }
 
+    // https://html-color.codes/
+    var colorData = new Map()
+    colorData.set("lamp", {
+        shaded: "Red",
+        border: "DarkRed",
+        // selected: "Red"
+    })
+    colorData.set("br bowl", {
+        shaded: "Green",
+        border: "DarkGreen",
+        // selected: "Lime"
+    })
+    colorData.set("br juglet", {
+        shaded: "Yellow",
+        border: "#999900",
+        // selected: "Yellow"
+    })
+    colorData.set("ws bowl", {
+        shaded: "LightBlue",
+        border: "DarkBlue",
+        // selected: "Blue"
+    })
+    colorData.set("bucchero jug", {
+        shaded: "Plum",
+        border: "Indigo",
+        // selected: "Purple"
+    })
+    colorData.set("lug-handled bowl", {
+        shaded: "LightSalmon",
+        border: "#fb4f14",
+        // selected: "Orange"
+    })
+    colorData.set("wall bracket", {
+        shaded: "Cyan",
+        border: "DarkCyan",
+        // selected: "Cyan"
+    })
+    colorData.set("whsh juglet", {
+        shaded: "Pink",
+        border: "PaleVioletRed",
+        // selected: "DeepPink"
+    })
+    colorData.set("spindle bottle", {
+        shaded: "bisque",
+        border: "burlywood"
+    })
+    colorData.set("jug (painted)", {
+        shaded: "darkgoldenrod",
+        border: "chocolate"
+    })
+    colorData.set("jug (trefoil)", {
+        shaded: "darkseagreen",
+        border: "darkslategrey"
+    })
+    colorData.set("krater", {
+        shaded: "deeppink",
+        border: "darkred"
+    })
+    colorData.set("pithos", {
+        shaded: "greenyellow",
+        border: "green"
+    })
+    colorData.set("pithos #8", {
+        shaded: "greenyellow",
+        border: "green"
+    })
+    colorData.set("pithos #9", {
+        shaded: "greenyellow",
+        border: "green"
+    })
+    colorData.set("mixed", {
+        shaded: "DimGrey",
+        border: "Grey",
+        // selected: "DimGrey"
+    })
+
     //load categories
-    sourceData.objectData.forEach(function(value, key) {
-        var type = value.type
+    sourceData.objectData.forEach(function(object, objectID) {
+        object.categories.forEach(c => {
+            var id = trimID(c)
+            if (!(sourceData.categoryData.has(id))) {
+                sourceData.categoryData.set(id, {
+                    name: c,
+                    objects: []
+                })
+            }
+            sourceData.categoryData.get(id).objects.push(objectID)
+        })
+    })
 
-        if (sourceData.categoryData.has(type)) {
-            sourceData.categoryData.get(type).objects.push(key)
-        } else {
-            sourceData.categoryData.set(type, {name: type, objects: [key]})
+    categoryColorData = new Map()
+    sourceData.categoryData.forEach((category, id) => {
+        if (colorData.get(category.name.toLowerCase())) {
+            categoryColorData.set(id, {
+                colors: colorData.get(category.name.toLowerCase()),
+                name: category.name,
+                categoryID: id
+            })
         }
+    })
+    categoryColorData.set("mixed", {
+        colors: colorData.get("mixed"),
+        name: "Mixed",
+        categoryID: undefined
+    })
 
+    sourceData.categoryColorData = categoryColorData
+
+    sourceData.objectData.forEach(object => {
+        object.categories = object.categories.map(c => trimID(c))
     })
 
     return sourceData
@@ -174,4 +258,98 @@ function getObjectIDFragments(id) {
 
 function getFragmentData(id) {
     return sourceData.fragmentData.get(id)
+}
+
+function getColorData(type) {
+    return sourceData.categoryColorData.get(type).colors
+}
+
+function sortObjectsByName(a, b) {
+    var regex = /(?<type>[A-Z]+)\s*(?<number>\d+)\+*(?<number2>\d*)/;
+    var aParsed = a.match(regex);
+    var bParsed = b.match(regex);
+
+    if (aParsed == null) {
+    console.log("Could not parse name of " + a + " when sorting by name.");
+    return 0;
+    }
+
+    if (bParsed == null) {
+    console.log("Could not parse name of " + a + " when sorting by name.");
+    return 0;
+    }
+
+    var compareType = aParsed.groups.type.localeCompare(bParsed.groups.type)
+    if (compareType == 0) {
+    var aNumber = parseInt(aParsed.groups.number);
+    var bNumber = parseInt(bParsed.groups.number);
+    
+    if (aNumber == bNumber) {
+        var aNumber2 = parseInt(aParsed.groups.number2);
+        var bNumber2 = parseInt(bParsed.groups.number2);
+
+        if (aNumber2 == NaN && bNumber2 != NaN) {
+        return -1;
+        };
+
+        if (bNumber2 == NaN && aNumber2 != NaN) {
+        return 1;
+        };
+
+        if (aNumber2 == NaN && bNumber2 == NaN) {
+        return 0;
+        }
+        
+        return aNumber2 - bNumber2;
+    } else {
+        return aNumber - bNumber;
+    };
+    } else {
+    return compareType;
+    };
+}
+
+function sortObjectsByProgramID(a, b) {
+    var regex = /(?<type>[A-Z]+)(?<number>\d+)\+*(?<number2>\d*)/;
+    var aParsed = a.match(regex);
+    var bParsed = b.match(regex);
+
+    if (aParsed == null) {
+    console.log("Could not parse name of " + a + " when sorting by name.");
+    return 0;
+    }
+
+    if (bParsed == null) {
+    console.log("Could not parse name of " + a + " when sorting by name.");
+    return 0;
+    }
+
+    var compareType = aParsed.groups.type.localeCompare(bParsed.groups.type)
+    if (compareType == 0) {
+    var aNumber = parseInt(aParsed.groups.number);
+    var bNumber = parseInt(bParsed.groups.number);
+    
+    if (aNumber == bNumber) {
+        var aNumber2 = parseInt(aParsed.groups.number2);
+        var bNumber2 = parseInt(bParsed.groups.number2);
+
+        if (aNumber2 == NaN && bNumber2 != NaN) {
+        return -1;
+        };
+
+        if (bNumber2 == NaN && aNumber2 != NaN) {
+        return 1;
+        };
+
+        if (aNumber2 == NaN && bNumber2 == NaN) {
+        return 0;
+        }
+        
+        return aNumber2 - bNumber2;
+    } else {
+        return aNumber - bNumber;
+    };
+    } else {
+    return compareType;
+    };
 }

@@ -8,7 +8,6 @@
 	<script src="./deps/d3.v6.min.js"></script>
   <script src="./deps/polylabel.2"></script>
   <script src="./deps/polybool.min.js" charset="utf-8"></script>
-  <script src="./deps/leaflet.js"></script>
 	<script type='text/javascript' > 
     /*
 
@@ -21,15 +20,12 @@
       https://d3js.org/d3.v6.min.js
       https://github.com/mapbox/polylabel
       https://github.com/velipso/polybooljs
-      https://leafletjs.com/
     */
 
 
     var sourceData
 
     var convexHull;
-
-    var shadeObjectRegion;
 
     var model;
 
@@ -49,25 +45,29 @@
 
   <script src="./js/loadData.js"></script>
   <script src="./js/model.js"></script>
-
+  <script src="./js/right.js"></script>
   <script src="bundle.js"></script>
   <script src="./js/map.js"></script>
 </head>
 <body>
 
-<div class="box">
+<div class="box" id="main">
   <div id="menuBar" class="row header"></div>
   <div id="middle" class="row middle">
     <div id="left" class="row sidepanel">
       <div id="navigationToolbar"></div>
+      <div style="height: 36px; padding: 3px 2px 3px 2px; border-bottom: 1px solid silver;">
+        <input id="search" style="width: 60%;" class="w2ui-input" placeholder="Search nodes..."></input>
+        <button id="searchButton" type="button" style="width: 30%; cursor:pointer">Search</button>
+      </div>
       <div id="navigation" style="min-height: 70%;"></div>
-      <div id="mapOptions" class="" style="min-height:300px"></div>
+      <div id="mapOptions" class="" style="display:block; min-height:300px"></div>
     </div>
-    <div id="map" class="row map"></div>
-    <div id="right" class="row sidepanel" style="overflow:scroll"></div>
+    <div id="map" class="row map" style="position:relative"></div>
+    <div id="right" class="row sidepanel" style="overflow:scroll">No Object Selected</div>
   </div>
   <div class="row footer">
-    <p><b>footer</b> (fixed height)</p>
+    <p><b>Contact</b> patrickdavisbray@gmail.com | <b>Github</b> <a href="https://github.com/Kaltag1925/kaltag1925.github.io">https://github.com/Kaltag1925/kaltag1925.github.io</a></p>
   </div>
 </div>
 
@@ -152,7 +152,7 @@ html, body, #fullheight {
 }
 
 .box .row.footer {
-  flex: 0 1 20px;
+  flex: 0 1 0%;
 }
 
 .w2ui-sidebar[name=navigation] .w2ui-node-handle > div{
@@ -303,19 +303,45 @@ html, body, #fullheight {
     d3.select("#menuBar").html("")
     d3.select("#map").html("")
     d3.select("#navigationToolbar").html("")
+    d3.select("#navigationSearch").html("")
     d3.select("#navigation").html("")
     d3.select("#mapOptions").html("")
-    d3.select("#right").html("")
+    d3.select("#right").html("No Object Selected")
 
     w2ui["navigation"].destroy()
 
     loadNewModel(sourceData)
+    startMap()
+    loadUI()
+  }
+
+  function reload() {
+    d3.select("#menuBar").html("")
+    d3.select("#map").html("")
+    d3.select("#navigationToolbar").html("")
+    d3.select("#navigationSearch").html("")
+    d3.select("#navigation").html("")
+    d3.select("#mapOptions").html("")
+    d3.select("#right").html("No Object Selected")
+
+    w2ui["navigation"].destroy()
+
+    console.log(model)
+    console.log(model.objectStates)
     loadUI()
     startMap()
   }
 
   $(document).ready(function () {
     readWreckDataFile()
+    
+    d3.select("#main").on("click", e => {
+      console.log(e.path)
+      console.log(e.path.includes(el => el.id == "overlap"))
+      if (model.globalState.multiRegionSelected && !e.path.includes(el => el.id == "overlap")) {
+        removeOverlap()
+      }
+    })
   })
 
 function loadUI() {
@@ -339,14 +365,53 @@ function loadMenuBar() {
     })
 
   menuBar.append("button")
-    .html("Export (Does Nothing)")
+    .html("Export")
+    .on("click", saveExport)
+
+  function saveExport() {
+    var exportText = exportModel()
+    navigator.clipboard.writeText(exportText).then(() => {
+      alert("Copied Code to Clipboard");
+    })
+    .catch(() => {
+      alert("something went wrong");
+    });
+  }
 
   menuBar.append("button")
-    .html("Load (Does Nothing)")
-  
+    .html("Import")
+    .on("click", loadImport)
+
+  function loadImport() {
+    var importText = prompt("Paste Code", "code here")
+    if (importText != null && importText != "") {
+      importModel(importText)
+    }
+  }
+
   menuBar.append("button")
     .html("Export Screenshot (Does Nothing)")
 
+  //TODO: CLEANUP: Span?
+
+  var saveStates = [saveStateModel.save1, saveStateModel.save2, saveStateModel.save3]
+  
+  //var saveButtons = menuBar.append("div")
+  
+/*
+  menuBar.append("button")
+    .html(saveStateModel.save1.name)
+    .on("click", e => loadSave(saveStateModel.save1))
+
+  menuBar.append("button")
+    .html(saveStateModel.save2.name)
+    .on("click", e => loadSave(saveStateModel.save2))
+
+  menuBar.append("button")
+    .html(saveStateModel.save3.name)
+    .on("click", e => loadSave(saveStateModel.save3))* /
+
+    /*
   var gridMeasureText = ""
   if (model.globalState.averageCellSize) {
     gridMeasureText =  "Switch Grid To Image First Cell Size"
@@ -368,21 +433,13 @@ function loadMenuBar() {
       startMap() // need to save zoom/pan
     })
   
-  function saveExport() {
-      
-    }
+    */
 }
 
 function loadNavigation() {
   $("#navigation").w2sidebar({
     name: 'navigation',
     img: null,
-    topHTML: `
-            <div style="height: 36px; padding: 3px 2px; border-bottom: 1px solid silver">
-                <input id="search" style="width: 100%" class="w2ui-input" placeholder="Search nodes..."
-                    onchange="search(this)">
-            </div>
-        `,
     handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
@@ -426,8 +483,6 @@ function loadNavigation() {
       })
     }
   });
-
-
   var nodes = Array.from(sourceData.objectData, o => objectToNode(o));
   w2ui['navigation'].add(nodes);
 
@@ -439,93 +494,221 @@ function loadNavigation() {
       return mainNode;
   }
 
-  /*
-  function fragmentToNode(fragmentID, sourceData) {
-      return { id: fragmentID, text: sourceData.fragmentData.get(fragmentID).name, onClick: function(event) {
-          // find svg node based on position ID
-          // make it beeeg
-      // d3.select("#" + "point" + fragment.x + "-" + fragment.y + "").attr("r", 100)
-      }}
-  }*/
+  d3.select("#search").on("keyup", function(event) { 
+      if(event.code == "Enter") {
+        search(event.target)
+      };
+    })
+
+  d3.select("#searchButton").on("click", function(event) { 
+      search(document.getElementById("search"))
+    })
+
+}
+
+function search(searchBar) {
+  var value = searchBar.value
+  let sb = w2ui.navigation
+  sb.last_search = value
+
+  var regex = new RegExp(value, "i")
+  var count = 0;
+  sb.nodes.forEach(n => {
+    var object = getObjectData(n.id)
+    var filtered = !object.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))
+    var notSearched = object.name.search(regex) == -1
+    if (filtered || notSearched) {
+      sb.hide(n.id)
+    } else {
+      sb.show(n.id)
+      count += 1
+    }
+  })
+
+  //sb.refresh()
+  //let count = sb.search(value)
+  sb.expandAll()
+  query(sb.box).find('#empty-search').remove()
+  if (count == 0) {
+      query(sb.box)
+          .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
+  }
+
+}
+
+function objectVisible(objectID, isVisible) {
+  var toggle = document.getElementById(`node_${objectID}`).querySelector("div[name='toggle']")
+  if (isVisible) {
+    query(toggle).addClass("toggle")
+    if (model.globalState.selectedObject != null) {
+      console.log("removing")
+      removeObjectInfoPanel(model.globalState.selectedObject)
+      unhighlightObject(model.globalState.selectedObject) //TODO: CLEANUP Does this need to call deselect object?
+    }
+
+    loadObjectInfoPanel(objectID)
+    updateModel(function() {model.globalState.selectedObject = objectID})
+  } else {
+    query(toggle).removeClass("toggle")
+    console.log(model.globalState.selectedObject, objectID)
+    if (model.globalState.selectedObject == objectID) {
+      removeObjectInfoPanel(objectID)
+      updateModel(function() {model.globalState.selectedObject = null})
+      unhighlightObject(objectID)
+    }
+  }
+  updateModel(function() {getObjectState(objectID).visible = isVisible});
+  sourceData.objectData.get(objectID).fragments.forEach(fID => updateModel(function() {getFragmentState(fID).visible = isVisible}))
+
+  processObject(objectID, isVisible)
+  
+  if (isVisible) {
+    highlightObject(objectID)
+  }
 }
 
 function loadMapOptions() {
   var mapOptions = d3.select("#mapOptions")
 
-mapOptions.append("input")
-  .attr("id", "mapToggle")
-  .attr("type", "checkbox")
-  .property("checked", () => {return model.globalState.showMap})
-  .on("click", (e) => {
-    if (d3.select(e.target).property("checked")) {
-      updateModel(function() {model.globalState.showMap = true})
-      toggleMap(true)
-    } else {
-      updateModel(function() {model.globalState.showMap = false})
-      toggleMap(false)
-    }
-  })
+  var mapToggle = mapOptions.append("div")
 
-mapOptions.append("label")
-  .attr("for", "mapToggle")
-  .html("Toggle Map")
+  mapToggle.append("input")
+    .attr("id", "mapToggle")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.showMap})
+    .on("click", (e) => {
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.showMap = true})
+        toggleMap(true)
+      } else {
+        updateModel(function() {model.globalState.showMap = false})
+        toggleMap(false)
+      }
+    })
 
+  mapToggle.append("label")
+    .attr("for", "mapToggle")
+    .html("Toggle Map")
 
-mapOptions.append("input")
-  .attr("id", "pithoiToggle")
-  .attr("type", "checkbox")
-  .property("checked", () => {return model.globalState.showPithoi})
-  .on("click", (e) => {
-    if (d3.select(e.target).property("checked")) {
-      updateModel(function() {model.globalState.showPithoi = true})
-      togglePithoi(true)
-    } else {
-      updateModel(function() {model.globalState.showPithoi = false})
-      togglePithoi(false)
-    }
-  })
+/*
+  mapOptions.append("input")
+    .attr("id", "pithoiToggle")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.showPithoi})
+    .on("click", (e) => {
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.showPithoi = true})
+        togglePithoi(true)
+      } else {
+        updateModel(function() {model.globalState.showPithoi = false})
+        togglePithoi(false)
+      }
+    })
 
-mapOptions.append("label")
-  .attr("for", "pithoiToggle")
-  .html("Toggle Pithoi")
+  mapOptions.append("label")
+    .attr("for", "pithoiToggle")
+    .html("Toggle Pithoi")*/
 
+  
+  var rocksToggle = mapOptions.append("div")
 
-mapOptions.append("input")
-  .attr("id", "rocksToggle")
-  .attr("type", "checkbox")
-  .property("checked", () => {return model.globalState.showRocks})
-  .on("click", (e) => {
-    if (d3.select(e.target).property("checked")) {
-      updateModel(function() {model.globalState.showRocks = true})
-      toggleRocks(true)
-    } else {
-      updateModel(function() {model.globalState.showRocks = false})
-      toggleRocks(false)
-    }
-  })
+  rocksToggle.append("input")
+    .attr("id", "rocksToggle")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.showRocks})
+    .on("click", (e) => {
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.showRocks = true})
+        toggleRocks(true)
+      } else {
+        updateModel(function() {model.globalState.showRocks = false})
+        toggleRocks(false)
+      }
+    })
 
-mapOptions.append("label")
-  .attr("for", "rocksToggle")
-  .html("Toggle Rocks")
+  rocksToggle.append("label")
+    .attr("for", "rocksToggle")
+    .html("Toggle Rocks")
 
+  var mouseCoordinatesToggle = mapOptions.append("div")
 
-mapOptions.append("input")
-  .attr("id", "mouseCoordinatesToggle")
-  .attr("type", "checkbox")
-  .property("checked", () => {return model.globalState.showMouseCoordinates})
-  .on("click", (e) => {
-    if (d3.select(e.target).property("checked")) {
-      updateModel(function() {model.globalState.showMouseCoordinates = true})
-      toggleMouseCoordinates(true)
-    } else {
-      updateModel(function() {model.globalState.showMouseCoordinates = false})
-      toggleMouseCoordinates(false)
-    }
-  })
+  mouseCoordinatesToggle.append("input")
+    .attr("id", "mouseCoordinatesToggle")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.showMouseCoordinates})
+    .on("click", (e) => {
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.showMouseCoordinates = true})
+        toggleMouseCoordinates(true)
+      } else {
+        updateModel(function() {model.globalState.showMouseCoordinates = false})
+        toggleMouseCoordinates(false)
+      }
+    })
+  
+  mouseCoordinatesToggle.append("label")
+    .attr("for", "mouseCoordinatesToggle")
+    .html("Toggle Mouse Coordinantes")
 
-mapOptions.append("label")
-  .attr("for", "mouseCoordinatesToggle")
-  .html("Toggle Mouse Coordinantes")
+  
+  var specificGridToggle = mapOptions.append("div")
+  
+  specificGridToggle.append("input")
+    .attr("id", "specificGridToggle")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.showSpecificGrid})
+    .on("click", (e) => {
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.showSpecificGrid = true})
+        toggleSpecificGrid(true)
+      } else {
+        updateModel(function() {model.globalState.showSpecificGrid = false})
+        toggleSpecificGrid(false)
+      }
+    })
+
+    specificGridToggle.append("label")
+    .attr("for", "specificGridToggle")
+    .html("Toggle Specfic Grid")
+
+  var clickMethod = mapOptions.append("div")
+
+  clickMethod.append("input")
+    .attr("id", "clickMethod")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.clickMethod})
+    .on("click", (e) => {
+      removeOverlap()
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.clickMethod = true})
+      } else {
+        updateModel(function() {model.globalState.clickMethod = false})
+      }
+    })
+
+  clickMethod.append("label")
+    .attr("for", "clickMethod")
+    .html("Click On Square? IDK what to call this")
+
+  var hideKey = mapOptions.append("div")
+
+  hideKey.append("input")
+    .attr("id", "hideKey")
+    .attr("type", "checkbox")
+    .property("checked", () => {return model.globalState.clickMethod})
+    .on("click", (e) => {
+      if (d3.select(e.target).property("checked")) {
+        updateModel(function() {model.globalState.hideKey = false})
+        toggleKey(true)
+      } else {
+        updateModel(function() {model.globalState.hideKey = true})
+        toggleKey(false)
+      }
+    })
+
+  hideKey.append("label")
+    .attr("for", "hideKey")
+    .html("Display Key")
 }
 
 function loadNavigationToolbar() {
@@ -535,9 +718,10 @@ function loadNavigationToolbar() {
     .html("Select All")
     .on("click", selectAll)
 
+    /*
   toolbar.append("button")
     .html("Deselect All")
-    .on("click", deselectAll)
+    .on("click", deselectAll)*/
 
   toolbar.append("label")
     .attr("for", "sortBy")
@@ -609,50 +793,7 @@ function loadNavigationToolbar() {
         return getObjectData(objectID).name
       })
 
-    var sorted = nodes.sort((a, b) => {
-      var regex = /(?<type>[A-Z]+)\s(?<number>\d+)\+*(?<number2>\d*)/;
-      var aParsed = a.match(regex);
-      var bParsed = b.match(regex);
-
-      if (aParsed == null) {
-        console.log("Could not parse name of " + a + " when sorting by name.");
-        return 0;
-      }
-
-      if (bParsed == null) {
-        console.log("Could not parse name of " + a + " when sorting by name.");
-        return 0;
-      }
-
-      var compareType = aParsed.groups.type.localeCompare(bParsed.groups.type)
-      if (compareType == 0) {
-        var aNumber = parseInt(aParsed.groups.number);
-        var bNumber = parseInt(bParsed.groups.number);
-        
-        if (aNumber == bNumber) {
-          var aNumber2 = parseInt(aParsed.groups.number2);
-          var bNumber2 = parseInt(bParsed.groups.number2);
-
-          if (aNumber2 == NaN && bNumber2 != NaN) {
-            return -1;
-          };
-
-          if (bNumber2 == NaN && aNumber2 != NaN) {
-            return 1;
-          };
-
-          if (aNumber2 == NaN && bNumber2 == NaN) {
-            return 0;
-          }
-          
-          return aNumber2 - bNumber2;
-        } else {
-          return aNumber - bNumber;
-        };
-      } else {
-        return compareType;
-      };
-    });
+    var sorted = nodes.sort(sortObjectsByName)
   }
 
   function sortSpreadsheet() {
@@ -702,8 +843,9 @@ function loadNavigationToolbar() {
     .html(d => d.type)
   // #endRegion
 
-  var categories = new Set()
-  Array.from(sourceData.objectData.values()).forEach(o => o.categories.forEach(c => categories.add(c)))
+  var categories = Array.from(sourceData.categoryData.keys())
+
+  console.log(categories)
 
   function filter(c, hide) {
     w2ui.navigation.nodes.forEach(n => {
@@ -711,12 +853,10 @@ function loadNavigationToolbar() {
         w2ui.navigation.hide(n.id)
       } else {
         if (n.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))) {
-          console.log(n.id)
           w2ui.navigation.show(n.id)
         }
       };
     });
-    //w2ui.navigation.refresh()
   }
 
   var filterNode = toolbar.append("div")
@@ -726,16 +866,16 @@ function loadNavigationToolbar() {
     .attr("class", "dropbtn")
     .html("Filter");
 
-  filterNode.append("div")
+  var div = filterNode.append("div")
     .attr("class", "dropdown-content")
     
-    .selectAll("button")
+  div.selectAll("button")
     .data(categories)
     .enter()
     .append("button")
     .attr("class", "button-toggled")
     .attr("id", c => `${c}button`)
-    .html(c => c)
+    .html(c => sourceData.categoryData.get(c).name)
     .on("click", (e, c) => {
       var button = d3.select(e.target)
       var index = model.globalState.activeFilters.indexOf(c)
@@ -760,6 +900,31 @@ function loadNavigationToolbar() {
       }
     })
 
+    div.append("button")
+      .attr("id", "showAll")
+      .html("Show All")
+      .on("click", (e) => {
+        var filtered = model.globalState.activeFilters
+        updateModel(function() {model.globalState.activeFilters = []})
+        filtered.forEach(c => {
+          filter(c, false)
+          d3.select(`#${c}button`).attr("class", "button-toggled")
+        })
+      })
+
+    div.append("button")
+    .attr("id", "hideAll")
+    .html("Hide All")
+    .on("click", (e) => {
+      var filtered = Array.from(categories)
+      updateModel(function() {model.globalState.activeFilters = filtered})
+      filtered.forEach(c => {
+        filter(c, true)
+        d3.select(`#${c}button`).attr("class", "button")
+      })
+    })
+
+
     /*
   model.globalState.activeFilters.forEach(f => {
     var i = filters.findIndex(e => e.type == f)
@@ -769,36 +934,6 @@ function loadNavigationToolbar() {
       console.log("No filter found for " + f)
     }
   })*/
-}
-
-function search(searchBar) { // TODO Make it keep value?
-  var value = searchBar.value
-  //d3.select(searchBar).html(value)
-  console.log("searchd")
-  let sb = w2ui.navigation
-  sb.last_search = value
-  var regex = new RegExp(value, "i")
-  var count = 0;
-  sb.nodes.forEach(n => {
-    var object = getObjectData(n.id)
-    var filtered = !object.categories.every(objCat => !model.globalState.activeFilters.includes(objCat))
-    var notSearched = object.name.search(regex) == -1
-    if (filtered || notSearched) {
-      console.log("hide")
-      sb.hide(n.id)
-    } else {
-      sb.show(n.id)
-      count += 1
-    }
-  })
-  //sb.refresh()
-  //let count = sb.search(value)
-  sb.expandAll()
-  query(sb.box).find('#empty-search').remove()
-  if (count == 0) {
-      query(sb.box)
-          .append('<div id="empty-search" style="font-size: 13px; color: #666; z-index: 1400; top: 45%; left: 50%; transform: translateX(-50%); width: 100%!important; text-align: center">No nodes found</div>')
-  }
 }
 
 function selectAll() {
@@ -817,250 +952,6 @@ function deselectAll() {
   })
 }
 
-</script>
-
-<script type="text/javascript">
-  function objectVisible(objectID, isVisible) {
-    var toggle = document.getElementById(`node_${objectID}`).querySelector("div[name='toggle']")
-    if (isVisible) {
-      query(toggle).addClass("toggle")
-    } else {
-      query(toggle).removeClass("toggle")
-      var objectState = getObjectState(objectID)
-      if (objectState.selected) {
-        d3.select(`#${objectID}InfoCollapsible`).remove()
-        d3.select(`#${objectID}InfoDiv`).remove()
-        objectState.selected = false
-      }
-    }
-    updateModel(function() {model.objectStates.get(objectID).visible = isVisible});
-    sourceData.objectData.get(objectID).fragments.forEach(fID => updateModel(function() {model.fragmentStates.get(fID).visible = isVisible}))
-
-    /*
-    if (isVisible) {
-      loadObjectInfoPanel(id)
-    } else {
-      document.getElementById(id + "infocollapisble").remove()
-      document.getElementById(id + "infodiv").remove()
-    }
-    */
-
-    processObject(objectID, isVisible)
-  }
-
-  function loadObjectInfoPanel(objectID) {
-    object = sourceData.objectData.get(objectID)
-
-    /*
-    $().w2form({
-      name: objectID + 'visualizations',
-      fields: [
-        { field: 'linesToggle', type: 'toggle',
-            html: {
-                label: 'Lines'
-            },
-            onChange(newValue) {
-              var objectState = model.objectStates.get(objectID)
-              if (objectState.visualizations.lines != newValue) {
-                if (newValue) {
-                  connectRegion(objectID) 
-                } else {
-                  removeLines(objectID)
-                }
-              }
-              objectState.visualizations.lines = newValue
-            }
-        },
-        { field: 'shadeToggle', type: 'toggle',
-            html: {
-                label: 'Shade'
-            },
-            onChange(newValue) {
-              var objectState = model.objectStates.get(objectID)
-              if (objectState.visualizations.shaded != newValue) {
-                if (newValue) {
-                  shadeObjectRegion(objectID)
-                } else {
-                  removeShading(objectID)
-                }
-              }
-              objectState.visualizations.shaded = newValue
-            }
-        }
-      ],
-      onChange(event) {
-        var field = this.fields.find(f => f.field == event.target)
-        field.onChange(event.detail.value.current)
-      },
-      loadObject() {
-        objVisualizations = model.objectStates.get(objectID).visualizations
-        this.setValue('linesToggle', objVisualizations.lines)
-        this.setValue('shadeToggle', objVisualizations.shaded)
-      }
-    })*/
-
-    d3.select("#right")
-      .append("button")
-      .attr("class", "collapsible")
-      .attr("id", `${objectID}InfoCollapsible`)
-      .html(object.name)
-
-    var infoDiv = d3.select("#right")
-      .append("div")
-      .attr("class", "content")
-      .attr("id", `${objectID}InfoDiv`)
-    
-    infoDiv.append("button")
-      .html("Info")
-      .on("click", () => {
-        d3.select(`${objectID}InfoHead`).remove("*")
-        displayObjectInfo(object)
-      })
-
-      /*
-    infoDiv.append("button")
-      .html("Properties")
-      .on("click", displayObjectProperties())*/
-
-    infoDiv.append("div")
-      .attr("id", `${objectID}InfoHead`)
-
-    displayObjectInfo(objectID)
-
-
-    var collapsible = document.getElementById(objectID + "InfoCollapsible");
-
-    if (getObjectState(objectID).ui.infoExpanded) {
-      toggleInfo(objectID, getObjectState(objectID))
-    }
-
-    d3.select(`#${objectID}InfoCollapsible`)
-      .on("click", () => {toggleInfo(objectID, getObjectState(objectID))})
-}
-
-function toggleInfo(id, state) {
-  var collapsible = d3.select(`#${id}InfoCollapsible`)
-  
-  var toggled = collapsible.classed("active")
-  updateModel(function(){state.ui.infoExpanded = !toggled})
-  collapsible.classed("active", !toggled)
-  
-  var content = d3.select(`#${id}InfoDiv`)
-  if (!toggled) {
-    content.style("max-height", "fit-content")
-  } else {
-    content.style("max-height", null)// this should be a css class
-  }
-}
-
-  function displayObjectInfo(objectID) {
-    var object = getObjectData(objectID)
-    d3.select(`#${objectID}InfoHead`)
-      .html(`<img src='./imgs/pot1.jpg'><br>This is <b>${object.name}</b>.
-  
-      <br><br>
-
-      It is a piece of Cypriot pottery.</b>.<br>
-      It has <b>${object.fragments.length}</b> fragments.<br>
-
-      <br><br>
-
-      Type: ${object.type}<br>
-      Description: ${object.desc}<br>
-      Location Notes: ${object.locationNotes}<br>
-
-      Fragments:<br>`)
-      .append(displayObjectFragments(objectID))
-  }
-
-  function displayObjectFragments(objectID) {
-    var object = getObjectData(objectID)
-    var fragments = object.fragments
-
-    var divs = d3.select(`#${objectID}InfoHead`)
-      .selectAll("div")
-      .data(fragments)
-      .enter()
-      .append("div")
-
-
-    divs.append("button")
-      .attr("id", fID => `${fID}InfoCollapsible`)
-      .attr("class", "collapsible")
-      .html(fID => {
-        f = getFragmentData(fID)
-        return ` - ${f.name} @ ${f.origLoc}<br>`
-      })
-      .on("click", function(event,fID) {
-        toggleInfo(fID, getFragmentState(fID))
-      })
-
-    var infodiv = divs.append("div")
-      .attr("class", "content")
-      .attr("id", fID => `${fID}InfoDiv`)
-      .html(fID => {
-        var f = getFragmentData(fID)
-        
-        var importantText = ""
-        if (f.important) {
-          importantText =  "Important"
-        } else {
-          importantText = "Not Important"
-        }
-
-        var tentativeText = ""
-        if (f.tentative) {
-          tentativeText = "Tentative"
-        } else {
-          tentativeText = "Not Tentative"
-        }
-        return `
-        This fragment is:<br>
-        ${importantText}<br>
-        ${tentativeText}
-        `
-      })
-
-    infodiv.append("div")
-      .html("Fragment Color:")
-
-    var colorGrid = infodiv.append("div")
-      .attr("class", "color-grid")
-      
-    var colors = [
-      "red",
-      "blue",
-      "green",
-      "gold",
-      "purple",
-      "orange",
-      "grey"
-    ]
-    colorGrid.selectAll("button")
-      .data(colors)
-      .join("button")
-      .attr("id", (c, i, n) => d3.select(n[i].parentNode).datum() + c + "button")
-      .style("background-color", c => c)
-      .attr("class", "color-button")
-      .on("click", (e, c) => {
-        var button = e.target
-        var fragID = d3.select(button.parentNode).datum()
-        d3.select(`#${fragID}${getFragmentState(fragID).color}button`).attr("class", "color-button")
-        d3.select(button).attr("class", "color-button-toggled")
-        updateModel(function() {getFragmentState(fragID).color = c})
-
-        changeFragmentColor(fragID, c)
-      })
-    
-      divs.each((fID, i) => {
-          if (getFragmentState(fID).ui.infoExpanded) {
-            console.log()
-            toggleInfo(fID, getFragmentState(fID))
-          }
-
-          d3.select(`#${fID}${getFragmentState(fID).color}button`).attr("class", "color-button-toggled")
-        })
-  }
 </script>
 
 </body>

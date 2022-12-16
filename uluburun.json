@@ -60,7 +60,7 @@
       "id": "KW 139",
       "objType": "lamp",
       "desc": "",
-      "locationNotes": "",
+      "locationNotes": "J13 LL4",
       "locs": [
         "J13 LL4"
       ],
@@ -937,14 +937,12 @@
         {
           "id": "L 4909",
           "parentID": "KW 1949",
-          "origLoc": "GH17 upper",
+          "origLoc": "H16 LR & H17 UL",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H16 LR",
+            "H17 UL"
           ]
         },
         {
@@ -1000,10 +998,13 @@
         {
           "id": "L 361",
           "parentID": "KW 1950",
-          "origLoc": "TBD",
+          "origLoc": "MN12",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "M12",
+            "N12"
+          ]
         },
         {
           "id": "L 4246",
@@ -1038,14 +1039,11 @@
         {
           "id": "KW 2024",
           "parentID": "KW 2024",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 UL1",
           "important": true,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 UL1"
           ]
         },
         {
@@ -1086,12 +1084,9 @@
       "desc": "ridged",
       "locationNotes": "stacked with KW 2024, 2056, 2057",
       "locs": [
-        "G17 UL",
-        "G17 UR",
-        "H17 UL",
-        "H17 UR"
+        "H17 UL1"
       ],
-      "origLoc": "GH17 upper",
+      "origLoc": "H17 UL1",
       "fragments": []
     },
     {
@@ -1105,14 +1100,11 @@
         {
           "id": "KW 2056",
           "parentID": "KW 2056",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 UL1",
           "important": true,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 UL1"
           ]
         },
         {
@@ -1128,40 +1120,32 @@
         {
           "id": "L 5200",
           "parentID": "KW 2056",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 LR2",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 LR2"
           ]
         },
         {
           "id": "L 5073",
           "parentID": "KW 2056",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 UL1",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 UL1"
           ]
         },
         {
           "id": "L 4815",
           "parentID": "KW 2056",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 UR & H17 LR",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 UR",
+            "H17 LR"
           ]
         },
         {
@@ -1187,27 +1171,21 @@
         {
           "id": "KW 2057",
           "parentID": "KW 2057",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 UL1",
           "important": true,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 UL1"
           ]
         },
         {
           "id": "L 5096",
           "parentID": "KW 2057",
-          "origLoc": "GH17 upper",
+          "origLoc": "H17 UL1",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H17 UL1"
           ]
         }
       ]
@@ -1223,12 +1201,11 @@
         {
           "id": "KW 2704",
           "parentID": "KW 2704",
-          "origLoc": "N15 LR4 & L16 UR2",
+          "origLoc": "N16 UR2",
           "important": true,
           "tentative": false,
           "locs": [
-            "N15 LR4",
-            "L16 UR2"
+            "N16 UR2"
           ]
         },
         {
@@ -1244,10 +1221,17 @@
         {
           "id": "L 5044 ",
           "parentID": "KW 2704",
-          "origLoc": "TBD",
+          "origLoc": "NO14 lower & N15 upper",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "N14 LL",
+            "N14 LR",
+            "O14 LL",
+            "O14 LR",
+            "N15 UL",
+            "N15 UR"
+          ]
         }
       ]
     },
@@ -1257,9 +1241,9 @@
       "desc": "ridged",
       "locationNotes": "stacked with KW 2704",
       "locs": [
-        "N16"
+        "N16 UR2"
       ],
-      "origLoc": "N16",
+      "origLoc": "N16 UR2",
       "fragments": []
     },
     {
@@ -1283,14 +1267,12 @@
         {
           "id": "L 5057",
           "parentID": "KW 2869",
-          "origLoc": "GH17 upper",
+          "origLoc": "H16 LR & H17 UL",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H16 LR",
+            "H17 UL"
           ]
         }
       ]
@@ -1432,6 +1414,38 @@
             "L16 UL2",
             "L16 UR1"
           ]
+        },
+        {
+          "id": "L 171",
+          "parentID": "KW 5874",
+          "origLoc": "K12",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K12"
+          ]
+        },
+        {
+          "id": "L 1165",
+          "parentID": "KW 5874",
+          "origLoc": "K15 & L16",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K15",
+            "L16"
+          ]
+        },
+        {
+          "id": "L 1166",
+          "parentID": "KW 5874",
+          "origLoc": "K15 & L15",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K15",
+            "L15"
+          ]
         }
       ]
     },
@@ -1537,10 +1551,12 @@
         {
           "id": "L 4814",
           "parentID": "L 3443+3625",
-          "origLoc": "TBD",
+          "origLoc": "H17 UL3",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "H17 UL3"
+          ]
         },
         {
           "id": "L 3625",
@@ -1566,23 +1582,24 @@
         {
           "id": "L 4906+",
           "parentID": "L 4906+4909",
-          "origLoc": "GH17 upper",
+          "origLoc": "H16 LR & H17 UL",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17 UL",
-            "G17 UR",
-            "H17 UL",
-            "H17 UR"
+            "H16 LR",
+            "H17 UL"
           ]
         },
         {
           "id": "L 4909+",
           "parentID": "L 4906+4909",
-          "origLoc": "TBD",
+          "origLoc": "H16 LR & H17 UL",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "H16 LR",
+            "H17 UL"
+          ]
         },
         {
           "id": "L 6599",
@@ -1638,12 +1655,11 @@
         {
           "id": "L 4907",
           "parentID": "L 6059+",
-          "origLoc": "GH17",
+          "origLoc": "H17 UL3",
           "important": false,
           "tentative": false,
           "locs": [
-            "G17",
-            "H17"
+            "H17 UL3"
           ]
         },
         {
@@ -1672,18 +1688,24 @@
         {
           "id": "L 5058",
           "parentID": "L 6059+",
-          "origLoc": "TBD",
+          "origLoc": "H17 UL1",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "H17 UL1"
+          ]
         },
         {
           "id": "L5384",
           "parentID": "L 6059+",
-          "origLoc": "TBD",
+          "origLoc": "E23 & F23 & G23",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "E23",
+            "F23",
+            "G23"
+          ]
         },
         {
           "id": "L 7146",
@@ -1699,10 +1721,13 @@
         {
           "id": "L 4908",
           "parentID": "L 6059+",
-          "origLoc": "TBD",
+          "origLoc": "H16 LR & H17 UL",
           "important": false,
-          "tentative": false,
-          "locs": []
+          "tentative": true,
+          "locs": [
+            "H16 LR",
+            "H17 UL"
+          ]
         }
       ]
     },
@@ -2204,10 +2229,12 @@
         {
           "id": "L 11467",
           "parentID": "KW 5670",
-          "origLoc": "TBD",
+          "origLoc": "M16 UL",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "M16 UL"
+          ]
         }
       ]
     },
@@ -2235,10 +2262,23 @@
         {
           "id": "L 134",
           "parentID": "KW 5735",
-          "origLoc": "JK 15/16?",
+          "origLoc": "I10 & J10",
           "important": false,
           "tentative": true,
-          "locs": []
+          "locs": [
+            "I10",
+            "J10"
+          ]
+        },
+        {
+          "id": "L 148",
+          "parentID": "KW 5735",
+          "origLoc": "J12 UR4",
+          "important": false,
+          "tentative": true,
+          "locs": [
+            "J12 UR4"
+          ]
         }
       ]
     },
@@ -2753,12 +2793,11 @@
         {
           "id": "L 2393",
           "parentID": "KW 5881",
-          "origLoc": "M17 left",
+          "origLoc": "M16",
           "important": false,
           "tentative": false,
           "locs": [
-            "M17 UL",
-            "M17 LL"
+            "M16"
           ]
         },
         {
@@ -2865,10 +2904,11 @@
         {
           "id": "L 5538",
           "parentID": "KW 5882",
-          "origLoc": "N23",
+          "origLoc": "N22 & N23",
           "important": false,
           "tentative": false,
           "locs": [
+            "N22",
             "N23"
           ]
         },
@@ -2965,13 +3005,11 @@
         {
           "id": "L 1166",
           "parentID": "KW 5884",
-          "origLoc": "KL14/15",
+          "origLoc": "KL15",
           "important": true,
           "tentative": false,
           "locs": [
-            "K14",
             "K15",
-            "L14",
             "L15"
           ]
         },
@@ -3082,12 +3120,11 @@
         {
           "id": "L 5235",
           "parentID": "KW 5886",
-          "origLoc": "L19 LR & L20 UR",
+          "origLoc": "M19 LL",
           "important": false,
           "tentative": false,
           "locs": [
-            "L19 LR",
-            "L20 UR"
+            "M19 LL"
           ]
         },
         {
@@ -3155,12 +3192,11 @@
         {
           "id": "L 2076 ",
           "parentID": "KW 5887",
-          "origLoc": "N13 left",
+          "origLoc": "N13 LR",
           "important": false,
           "tentative": false,
           "locs": [
-            "N13 UL",
-            "N13 LL"
+            "N13 LR"
           ]
         },
         {
@@ -3250,26 +3286,36 @@
         {
           "id": "L 284",
           "parentID": "KW 5887",
-          "origLoc": "TBD",
+          "origLoc": "O14 lower & O15",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "O14 LL",
+            "O14 LR",
+            "O15"
+          ]
         },
         {
           "id": "L 294",
           "parentID": "KW 5887",
-          "origLoc": "TBD",
+          "origLoc": "O14 lower & O15",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "O14 LL",
+            "O14 LR",
+            "O15"
+          ]
         },
         {
           "id": "L 3307",
           "parentID": "KW 5887",
-          "origLoc": "TBD",
+          "origLoc": "M9 UL",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "M9 UL"
+          ]
         }
       ]
     },
@@ -3473,6 +3519,77 @@
           "locs": [
             "L16 LR2"
           ]
+        },
+        {
+          "id": "L 3570",
+          "parentID": "KW 5897",
+          "origLoc": "N11 UL & N11 LL",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "N11 UL",
+            "N11 LL"
+          ]
+        },
+        {
+          "id": "L 1500",
+          "parentID": "KW 5897",
+          "origLoc": "M11 & N11 & O11 & M12 & N12 & O12",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "M11",
+            "N11",
+            "O11",
+            "M12",
+            "N12",
+            "O12"
+          ]
+        },
+        {
+          "id": "L 1161",
+          "parentID": "KW 5897",
+          "origLoc": "J15 & K15 & J16",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "J15",
+            "K15",
+            "J16"
+          ]
+        },
+        {
+          "id": "L 1166",
+          "parentID": "KW 5897",
+          "origLoc": "K15 & L15",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K15",
+            "L15"
+          ]
+        },
+        {
+          "id": "L 601",
+          "parentID": "KW 5897",
+          "origLoc": "I15 UR & J14",
+          "important": false,
+          "tentative": true,
+          "locs": [
+            "I15 UR",
+            "J14"
+          ]
+        },
+        {
+          "id": "L 1020",
+          "parentID": "KW 5897",
+          "origLoc": "M12 & N12",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "M12",
+            "N12"
+          ]
         }
       ]
     },
@@ -3606,7 +3723,7 @@
     },
     {
       "id": "L 148",
-      "objType": "WS bowl ",
+      "objType": "WS bowl",
       "desc": "belongs to KW 11, 5735, or 5897?",
       "locationNotes": "",
       "locs": [
@@ -3667,7 +3784,7 @@
     },
     {
       "id": "L 4173",
-      "objType": "WS bowl ",
+      "objType": "WS bowl",
       "desc": "",
       "locationNotes": "",
       "locs": [
@@ -3741,6 +3858,29 @@
         "K13 UL1"
       ],
       "origLoc": "K13 UL1",
+      "fragments": [
+        {
+          "id": "L 5590",
+          "parentID": "KW 37",
+          "origLoc": "F26 UR & F26 LR",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "F26 UR",
+            "F26 LR"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "KW 87",
+      "objType": "lug-handled bowl",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [
+        "K12 LR3"
+      ],
+      "origLoc": "K12 LR3",
       "fragments": []
     },
     {
@@ -4737,10 +4877,12 @@
         {
           "id": "L 3635",
           "parentID": "L 3635+",
-          "origLoc": "TBD",
+          "origLoc": "H17 UR3",
           "important": false,
           "tentative": false,
-          "locs": []
+          "locs": [
+            "H17 UR3"
+          ]
         },
         {
           "id": "L 4020",
@@ -4930,8 +5072,8 @@
     },
     {
       "id": "KW 229",
-      "objType": "wall bracket ",
-      "desc": "fine-ware",
+      "objType": "wall bracket",
+      "desc": "",
       "locationNotes": "",
       "locs": [
         "O15 LL4"
@@ -4948,11 +5090,11 @@
         "M14 UL",
         "M14 LL"
       ],
-      "origLoc": "M14 UL/LL",
+      "origLoc": "M14 left",
       "fragments": []
     },
     {
-      "id": "KW 650",
+      "id": "KW 653",
       "objType": "wall bracket",
       "desc": "",
       "locationNotes": "",
@@ -4960,13 +5102,13 @@
         "N14 LL",
         "N14 LR"
       ],
-      "origLoc": "N14 LL/LR",
+      "origLoc": "N14 lower",
       "fragments": []
     },
     {
       "id": "KW 759",
       "objType": "wall bracket",
-      "desc": "fine-ware",
+      "desc": "",
       "locationNotes": "",
       "locs": [
         "M15 LR"
@@ -4977,7 +5119,7 @@
     {
       "id": "KW 1001",
       "objType": "wall bracket",
-      "desc": "fine-ware",
+      "desc": "",
       "locationNotes": "",
       "locs": [
         "M16 UL"
@@ -5037,21 +5179,665 @@
       "desc": "",
       "locationNotes": "",
       "locs": [
-        "B30 UL4"
+        "B30 UL3"
       ],
-      "origLoc": "B30 UL4",
+      "origLoc": "B30 UL3",
       "fragments": []
     },
     {
-      "id": "KW 87",
-      "objType": "lug-handled bowl",
+      "id": "KW 844",
+      "objType": "spindle bottle",
+      "desc": "coarse",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "KW 844",
+          "parentID": "KW 844",
+          "origLoc": "K15 LR",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K15 LR"
+          ]
+        },
+        {
+          "id": "L 8424",
+          "parentID": "KW 844",
+          "origLoc": "M21 UR2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "M21 UR2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "KW 231",
+      "objType": "spindle bottle",
+      "desc": "coarse",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "TBD w/ KW 230",
+      "fragments": []
+    },
+    {
+      "id": "KW 2558",
+      "objType": "jug (painted)",
+      "desc": "coarse",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "KW 2558",
+          "parentID": "KW 2558",
+          "origLoc": "O14 upper",
+          "important": true,
+          "tentative": false,
+          "locs": [
+            "O14 UL",
+            "O14 UR"
+          ]
+        },
+        {
+          "id": "L 4200",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L6755",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 6946",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 10923",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 11036",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 11045",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 11214",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 11216",
+          "parentID": "KW 2558",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        }
+      ]
+    },
+    {
+      "id": "KW 230",
+      "objType": "jug (trefoil)",
+      "desc": "coarse",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "TBD w/ KW 231",
+      "fragments": []
+    },
+    {
+      "id": "KW 5833",
+      "objType": "krater",
+      "desc": "coarse",
+      "locationNotes": "",
+      "locs": [
+        "M16 UL"
+      ],
+      "origLoc": "M16 UL",
+      "fragments": []
+    },
+    {
+      "id": "KW 250",
+      "objType": "pithos",
       "desc": "",
       "locationNotes": "",
       "locs": [
-        "K12 LR3"
+        "J10"
       ],
-      "origLoc": "K12 LR3",
+      "origLoc": "J10",
       "fragments": []
+    },
+    {
+      "id": "KW 251",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [
+        "M15",
+        "M16",
+        "N15",
+        "N16"
+      ],
+      "origLoc": "MN15/16",
+      "fragments": []
+    },
+    {
+      "id": "KW 252",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [
+        "K15",
+        "K16",
+        "L15",
+        "L16"
+      ],
+      "origLoc": "KL15/16",
+      "fragments": []
+    },
+    {
+      "id": "KW 253",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [
+        "I16"
+      ],
+      "origLoc": "I16",
+      "fragments": []
+    },
+    {
+      "id": "KW 254",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "KW 254",
+          "parentID": "KW 254",
+          "origLoc": "G20/21",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "G20",
+            "G21"
+          ]
+        },
+        {
+          "id": "L 4921",
+          "parentID": "KW 254",
+          "origLoc": "F21 UL3/4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "F21 UL3",
+            "F21 UL4"
+          ]
+        },
+        {
+          "id": "L 6611",
+          "parentID": "KW 254",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        }
+      ]
+    },
+    {
+      "id": "KW 255",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [
+        "E23",
+        "F23"
+      ],
+      "origLoc": "EF23",
+      "fragments": []
+    },
+    {
+      "id": "KW 256",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "KW 256",
+          "parentID": "KW 256",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 2270",
+          "parentID": "KW 256",
+          "origLoc": "J16 UL",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "J16 UL"
+          ]
+        },
+        {
+          "id": "L 4278",
+          "parentID": "KW 256",
+          "origLoc": "K16 UL3",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K16 UL3"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "KW 4596",
+      "objType": "pithos",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "L 9468",
+          "parentID": "KW 4596",
+          "origLoc": "K31 UL",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K31 UL"
+          ]
+        },
+        {
+          "id": "L 9507",
+          "parentID": "KW 4596",
+          "origLoc": "H33 UR1 & H33 UL2 & I32 UL3 & I32 LR1 & G32 UR4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "H33 UR1",
+            "H33 UL2",
+            "I32 UL3",
+            "I32 LR1",
+            "G32 UR4"
+          ]
+        },
+        {
+          "id": "L 9586",
+          "parentID": "KW 4596",
+          "origLoc": "H33 UR1 & H33 UL2 & I32 UL3 & I32 LR1 & G32 UR4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "H33 UR1",
+            "H33 UL2",
+            "I32 UL3",
+            "I32 LR1",
+            "G32 UR4"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "KW 5913",
+      "objType": "pithos #8",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "L 6133",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 7515",
+          "parentID": "KW 5913",
+          "origLoc": "L26 UR3",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "L26 UR3"
+          ]
+        },
+        {
+          "id": "L 7568",
+          "parentID": "KW 5913",
+          "origLoc": "L28 UR2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "L28 UR2"
+          ]
+        },
+        {
+          "id": "L 7634",
+          "parentID": "KW 5913",
+          "origLoc": "L29 LL2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "L29 LL2"
+          ]
+        },
+        {
+          "id": "L 7653",
+          "parentID": "KW 5913",
+          "origLoc": "L30 LL2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "L30 LL2"
+          ]
+        },
+        {
+          "id": "L 7669",
+          "parentID": "KW 5913",
+          "origLoc": "K30 LL2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "K30 LL2"
+          ]
+        },
+        {
+          "id": "L 8850",
+          "parentID": "KW 5913",
+          "origLoc": "K34 UR4 & K34 LL2 & I34 UR4 & L34 UR4 & J36 UR2",
+          "important": true,
+          "tentative": false,
+          "locs": [
+            "K34 UR4",
+            "K34 LL2",
+            "I34 UR4",
+            "L34 UR4",
+            "J36 UR2"
+          ]
+        },
+        {
+          "id": "L 9469",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L9470",
+          "parentID": "KW 5913",
+          "origLoc": "I36 LR2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "I36 LR2"
+          ]
+        },
+        {
+          "id": "L 9409",
+          "parentID": "KW 5913",
+          "origLoc": "I36 UR2/3 & I36 UL2 & J36 LL4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "I36 UR2",
+            "I36 UR3",
+            "I36 UL2",
+            "J36 LL4"
+          ]
+        },
+        {
+          "id": "L 10267",
+          "parentID": "KW 5913",
+          "origLoc": "I37 LL1",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "I37 LL1"
+          ]
+        },
+        {
+          "id": "L 8484",
+          "parentID": "KW 5913",
+          "origLoc": "O21 UL",
+          "important": false,
+          "tentative": true,
+          "locs": [
+            "O21 UL"
+          ]
+        },
+        {
+          "id": "L 787 ",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": true,
+          "locs": []
+        },
+        {
+          "id": "L 5033 Tentative",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 11620 Tentative",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 1174 Tentative",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 2579 Tentative",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 5983 Tentative",
+          "parentID": "KW 5913",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        }
+      ]
+    },
+    {
+      "id": "KW 5914",
+      "objType": "pithos #9",
+      "desc": "",
+      "locationNotes": "",
+      "locs": [],
+      "origLoc": "",
+      "fragments": [
+        {
+          "id": "L 205",
+          "parentID": "KW 5914",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 221",
+          "parentID": "KW 5914",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 244",
+          "parentID": "KW 5914",
+          "origLoc": "I14 UR4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "I14 UR4"
+          ]
+        },
+        {
+          "id": "L 246",
+          "parentID": "KW 5914",
+          "origLoc": "I14 UR4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "I14 UR4"
+          ]
+        },
+        {
+          "id": "L 556",
+          "parentID": "KW 5914",
+          "origLoc": "J13 UR",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "J13 UR"
+          ]
+        },
+        {
+          "id": "L 1586",
+          "parentID": "KW 5914",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 4012",
+          "parentID": "KW 5914",
+          "origLoc": "F21 UR2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "F21 UR2"
+          ]
+        },
+        {
+          "id": "L 4586",
+          "parentID": "KW 5914",
+          "origLoc": "F20 LR3",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "F20 LR3"
+          ]
+        },
+        {
+          "id": "L 4821",
+          "parentID": "KW 5914",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 5918",
+          "parentID": "KW 5914",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        },
+        {
+          "id": "L 6339",
+          "parentID": "KW 5914",
+          "origLoc": "G22 LR1/2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "G22 LR1",
+            "G22 LR2"
+          ]
+        },
+        {
+          "id": "L 7145",
+          "parentID": "KW 5914",
+          "origLoc": "G19 LR4",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "G19 LR4"
+          ]
+        },
+        {
+          "id": "L 7566",
+          "parentID": "KW 5914",
+          "origLoc": "G20 LR3/4 & G21 UR1/2",
+          "important": false,
+          "tentative": false,
+          "locs": [
+            "G20 LR3",
+            "G20 LR4",
+            "G21 UR1",
+            "G21 UR2"
+          ]
+        },
+        {
+          "id": "L 5067",
+          "parentID": "KW 5914",
+          "origLoc": "",
+          "important": false,
+          "tentative": false,
+          "locs": []
+        }
+      ]
     }
   ]
 }
