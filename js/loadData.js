@@ -80,9 +80,7 @@ function loadSourceData(rawData) {
     })
 
     function parseCategories(o) {
-        var letterRegex = /(?<letter>[A-Z]+).*/
-        var letterParsed = o.id.match(letterRegex)
-        return [letterParsed.groups.letter, o.objType.trim()]
+        return [o.objType.trim()]
     }
 
     // https://html-color.codes/

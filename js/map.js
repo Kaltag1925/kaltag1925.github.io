@@ -625,8 +625,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     // }
 
     toggleMap(model.globalState.showMap)
-    togglePithoi(model.globalState.showPithoi)
-    toggleRocks(model.globalState.showRocks)
 
     if (model.globalState.hideKey) {
       toggleKey(false)
@@ -1245,47 +1243,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       image.style('visibility', 'visible')
     } else {
       image.style('visibility', 'hidden')
-    }
-  }
-
-  function togglePithoi(toggle) {
-    if (toggle) {
-      points.append("g")
-      .attr("id", "pithoi")
-      .selectAll("pithoi")
-      .data([[66, 13], [77,12], [69, 20], [70, 12]]) //TODO: Real Data
-      .join("circle")
-        .attr("cx", d => x(d[0]))
-        .attr("cy", d => y(d[1]))
-        .attr("stroke", "pink")
-        //.attr("data", d => (d))
-        .attr("r", 20)
-        .attr("id", d =>  "point" + d.x + "-" + d.y + "")
-    // .style("cursor", "pointer")
-    //     .on("click", mapIconClicked)
-    } else {
-      points.select("#pithoi").remove()
-    }
-  }
-
-  var rockSVG = d3.xml('imgs/rock.svg')
-  function toggleRocks(toggle) {
-    if (toggle) {
-      points.append("g")
-      .attr("id", "rocks")
-      .selectAll("rock")
-      .data([[68,15], [72,12], [73, 20], [74, 10]]) //TODO: Real Data
-      .join("circle")
-        .attr("cx", d => x(d[0]))
-        .attr("cy", d => y(d[1]))
-        .attr("stroke", "grey")
-        //.attr("data", d => (d))
-        .attr("r", 20)
-        .attr("id", d =>  "point" + d.x + "-" + d.y + "")
-    // .style("cursor", "pointer")
-    //     .on("click", mapIconClicked)
-    } else {
-      points.select("#rocks").remove("*")
     }
   }
 

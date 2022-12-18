@@ -311,8 +311,8 @@ html, body, #fullheight {
     w2ui["navigation"].destroy()
 
     loadNewModel(sourceData)
-    startMap()
     loadUI()
+    startMap()
   }
 
   function reload() {
@@ -443,8 +443,7 @@ function loadNavigation() {
     handle: {
         size: 22,
         style: `height: 22px; width: 22px; margin-top: 1px; margin-left: 0px`,
-        html: `<div name="toggle" onclick='w2ui.navigation.toggle(this, event)'
-            ></div>`
+        html: `<div name="toggle" onclick='w2ui.navigation.toggle(this, event)'></div>`
     },
     // https://blog.davidcassel.net/2010/01/why-is-it-flickering/ i love this man <3<3<3 TODO: tooltips?
     toggle(el) {
@@ -457,6 +456,15 @@ function loadNavigation() {
       }
       event.preventDefault()
       event.stopPropagation()
+    },
+    onClick: function(event) {
+      var objectID = event.object.id
+
+      if (getObjectState(objectID).visible) {
+        loadObjectInfoPanel(objectID)
+        highlightObject(objectID)
+        updateModel(function() {model.globalState.selectedObject = objectID})
+      }
     },
     onRefresh(event) {
       event.done(() => {
@@ -589,46 +597,6 @@ function loadMapOptions() {
   mapToggle.append("label")
     .attr("for", "mapToggle")
     .html("Toggle Map")
-
-/*
-  mapOptions.append("input")
-    .attr("id", "pithoiToggle")
-    .attr("type", "checkbox")
-    .property("checked", () => {return model.globalState.showPithoi})
-    .on("click", (e) => {
-      if (d3.select(e.target).property("checked")) {
-        updateModel(function() {model.globalState.showPithoi = true})
-        togglePithoi(true)
-      } else {
-        updateModel(function() {model.globalState.showPithoi = false})
-        togglePithoi(false)
-      }
-    })
-
-  mapOptions.append("label")
-    .attr("for", "pithoiToggle")
-    .html("Toggle Pithoi")*/
-
-  
-  var rocksToggle = mapOptions.append("div")
-
-  rocksToggle.append("input")
-    .attr("id", "rocksToggle")
-    .attr("type", "checkbox")
-    .property("checked", () => {return model.globalState.showRocks})
-    .on("click", (e) => {
-      if (d3.select(e.target).property("checked")) {
-        updateModel(function() {model.globalState.showRocks = true})
-        toggleRocks(true)
-      } else {
-        updateModel(function() {model.globalState.showRocks = false})
-        toggleRocks(false)
-      }
-    })
-
-  rocksToggle.append("label")
-    .attr("for", "rocksToggle")
-    .html("Toggle Rocks")
 
   var mouseCoordinatesToggle = mapOptions.append("div")
 
