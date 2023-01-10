@@ -13,6 +13,8 @@ Then go here: [localhost:5000](localhost:5000)
 
 [Google Drive](https://drive.google.com/file/d/1123-OkrgLOjJL_gHSwlRZk0zlLD-ZgD9/view?usp=sharing)
 
+[User Guide](https://docs.google.com/document/d/19VjY2Gr94Yhe_Sr8lX2hm3SVmbmiNEuvnQXIWcK6C6Q/edit?usp=sharing)
+
 # Input Format
 
 ```JSON
