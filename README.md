@@ -9,7 +9,7 @@ Then go here: [localhost:5000](localhost:5000)
 
 # Useful links
 
-[Website](kaltag1925.github.io)
+[Website](https://kaltag1925.github.io)
 
 [User Stories](https://docs.google.com/document/d/1I1vr9eFYHYX-6HpOVjLMBmy1yX75cQWj7ELIRjTYFyI/edit?usp=sharing)
 
