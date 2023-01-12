@@ -3,7 +3,7 @@ function readWreckDataFile() {
     d3.json("uluburun.json").then(data => {
         sourceData = loadSourceData(data);
         loadModel(sourceData)
-        //loadSaveStateModel()
+        loadSaveStateModel()
         loadUI()
         startMap()
         console.log("Finish")

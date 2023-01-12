@@ -300,7 +300,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
     }
 
     if (model.globalState.clickMethod) {
-      console.log("ran")
       removeOverlap()
       event.stopPropagation()
       var mouse = d3.pointer(event)
@@ -1017,10 +1016,11 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
       removeObjectLabels(objectID)
     } else {
       d3.select(`#${objectID}Labels`)
-      .style("paint-order", "")
-      .style("stroke", "")
+      .selectAll("text")
+      .style("paint-order", "stroke")
+      .style("stroke", "black")
       .style("stroke-width", 8)
-      .attr("fill", "black")
+      .attr("fill", "white")
     }
 
     d3.select(`#${objectID}Dots`)
@@ -1054,7 +1054,6 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   }
 
   function unhighlightObject(objectID) {
-    console.log("Unhighlighting", objectID)
     selectedObject.html("")
     removeHighlightLabels(objectID)
   }

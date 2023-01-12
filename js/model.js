@@ -16,16 +16,15 @@ function updateSaveModel(func) {
 
 
 function saveModel() {
-    window.localStorage.setItem("model", JSON.stringify(model, replacer))
+    window.localStorage.setItem("model", serializeAModel(model))
 }
 
 function saveSaveStateModel() {
-    window.localStorage.setItem("saveStateModel", JSON.stringify(saveStateModel, replacer))
+    window.localStorage.setItem("saveStateModel", serializeAModel(saveStateModel))
 }
 
-//TODO: Some sort of error checking?
-function exportModel() {
-    return JSON.stringify(model, replacer)
+function serializeAModel(m) {
+    return JSON.stringify(m, replacer)
 }
 
 function importModel(modelStr) {
@@ -34,13 +33,15 @@ function importModel(modelStr) {
         if (modelObj.isModel) {
             model = modelObj
             reload()
-            alert("Model Imported")
+            return true
         } else { //corrupt or smthn
-            alert("Invalid Code or something went wrong")
+            //alert("Invalid Code or something went wrong")
+            return false
         }
     } catch (error) {
         console.log(error)
-        alert("Invalid Code or something went wrong")
+        //alert("Invalid Code or something went wrong")
+        return false
     }
 }
 
@@ -63,6 +64,7 @@ function loadModel(sourceData) {
     }
 }
 
+//todo error checkin
 function loadSaveStateModel() {
     try {
         var modelStr = window.localStorage.getItem("saveStateModel")
@@ -103,19 +105,9 @@ function reviver(key, value) {
     return value;
 }
 
+// TODO: CLEANUP to load a blank one by default then update with saved values
 var saveStateModel = {
-    save1: {
-        name: "Save 1",
-        data: null
-    },
-    save2: {
-        name: "Save 2",
-        data: null
-    },
-    save3: {
-        name: "Save 3",
-        data: null
-    }
+    saves: []
 }
 
 function loadSave(save) {
@@ -124,19 +116,10 @@ function loadSave(save) {
 
 function loadNewSaveStateModel() {
     saveStateModel = {
-        save1: {
-            name: "Save 1",
-            data: null
-        },
-        save2: {
-            name: "Save 2",
-            data: null
-        },
-        save3: {
-            name: "Save 3",
-            data: null
-        }
+        isModel: true,
+        saves: []
     }
+    
 }
 
 function loadNewModel(sourceData) {
