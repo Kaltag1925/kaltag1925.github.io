@@ -6,7 +6,29 @@ function readWreckDataFile() {
         loadSaveStateModel()
         loadUI()
         startMap()
-        console.log("Finish")
+
+        /* 
+            this is really stupid but there is some weird bug with the
+            transform property of zoom events in D3 that here when the page is first loaded
+            on a new window or tab it doesnt register changes in x and y positions, only after
+            it waits a bit and refreshes. and I literally have 0 idea how to debug this or what to
+            look up for answers since all the answers I get on google are "zoom not working DX help pl0x"
+            and arent related to this bug. its so obscure I dont even know how to describe it
+        */
+
+        new Promise(r => {
+            setTimeout(r, 1000)
+          }).then(() => {
+            if (window.localStorage.getItem("reloaded") == "false") {
+                console.log(true)
+                window.localStorage.setItem("reloaded", true)
+                window.location.reload();
+            } else {
+                window.localStorage.setItem("reloaded", false)
+                console.log("Finish")
+            }
+          })
+        
     })
 }
 

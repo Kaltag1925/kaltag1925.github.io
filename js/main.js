@@ -72,7 +72,7 @@ function loadUI() {
   loadNavigation();
   loadNavigationToolbar();
   loadMapOptions();
-
+  
   console.log("Finished Loading UI");
 }
 
