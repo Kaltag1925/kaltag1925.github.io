@@ -577,12 +577,15 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
   }
 
   function zoomed({transform}) {
+    console.log("zoomed")
     gridX = transform.rescaleX(x).interpolate(d3.interpolateRound);
     gridY = transform.rescaleY(y).interpolate(d3.interpolateRound);
     gx.call(xAxis, gridX);
     gy.call(yAxis, gridY);
     
     chart.attr("transform", transform).attr("stroke-width", 5 / transform.k);
+    console.log(event)
+    console.log(transform)
 
     chart.style("stroke-width", 3 / Math.sqrt(transform.k));
     points.attr("r", 10 / Math.sqrt(transform.k));
@@ -602,10 +605,10 @@ function drawSpecificGrid(event) { // maybe add an if statement that detects if 
 
   function readModel() {
 
-    if (model.globalState.transform != null) {
-      zoom.scaleBy(svg, model.globalState.transform.k)
-      zoom.translateBy(svg, model.globalState.transform.x, model.globalState.transform.y)
-    } // TODO FIX
+    // if (model.globalState.transform != null) {
+    //   zoom.scaleBy(svg, model.globalState.transform.k)
+    //   zoom.translateBy(svg, model.globalState.transform.x, model.globalState.transform.y)
+    // } // TODO FIX
 
     model.objectStates.forEach((obj, id) => {
       if (obj.visible) {
