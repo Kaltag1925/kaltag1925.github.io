@@ -72,7 +72,7 @@ function loadUI() {
   loadNavigation();
   loadNavigationToolbar();
   loadMapOptions();
-  
+
   console.log("Finished Loading UI");
 }
 
@@ -279,7 +279,8 @@ function loadMenuBar() {
 var notifications = 0
 function displayNotification(text, callback) {
     if (callback == null) {
-      //"temporary" fix until I figure out how I want to handle notifications
+      //"temporary" fix until I figure out how I want to handle notifications without undo buttons
+      //maybe they come from the top?
     } else {
     if (callback != null) {
       d3.select("#undoButton").style("display", "")
